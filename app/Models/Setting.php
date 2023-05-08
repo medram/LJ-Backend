@@ -11,6 +11,9 @@ class Setting extends Model
 
     protected static $all_settings = [];
 
+    public $timestamps = false;
+
+
     public function getSetting($key)
     {
         if (isset($all_settings[$key]))
