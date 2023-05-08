@@ -28,11 +28,20 @@ return new class extends Migration
         Schema::create('plans', function(Blueprint $table){
             $table->id();
             $table->string('name');
+            $table->string('description')->nullable();
             $table->float('price', 8, 2)->default(0.0);
             $table->text('features')->nullable();
-            $table->boolean('is_active')->default(false);
-            $table->boolean('is_visible')->default(false);
-            $table->boolean('private_profile')->default(false);
+
+            $table->boolean('status')->default(false);
+            $table->boolean('is_free')->default(false);
+            $table->boolean('is_popular')->default(false);
+            $table->string('billing_cycle')->default("monthly"); // monthly | yearly
+
+            $table->integer('pdfs_per_day')->default(0);
+            $table->integer('questions_per_day')->default(0);
+            $table->integer('pdf_size')->default(0);
+            $table->integer('pdf_pages')->default(0);
+
             $table->timestamps();
         });
 
@@ -43,39 +52,43 @@ return new class extends Migration
             $table->text('value');
         });
 
-        // Invoice table
-        Schema::create("invoices", function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('user_id')->constrained('users');
-            $table->foreignId('plan_id')->constrained('plans');
-
-            $table->boolean('is_paid')->default(false);
-            $table->timestamp('paid_at')->nullable();
-            $table->timestamps();
-        });
-
         // Subscription table
         Schema::create('subscriptions', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users');
             $table->foreignId('plan_id')->constrained('plans');
 
-            $table->integer('image_quota')->default(0);
-            $table->boolean('private_profile')->default(false);
-            $table->integer('duration')->default(0);
-            $table->timestamp('registered_at')->nullable();
+            $table->boolean('status')->default(false);
+            $table->timestamp('expiring_at')->nullable();
+
+            $table->integer('pdfs_per_day')->default(0);
+            $table->integer('questions_per_day')->default(0);
+            $table->integer('pdf_size')->default(0);
+            $table->integer('pdf_pages')->default(0);
 
             $table->timestamps();
         });
 
-        // Images table
-        Schema::create('images', function (Blueprint $table) {
+        // Invoice table
+        Schema::create("invoices", function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('user_id')->constrained('users');
+            $table->foreignId('plan_id')->constrained('plans');
+            $table->foreignId('subscription_id')->constrained('subscriptions');
+
+            $table->boolean('is_paid')->default(false);
+            $table->timestamp('paid_at')->nullable();
+            $table->timestamps();
+        });
+
+        // PDFs table
+        Schema::create('pdfs', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users');
 
-            $table->text('prompt')->nullable();
-            $table->string('resolution')->nullable();
-            $table->string('path')->nullable();
+            $table->string('name');
+            $table->string('path');
+            $table->string('hash')->nullable();
 
             $table->timestamps();
         });
@@ -88,7 +101,7 @@ return new class extends Migration
     {
         Schema::dropIfExists('subscriptions');
         Schema::dropIfExists('plans');
-        Schema::dropIfExists('images');
+        Schema::dropIfExists('pdfs');
         Schema::dropIfExists('invoices');
         Schema::dropIfExists('settings');
     }
