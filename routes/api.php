@@ -8,6 +8,8 @@ use App\Http\Controllers\CommonController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\PagesController;
+use App\Http\Controllers\AdminController;
+use App\Http\Controllers\UploadController;
 
 use App\Http\Middleware\UserRequired;
 use App\Http\Middleware\AdminRequired;
@@ -68,5 +70,6 @@ Route::prefix('v1')->group(function (){
         Route::get('pages/details/{id}', [PagesController::class, 'details'])->where('id', "[0-9]+");
         Route::post('pages/delete', [PagesController::class, 'delete']);
 
+        Route::post('upload', [UploadController::class, 'upload']);
     });
 });
