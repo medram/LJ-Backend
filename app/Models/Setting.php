@@ -31,9 +31,26 @@ class Setting extends Model
         // reformat it as a JSON.
         foreach(Setting::all() as $setting)
         {
-            Setting::$all_settings[$setting->name] = $setting->value;
+            $value = self::parse_value($setting);
+
+            Setting::$all_settings[$setting->name] = $value;
         }
 
         return Setting::$all_settings;
+    }
+
+    public static function parse_value($setting)
+    {
+        // avoid returning null values.
+        $value = $setting->value === null ? "" : $setting->value;
+
+        if ($setting->type === "boolean")
+            $value = ($value == "0" or $value == "false")? false : true;
+        else if ($setting->type === "int" or $setting->type === "integer")
+            $value = (int)$value;
+        else if ($setting->type === "float")
+            $value = (float)$value;
+
+        return $value;
     }
 }

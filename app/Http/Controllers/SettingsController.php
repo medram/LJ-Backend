@@ -9,6 +9,28 @@ use App\Models\Setting;
 
 class SettingsController extends Controller
 {
+    public $private_settings = [
+        //e.g. "SITE_NAME",
+    ];
+
+    public function publicSettings(Request $request)
+    {
+        $settings = getAllSettings();
+        $filtered_settings = [];
+
+        // TODO: filters out private settings
+        foreach ($settings as $name => $value)
+        {
+            if (!in_array($name, $this->private_settings))
+                $filtered_settings[$name] = $value;
+        }
+
+        return response()->json([
+            "error" => false,
+            "settings" => $filtered_settings
+        ]);
+    }
+
     public function list(Request $request)
     {
         $settings = getAllSettings();
@@ -30,7 +52,7 @@ class SettingsController extends Controller
                 $option = Setting::where('name', $key)->get()->first();
                 if ($option)
                 {
-                    $option->value = $value;
+                    $option->value = $value === null? "" : $value;
                     $option->save();
                 }
             }

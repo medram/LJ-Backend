@@ -10,6 +10,7 @@ use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\PagesController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\UploadController;
+use App\Http\Controllers\PlansController;
 
 use App\Http\Middleware\UserRequired;
 use App\Http\Middleware\AdminRequired;
@@ -34,7 +35,7 @@ Route::prefix('v1')->group(function (){
 
     // Global date
     Route::get('/plans', [CommonController::class, "plans"])->name('plans');
-    Route::get('/settings', [CommonController::class, "settings"])->name('settings');
+    Route::get('/settings', [SettingsController::class, "publicSettings"])->name('settings');
 
     // Users section
     Route::prefix('user')->middleware([UserRequired::class])->group(function (){
@@ -44,9 +45,6 @@ Route::prefix('v1')->group(function (){
         Route::post('profile', [UserController::class, 'updateProfile']);
 
         Route::get('subscription', [UserController::class, 'subscription']);
-
-        Route::get('gallery', [UserController::class, 'gallery']);
-
     });
 
     // Admin section
@@ -56,8 +54,6 @@ Route::prefix('v1')->group(function (){
         Route::post('customers/edit/{id}', [CustomerController::class, 'edit'])->where('id', "[0-9]+");
         Route::get('customers/details/{id}', [CustomerController::class, 'details'])->where('id', "[0-9]+");
         Route::post('customers/delete', [CustomerController::class, 'delete']);
-
-        Route::get('plans', [PlansController::class, 'list']);
 
         # managing site settings.
         Route::get('settings', [SettingsController::class, 'list']);
@@ -70,6 +66,14 @@ Route::prefix('v1')->group(function (){
         Route::get('pages/details/{id}', [PagesController::class, 'details'])->where('id', "[0-9]+");
         Route::post('pages/delete', [PagesController::class, 'delete']);
 
+        # Upload images / files.
         Route::post('upload', [UploadController::class, 'upload']);
+
+        # Manage plans
+        Route::get('plans', [PlansController::class, 'list']);
+        Route::post('plans/add', [PlansController::class, 'add']);
+        Route::post('plans/edit/{id}', [PlansController::class, 'edit'])->where('id', "[0-9]+");
+        Route::get('plans/details/{id}', [PlansController::class, 'details'])->where('id', "[0-9]+");
+        Route::post('plans/delete', [PlansController::class, 'delete']);
     });
 });

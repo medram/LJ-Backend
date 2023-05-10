@@ -37,8 +37,8 @@ return new class extends Migration
             $table->boolean('is_popular')->default(false);
             $table->string('billing_cycle')->default("monthly"); // monthly | yearly
 
-            $table->integer('pdfs_per_day')->default(0);
-            $table->integer('questions_per_day')->default(0);
+            $table->integer('pdfs')->default(0);
+            $table->integer('questions')->default(0);
             $table->integer('pdf_size')->default(0);
             $table->integer('pdf_pages')->default(0);
 
@@ -49,7 +49,8 @@ return new class extends Migration
         Schema::create("settings", function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->text('value');
+            $table->text('value')->nullable()->default("");
+            $table->string('type')->default("string"); # string | int | integer | float | boolean
         });
 
         // Subscription table
@@ -61,8 +62,8 @@ return new class extends Migration
             $table->boolean('status')->default(false);
             $table->timestamp('expiring_at')->nullable();
 
-            $table->integer('pdfs_per_day')->default(0);
-            $table->integer('questions_per_day')->default(0);
+            $table->integer('pdfs')->default(0);
+            $table->integer('questions')->default(0);
             $table->integer('pdf_size')->default(0);
             $table->integer('pdf_pages')->default(0);
 

@@ -12,7 +12,8 @@ class PlansController extends Controller
 
     public function list()
     {
-        $plans = Plan::where('active', 1)->orderBy('id', 'DESC')->get();
+        //$plans = Plan::where('status', 1)->get();
+        $plans = Plan::all();
 
         return response()->json([
             'errors' => false,
