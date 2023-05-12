@@ -39,7 +39,7 @@ return new class extends Migration
 
             $table->integer('pdfs')->default(0);
             $table->integer('questions')->default(0);
-            $table->integer('pdf_size')->default(0);
+            $table->float('pdf_size')->default(0);
             $table->integer('pdf_pages')->default(0);
 
             $table->timestamps();
