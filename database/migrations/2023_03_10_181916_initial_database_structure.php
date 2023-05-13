@@ -42,6 +42,7 @@ return new class extends Migration
             $table->float('pdf_size')->default(0);
             $table->integer('pdf_pages')->default(0);
 
+            $table->boolean('soft_delete')->default(false);
             $table->timestamps();
         });
 

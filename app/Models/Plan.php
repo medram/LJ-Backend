@@ -22,7 +22,8 @@ class Plan extends Model
         "pdfs",
         "price",
         "questions",
-        "status"
+        "status",
+        "soft_delete"
     ];
 
 

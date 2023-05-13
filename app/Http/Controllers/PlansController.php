@@ -15,7 +15,7 @@ class PlansController extends Controller
     public function list()
     {
         //$plans = Plan::where('status', 1)->get();
-        $plans = Plan::all();
+        $plans = Plan::where("soft_delete", 0)->get();
 
         return response()->json([
             'errors' => false,
@@ -57,7 +57,7 @@ class PlansController extends Controller
 
     public function edit(Request $request, $id)
     {
-        $plan = plan::where('id', $id)->get()->first();
+        $plan = plan::where(['id' => $id, 'soft_delete' => 0])->get()->first();
 
         if ($plan)
         {
@@ -97,5 +97,28 @@ class PlansController extends Controller
             'errors' => true,
             'message' => "Plan not found."
         ]);
+    }
+
+    public function delete(Request $request)
+    {
+        $id = $request->json("id");
+
+        $plan = Plan::where(['id' => $id, 'soft_delete' => 0])->get()->first();
+        if ($plan)
+        {
+            $plan->update(['soft_delete' => 1]);
+
+            return response()->json([
+                'errors' => false,
+                'message' => "Deleted successfully."
+            ]);
+        }
+        else
+        {
+            return response()->json([
+                'errors' => true,
+                'message' => "Something went wrong."
+            ]);
+        }
     }
 }

@@ -73,7 +73,7 @@ Route::prefix('v1')->group(function (){
         Route::get('plans', [PlansController::class, 'list']);
         Route::post('plans/add', [PlansController::class, 'add']);
         Route::post('plans/edit/{id}', [PlansController::class, 'edit'])->where('id', "[0-9]+");
-        Route::get('plans/details/{id}', [PlansController::class, 'details'])->where('id', "[0-9]+");
+        #Route::get('plans/details/{id}', [PlansController::class, 'details'])->where('id', "[0-9]+");
         Route::post('plans/delete', [PlansController::class, 'delete']);
     });
 });
