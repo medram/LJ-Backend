@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
 use App\Models\User;
+use App\Rules\StripTagsRule;
 
 
 class CustomerController extends Controller
@@ -24,12 +25,14 @@ class CustomerController extends Controller
 
     public function add(Request $request)
     {
-        $data = $request->validate([
-            "username"  => "required|min:4|max:25",
+        $request->validate([
+            "username"  => ["required", "min:4", "max:25", new StripTagsRule],
             "email"     => "required|email|unique:users",
             "password"  => "required|min:6|max:40",
             "is_active" => "required",
         ]);
+
+        $data = $request->all();
 
         $data['name'] = $data['username'];
         $data['password'] = Hash::make($data['password']);
@@ -46,12 +49,14 @@ class CustomerController extends Controller
 
     public function edit(Request $request, $id)
     {
-        $fields = $request->validate([
-            "username"  => "required|string|min:4",
+        $request->validate([
+            "username"  => ["required", "min:4", "max:25", new StripTagsRule],
             "email" => "required|email",
             "password" => "string|nullable",
             "is_active" => "boolean"
         ]);
+
+        $fields = $request->all();
 
         $customer = User::where('id', $id)->first();
         $customer->username = $fields['username'];

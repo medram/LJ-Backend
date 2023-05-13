@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 
 use App\Models\Page;
+use App\Rules\StripTagsRule;
 
 
 class PagesController extends Controller
@@ -21,14 +22,14 @@ class PagesController extends Controller
 
     public function add(Request $request)
     {
-        $fields = $request->validate([
-            'title'     => "required",
-            'slug'      => "required|unique:pages",
-            'content'   => "nullable",
+        $request->validate([
+            'title'     => ["required", "string", new StripTagsRule],
+            'slug'      => ["required", "unique:pages", new StripTagsRule],
+            'content'   => ["string", "nullable"],
             'status'    => "boolean"
         ]);
 
-        $page = Page::create($fields);
+        $page = Page::create($request->all());
 
         if ($page)
         {
@@ -47,14 +48,14 @@ class PagesController extends Controller
 
         if ($page)
         {
-            $fields = $request->validate([
-                'title'     => "required",
-                'slug'      => "required|unique:pages,id,{$id}",
-                'content'   => "nullable",
+            $request->validate([
+                'title'     => ["required", "string", new StripTagsRule],
+                'slug'      => ["required", "unique:pages,id,{$id}", new StripTagsRule],
+                'content'   => ["string", "nullable"],
                 'status'    => "boolean"
             ]);
 
-            $page->update($fields);
+            $page->update($request->all());
 
             return response()->json([
                 'errors' => false,
