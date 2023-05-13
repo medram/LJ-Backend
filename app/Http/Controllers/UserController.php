@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
 use App\Models\User;
-
+use App\Rules\StripTagsRule;
 
 
 class UserController extends Controller
@@ -87,11 +87,12 @@ class UserController extends Controller
 
     public function updateProfile(Request $request)
     {
-        $fields = $request->validate([
-            "username"  => ["required", "string", "min:4"],
+        $request->validate([
+            "username"  => ["required", "string", "min:4", new StripTagsRule],
             "email" => ["required", "email"]
         ]);
 
+        $fields = $request->all();
         $user = $request->user();
         $user->username = $fields['username'];
         $user->email = $fields['email'];
@@ -110,19 +111,6 @@ class UserController extends Controller
         ]);
     }
 
-    public function gallery(Request $request)
-    {
-        $user = $request->user();
-        //$images = Gallery::where('user_id', $user->id)->get();
-
-        $images = $user->images()->get();
-
-        return response()->json([
-            "error" => false,
-            "images" => $images
-        ]);
-    }
-
     public function subscription(Request $request)
     {
         $user = $request->user();
@@ -137,12 +125,13 @@ class UserController extends Controller
 
     public function register(Request $request)
     {
-        $data = $request->validate([
-            "username"  => "required|min:4|max:25",
+        $request->validate([
+            "username"  => ["required", "min:4", "max:25", new StripTagsRule],
             "email"     => "required|email|unique:users",
             "password"  => "required|min:6|max:40"
         ]);
 
+        $data = $request->all();
         $data['name'] = $data['username'];
         $data['password'] = Hash::make($data['password']);
 
