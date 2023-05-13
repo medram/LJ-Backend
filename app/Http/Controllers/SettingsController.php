@@ -44,6 +44,8 @@ class SettingsController extends Controller
     public function update(Request $request)
     {
         $fields = $request->json()->all();
+        // Filter input fields against XSS attacks.
+        $fields = Setting::filterInputs($fields);
 
         try
         {

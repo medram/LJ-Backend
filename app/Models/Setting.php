@@ -13,6 +13,9 @@ class Setting extends Model
 
     public $timestamps = false;
 
+    public static $ACCEPT_HTML = [
+        "HEAD_CODE",
+    ];
 
     public function getSetting($key)
     {
@@ -52,5 +55,48 @@ class Setting extends Model
             $value = (float)$value;
 
         return $value;
+    }
+
+    public static function filterInput($name, $value, $type="string")
+    {
+
+        if (in_array($name, self::$ACCEPT_HTML))
+            return $value;
+
+        if ($type === "bool" or $type === "boolean")
+            return $value == 0 ? 0 : 1;
+
+        if ($type === "int" or $type === "integer")
+            return intval($value);
+
+        if ($type === "float")
+            return (float)$value;
+
+        return strip_tags($value);
+    }
+
+    public static function filterInputs($fields)
+    {
+        $types = self::getTypes();
+        $filtered_fields = [];
+
+        foreach ($fields as $name => $value)
+        {
+            $type = $types[$name];
+            $filtered_fields[$name] = self::filterInput($name, $value, $type);
+        }
+
+        return $filtered_fields;
+    }
+
+    public static function getTypes()
+    {
+        $all_settings = Setting::all();
+        $types = [];
+        foreach($all_settings as $setting)
+        {
+            $types[$setting->name] = $setting->type;
+        }
+        return $types;
     }
 }
