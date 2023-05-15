@@ -36,6 +36,7 @@ Route::prefix('v1')->group(function (){
     // Global date
     Route::get('/plans', [CommonController::class, "plans"])->name('plans');
     Route::get('/settings', [SettingsController::class, "publicSettings"])->name('settings');
+    Route::get('/payment-methods', [CommonController::class, "paymentMethods"])->name('payment_methods');
 
     // Users section
     Route::prefix('user')->middleware([UserRequired::class])->group(function (){
