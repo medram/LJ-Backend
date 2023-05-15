@@ -17,16 +17,16 @@ class Setting extends Model
         "HEAD_CODE",
     ];
 
-    public function getSetting($key)
+    public static function getSetting($key)
     {
-        if (isset($all_settings[$key]))
-            return $all_settings[$key];
+        if (isset(Setting::$all_settings[$key]))
+            return Setting::$all_settings[$key];
 
         // refresh settings then get the value
         //return $this::where('name', $key)->first();
         Setting::getAllSettings();
 
-        return isset($all_settings[$key])? $all_settings[$key] : null;
+        return isset(Setting::$all_settings[$key])? Setting::$all_settings[$key] : null;
     }
 
     public static function getAllSettings()
