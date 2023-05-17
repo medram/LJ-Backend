@@ -48,16 +48,16 @@ class UserController extends Controller
     {
         $token = userToken($request);
         $user = User::where('api_token', hash('sha256', $token))->first();
-        if (!$user)
+        if ($user)
         {
-            return response()->json([
-                'errors' => true,
-                'message' => 'A valid User token required!'
-            ], 403);
+            $user->api_token = null;
+            $user->save();
         }
-
-        $user->api_token = null;
-        $user->save();
+        /*
+        return response()->json([
+            'errors' => true,
+            'message' => 'A valid User token required!'
+        ], 403);*/
 
         // Used for sessions (Not required).
         Auth::logout();
