@@ -11,6 +11,7 @@ use App\Http\Controllers\PagesController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\UploadController;
 use App\Http\Controllers\PlansController;
+use App\Http\Controllers\CheckoutController;
 
 use App\Http\Middleware\UserRequired;
 use App\Http\Middleware\AdminRequired;
@@ -37,6 +38,11 @@ Route::prefix('v1')->group(function (){
     Route::get('/plans', [CommonController::class, "plans"])->name('plans');
     Route::get('/settings', [SettingsController::class, "publicSettings"])->name('settings');
     Route::get('/payment-methods', [CommonController::class, "paymentMethods"])->name('payment_methods');
+
+    // Checkout
+    Route::get('/checkout/paypal/plan/{id}', [CheckoutController::class, "getPayPalPlanId"])
+        ->where('id', "[0-9]+")
+        ->name("paypal_plan_id");
 
     // Users section
     Route::prefix('user')->middleware([UserRequired::class])->group(function (){
