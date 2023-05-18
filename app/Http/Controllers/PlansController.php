@@ -78,6 +78,30 @@ class PlansController extends Controller
             try {
                 $plan->update($request->all());
 
+                // Update PayPal plan (pricing)
+                if ($plan->paypal_plan_id && !$plan->isFree())
+                {
+                    $paypal = getPayPalGateway();
+                    $paypalPlan = $paypal->getPlanById($plan->paypal_plan_id);
+                    if ($paypalPlan)
+                    {
+                        // update paypal plan pricing
+                        if ($paypalPlan->getPrice() != $plan->price)
+                            $paypalPlan->updatePricing($plan->price);
+
+                        // Update plan status
+                        if ($plan->status == 1 && $paypalPlan->status == "INACTIVE")
+                        {
+                            $paypalPlan->activate();
+                        }
+                        else if ($plan->status == 0 && $paypalPlan->status == "ACTIVE")
+                        {
+                            $paypalPlan->deactivate();
+                        }
+                    }
+                    // May need to create a PayPal plan from db_plan (in case plan deleted from PayPal dashboard.)
+                }
+
                 return response()->json([
                     'errors' => false,
                     'message' => "Updated successfully.",

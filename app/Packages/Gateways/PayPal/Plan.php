@@ -213,15 +213,17 @@ class Plan extends WrapperMixin
 		return false;
 	}
 
-	public function updatePrice(float $price)
+	public function updatePricing(float $price)
 	{
 		$data = [
-			"pricing_scheme" => [
-				"billing_cycle_sequence" => 1, # foreach MONTH | YEAR | ...etc
-				"pricing_scheme" => [
-					"fixed_price" => [
-						"value" => $price,
-						"currency_code" => $this->paypal->getCurrency()
+			"pricing_schemes" => [
+				[
+					"billing_cycle_sequence" => 1, # foreach MONTH | YEAR | ...etc
+					"pricing_scheme" => [
+						"fixed_price" => [
+							"value" => $price,
+							"currency_code" => $this->paypal->getCurrency()
+						]
 					]
 				]
 			]
@@ -245,5 +247,10 @@ class Plan extends WrapperMixin
 			$this->setResult($req->getBody());
 		}
 		return $this;
+	}
+
+	public function getPrice()
+	{
+		return $this->billing_cycles[0]->pricing_scheme->fixed_price->value;
 	}
 }
