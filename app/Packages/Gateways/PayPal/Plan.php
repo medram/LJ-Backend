@@ -193,7 +193,7 @@ class Plan extends WrapperMixin
 
 	public function deactivate()
 	{
-		$req = $this->paypal->client->request("POST", "billing/plans/${$this->id}/deactivate");
+		$req = $this->paypal->client->request("POST", "billing/plans/{$this->id}/deactivate");
 		if ($req->getStatusCode() == 204)
 		{
 			$this->status = "INACTIVE";
@@ -204,12 +204,46 @@ class Plan extends WrapperMixin
 
 	public function activate()
 	{
-		$req = $this->paypal->client->request("POST", "billing/plans/${$this->id}/activate");
+		$req = $this->paypal->client->request("POST", "billing/plans/{$this->id}/activate");
 		if ($req->getStatusCode() == 204)
 		{
 			$this->status = "ACTIVE";
 			return true;
 		}
 		return false;
+	}
+
+	public function updatePrice(float $price)
+	{
+		$data = [
+			"pricing_scheme" => [
+				"billing_cycle_sequence" => 1, # foreach MONTH | YEAR | ...etc
+				"pricing_scheme" => [
+					"fixed_price" => [
+						"value" => $price,
+						"currency_code" => $this->paypal->getCurrency()
+					]
+				]
+			]
+		];
+
+		$req = $this->paypal->client->request("POST", "billing/plans/{$this->id}/update-pricing-schemes", ["json" => $data]);
+
+		if ($req->getStatusCode() == 204)
+		{
+			$this->refresh();
+			return true;
+		}
+		return false;
+	}
+
+	public function refresh()
+	{
+		$req = $this->paypal->client->request("GET", "billing/plans/{$this->id}");
+		if ($req->getStatusCode() == 200)
+		{
+			$this->setResult($req->getBody());
+		}
+		return $this;
 	}
 }

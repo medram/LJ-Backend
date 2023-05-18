@@ -37,34 +37,8 @@ class CheckoutController extends Controller
             ], 400);
         }
 
-
-        $config = [
-            "sandbox" => getSetting("PM_PAYPAL_SANDBOX"),
-            "client_id" => getSetting("PM_PAYPAL_CLIENT_ID"),
-            "secret"    => getSetting("PM_PAYPAL_CLIENT_SECRET")
-        ];
-
-        $paypal = new PayPalClient($config);
-        $paypal->setCurrency(getSetting("CURRENCY"));
-
-        // Create a PayPal Product
-        $product_name = getSetting('SITE_NAME') . " service";
-        $product = new Product(["name" => $product_name, "type" => "SERVICE"]);
-        $product->setPayPalClient($paypal);
-        $product->setup();
-
-        // Create a PayPal Plan
-        $paypalPlan = new PayPalPlan();
-        $paypalPlan->setPayPalClient($paypal)
-            ->setName($db_plan->name)
-            ->setProductById($product->id);
-            //->addTrial('DAY', 7)
-        if ($db_plan->billing_cycle === "monthly")
-            $paypalPlan->addMonthlyPlan($db_plan->price, 0);
-        else if ($db_plan->billing_cycle === "yearly")
-            $paypalPlan->addYearlyPlan($db_plan->price, 0);
-
-        $paypalPlan->setup(); # required to register it to PayPal.
+        $paypal = getPayPalGateway();
+        $paypalPlan = getOrCreatePaypalPlan($db_plan);
 
         // Create a PayPal Subscription
         $subscription = new Subscription();

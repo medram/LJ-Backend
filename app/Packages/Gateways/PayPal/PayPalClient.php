@@ -49,27 +49,42 @@ class PayPalClient
 	public function getProductById(string $id)
 	{
 		$req = $this->client->request("GET", "catalogs/products/{$id}" );
-		$product = new Product();
-		$product->setResult($req->getBody());
-		return $product;
+
+		if ($req->getStatusCode() === 200)
+		{
+			$product = new Product();
+			$product->setResult($req->getBody());
+			return $product;
+		}
+		return null;
 	}
 
 	public function getPlanById(string $id)
 	{
 		$req = $this->client->request("GET", "billing/plans/{$id}" );
-		$plan = new Plan();
-		$plan->setPayPalClient($this);
-		$plan->setResult($req->getBody());
-		return $plan;
+
+		if ($req->getStatusCode() === 200)
+		{
+			$plan = new Plan();
+			$plan->setPayPalClient($this);
+			$plan->setResult($req->getBody());
+			return $plan;
+		}
+		return null;
 	}
 
 	public function getSubscriptionById(string $id)
 	{
 		$req = $this->client->request("GET", "billing/subscriptions/{$id}" );
-		$subscription = new Subscription();
-		$subscription->setPayPalClient($this);
-		$subscription->setResult($req->getBody());
-		return $subscription;
+
+		if ($req->getStatusCode() === 200)
+		{
+			$subscription = new Subscription();
+			$subscription->setPayPalClient($this);
+			$subscription->setResult($req->getBody());
+			return $subscription;
+		}
+		return null;
 	}
 
 	public function productList()

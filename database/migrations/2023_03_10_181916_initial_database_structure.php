@@ -42,6 +42,9 @@ return new class extends Migration
             $table->float('pdf_size')->default(0);
             $table->integer('pdf_pages')->default(0);
 
+            $table->string('paypal_plan_id')->nullable()->default("");
+            $table->string('stripe_plan_id')->nullable()->default("");
+
             $table->boolean('soft_delete')->default(false);
             $table->timestamps();
         });
