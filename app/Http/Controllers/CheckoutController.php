@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Packages\Gateways\PayPalClient;
-use App\Packages\Gateways\PayPalClient\Product;
-use App\Packages\Gateways\PayPalClient\Plan;
-use App\Packages\Gateways\PayPalClient\Subscription;
+
+
+use App\Packages\Gateways\PayPal\PayPalClient;
+use App\Packages\Gateways\PayPal\Product;
+use App\Packages\Gateways\PayPal\Plan;
+use App\Packages\Gateways\PayPal\Subscription;
 
 
 class CheckoutController extends Controller
@@ -25,48 +27,34 @@ class CheckoutController extends Controller
         $plan_id = "P-4R752785904412153MRSRY4A";
         $subscription_id = "I-ESSRG40AR2M5";
 
-        $subscription = $paypal->getSubscriptionById($subscription_id);
+        /*$subscription = $paypal->getSubscriptionById($subscription_id);
         $subscription->activate();
         $subscription = $paypal->getSubscriptionById($subscription_id);
-        dd($subscription->getResult());
+        dd($subscription->getResult());*/
 
-        /*$subscription = new Subscription();
-        $subscription->setBrandName("AskPDF3")
-                    ->setPlanById($plan_id)
+        $plan = new Plan();
+        $plan->setPayPalClient($paypal)
+            ->setName("SuperMan Plan")
+            ->setProductById($product_id)
+            ->addTrial('DAY', 7)
+            ->addMonthlyPlan(11.99, 0)
+            ->setup(); # required to register it to PayPal.
+
+        //dd($plan->showData());
+
+        $subscription = new Subscription();
+        $subscription->setPayPalClient($paypal)
+                    ->setBrandName("AskPDF3")
+                    ->setPlanById($plan->id)
                     ->setNoShipping()
                     //->setAutoRenewal()
                     ->addReturnAndCancelUrl("http://localhost:7000/thank-you", "http://localhost:3000/pricing")
-                    ->setSubscriber("ali@gmail.com", "Ali");
-
-        $paypal->register($subscription);
-
-        dd($subscription->getSubscriptionLink());*/
+                    ->setSubscriber("ali@gmail.com", "Ali")
+                    ->setup();
 
 
+        dd($subscription->getSubscriptionLink());
 
-        /*
-        $plan = $paypal->register(new Plan([
-            "product_id" => $product_id,
-            "name" => "Extra Plan 2",
-            "billing_cycles" => [
-                [
-                  "tenure_type" => "REGULAR",
-                  "sequence" => 1,
-                  "total_cycles" => 0,
-                  "frequency" => [
-                    "interval_unit" => "MONTH",
-                    "interval_count" => 1
-                  ],
-                  "pricing_scheme" => [
-                    "fixed_price" => [
-                      "value" => 14.99,
-                      "currency_code" => "USD"
-                    ]
-                  ]
-                ]
-              ]
-        ]));
-        */
 
 
         // TODO:
