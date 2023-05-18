@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 use App\Models\User;
-
+use Illuminate\Support\Facades\Auth;
 
 class UserRequired
 {
@@ -28,6 +28,9 @@ class UserRequired
                 'message' => 'Login is required'
             ], 401);
         }
+
+        # Set the user
+        Auth::login($user);
 
         return $next($request);
     }

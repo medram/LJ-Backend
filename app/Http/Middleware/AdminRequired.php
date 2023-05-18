@@ -29,6 +29,8 @@ class AdminRequired
             ], 401);
         }
 
+        # Set the user
+        Auth::login($user);
 
         return $next($request);
     }

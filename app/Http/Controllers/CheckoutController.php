@@ -7,60 +7,80 @@ use Illuminate\Http\Request;
 
 use App\Packages\Gateways\PayPal\PayPalClient;
 use App\Packages\Gateways\PayPal\Product;
-use App\Packages\Gateways\PayPal\Plan;
+use App\Packages\Gateways\PayPal\Plan as PayPalPlan;
 use App\Packages\Gateways\PayPal\Subscription;
+
+use App\Models\Plan;
 
 
 class CheckoutController extends Controller
 {
-    public function getPayPalPlanId(Request $request, $id)
+    public function getPayPalSubscriptionId(Request $request, $id) # plan id.
     {
+        $user = $request->user();
+
+        if (!getSetting("PM_PAYPAL_STATUS"))
+        {
+            return response()->json([
+                "errors" => true,
+                "message" => "Invalid Payment method"
+            ], 400);
+        }
+
+        $db_plan = Plan::where(['id' => $id, 'status' => 1, 'soft_delete' => 0])->get()->first();
+
+        if (!$db_plan)
+        {
+            return response()->json([
+                "errors" => true,
+                "message" => "The selected plan / subscription not available!"
+            ], 400);
+        }
+
+
         $config = [
-            "sandbox" => true,
-            "client_id" => "ATdHKLmzwFJVeaDIGMvitB1huxKIOItJ2grUUlFTQPpDPwPGfgywYs2-6gjD6ZNCU1GClGXYJIS9DCZ0",
-            "secret"    => "EDxasUOxzlT4-yvM0DdZN8Hex7GaxNUZD0QigpLKTMJXq319CG8SQoSRoD0QdcvMeop1TXNkQrMg3KhN"
+            "sandbox" => getSetting("PM_PAYPAL_SANDBOX"),
+            "client_id" => getSetting("PM_PAYPAL_CLIENT_ID"),
+            "secret"    => getSetting("PM_PAYPAL_CLIENT_SECRET")
         ];
 
         $paypal = new PayPalClient($config);
-        //$product = $paypal->register(new Product(["name" => "StreamAI", "type" => "SERVICE"]));
-        $product_id = "PROD-4JP69483299854843";
-        $plan_id = "P-4R752785904412153MRSRY4A";
-        $subscription_id = "I-ESSRG40AR2M5";
+        $paypal->setCurrency(getSetting("CURRENCY"));
 
-        /*$subscription = $paypal->getSubscriptionById($subscription_id);
-        $subscription->activate();
-        $subscription = $paypal->getSubscriptionById($subscription_id);
-        dd($subscription->getResult());*/
+        // Create a PayPal Product
+        $product_name = getSetting('SITE_NAME') . " service";
+        $product = new Product(["name" => $product_name, "type" => "SERVICE"]);
+        $product->setPayPalClient($paypal);
+        $product->setup();
 
-        $plan = new Plan();
-        $plan->setPayPalClient($paypal)
-            ->setName("SuperMan Plan")
-            ->setProductById($product_id)
-            ->addTrial('DAY', 7)
-            ->addMonthlyPlan(11.99, 0)
-            ->setup(); # required to register it to PayPal.
+        // Create a PayPal Plan
+        $paypalPlan = new PayPalPlan();
+        $paypalPlan->setPayPalClient($paypal)
+            ->setName($db_plan->name)
+            ->setProductById($product->id);
+            //->addTrial('DAY', 7)
+        if ($db_plan->billing_cycle === "monthly")
+            $paypalPlan->addMonthlyPlan($db_plan->price, 0);
+        else if ($db_plan->billing_cycle === "yearly")
+            $paypalPlan->addYearlyPlan($db_plan->price, 0);
 
-        //dd($plan->showData());
+        $paypalPlan->setup(); # required to register it to PayPal.
 
+        // Create a PayPal Subscription
         $subscription = new Subscription();
         $subscription->setPayPalClient($paypal)
-                    ->setBrandName("AskPDF3")
-                    ->setPlanById($plan->id)
+                    ->setBrandName(getSetting("SITE_NAME"))
+                    ->setPlanById($paypalPlan->id)
                     ->setNoShipping()
                     //->setAutoRenewal()
                     ->addReturnAndCancelUrl("http://localhost:7000/thank-you", "http://localhost:3000/pricing")
-                    ->setSubscriber("ali@gmail.com", "Ali")
+                    ->setSubscriber($user->email, $user->username)
                     ->setup();
 
-
-        dd($subscription->getSubscriptionLink());
-
-
-
-        // TODO:
-        // 1. Create paypal product (or use the existed one)
-        // 2. Create paypal plan (or use the existed one)
-        // 3. returning Paypal plan ID
-
+        return response()->json([
+            "errors" => false,
+            "subscription_id"   => $subscription->id,
+            "subscription_link" => $subscription->getSubscriptionLink()
+        ]);
     }
 }

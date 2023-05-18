@@ -72,5 +72,25 @@ class PayPalClient
 		return $subscription;
 	}
 
+	public function productList()
+	{
+		$req = $this->client->request("GET", "catalogs/products?total_required=true");
+		$products = [];
+
+		if ($req->getStatusCode() === 200)
+		{
+			$results = json_decode((string)$req->getBody())->products;
+
+			foreach ($results as $product_result)
+			{
+				$product = new Product();
+				$product->setResult(json_encode($product_result));
+				$products[] = $product;
+			}
+
+		}
+
+		return $products;
+	}
 }
 
