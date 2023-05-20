@@ -36,7 +36,7 @@ class CheckoutController extends Controller
 
                 return response()->json([
                     "errors" => true,
-                    "message" => "Plan Not Found!"
+                    "message" => "The selected plan / subscription not available!"
                 ], 404);
 
             }
@@ -58,16 +58,6 @@ class CheckoutController extends Controller
             return response()->json([
                 "errors" => true,
                 "message" => "Invalid Payment method"
-            ], 400);
-        }
-
-        //$db_plan = Plan::where(['id' => $id, 'status' => 1, 'soft_delete' => 0])->get()->first();
-
-        if (!$db_plan)
-        {
-            return response()->json([
-                "errors" => true,
-                "message" => "The selected plan / subscription not available!"
             ], 400);
         }
 
@@ -109,7 +99,5 @@ class CheckoutController extends Controller
                 "subscription_link" => $subscription->getSubscriptionLink()
             ]);
         }
-
-
     }
 }
