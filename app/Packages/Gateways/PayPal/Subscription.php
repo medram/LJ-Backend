@@ -82,6 +82,12 @@ class Subscription extends WrapperMixin
 		return $this;
 	}
 
+	public function setUserAction(string $action="SUBSCRIBE_NOW")
+	{
+		$this->_data["application_context"]["user_action"] = $action; # SUBSCRIBE_NOW (default) | CONTINUE
+		return $this;
+	}
+
 	public function showData()
 	{
 		return $this->_data;

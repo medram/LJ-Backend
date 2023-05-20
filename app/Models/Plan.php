@@ -22,6 +22,9 @@ class Plan extends Model
         "pdfs",
         "price",
         "questions",
+        "paypal_plan_id",
+        "stripe_plan_id",
+        "features",
         "status",
         "soft_delete"
     ];

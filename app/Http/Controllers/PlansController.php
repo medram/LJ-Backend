@@ -28,7 +28,7 @@ class PlansController extends Controller
         $request->validate([
             "name" => ["string", "required", "max:50", new StripTagsRule],
             "description" => ["string", "nullable", "max:50", new StripTagsRule],
-            "price" => "numeric",
+            "price" => "numeric|min:0",
             "is_popular" => "boolean",
             "is_free" => "boolean",
             "billing_cycle" => Rule::in(['monthly', 'yearly']),
@@ -37,6 +37,9 @@ class PlansController extends Controller
             "pdf_size" => "numeric",
             "pdf_pages" => "integer",
             "questions" => "integer",
+            "features" => "string|nullable",
+            "paypal_plan_id" => "string|nullable",
+            "stripe_plan_id" => "string|nullable"
         ]);
 
         try {
@@ -50,7 +53,7 @@ class PlansController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'errors' => true,
-                'message' => "Something went wrong."
+                'message' => "Something went wrong!"
             ]);
         }
     }
@@ -64,7 +67,7 @@ class PlansController extends Controller
             $request->validate([
                 "name" => ["string", "required", "max:50", new StripTagsRule],
                 "description" => ["string", "nullable", "max:50", new StripTagsRule],
-                "price" => "numeric",
+                "price" => "numeric|min:0",
                 "is_popular" => "boolean",
                 "is_free" => "boolean",
                 "billing_cycle" => Rule::in(['monthly', 'yearly']),
@@ -73,13 +76,17 @@ class PlansController extends Controller
                 "pdf_size" => "numeric",
                 "pdf_pages" => "integer",
                 "questions" => "integer",
+                "features" => "string|nullable",
+                "paypal_plan_id" => "string|nullable",
+                "stripe_plan_id" => "string|nullable"
             ]);
 
             try {
                 $plan->update($request->all());
 
                 // Update PayPal plan (pricing)
-                if ($plan->paypal_plan_id && !$plan->isFree())
+
+                /*if ($plan->paypal_plan_id && !$plan->isFree())
                 {
                     $paypal = getPayPalGateway();
                     $paypalPlan = $paypal->getPlanById($plan->paypal_plan_id);
@@ -100,7 +107,7 @@ class PlansController extends Controller
                         }
                     }
                     // May need to create a PayPal plan from db_plan (in case plan deleted from PayPal dashboard.)
-                }
+                }*/
 
                 return response()->json([
                     'errors' => false,
