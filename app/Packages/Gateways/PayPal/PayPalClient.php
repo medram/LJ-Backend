@@ -61,15 +61,20 @@ class PayPalClient
 
 	public function getPlanById(string $id)
 	{
-		$req = $this->client->request("GET", "billing/plans/{$id}" );
+		try {
+			$req = $this->client->request("GET", "billing/plans/{$id}" );
 
-		if ($req->getStatusCode() === 200)
-		{
-			$plan = new Plan();
-			$plan->setPayPalClient($this);
-			$plan->setResult($req->getBody());
-			return $plan;
+			if ($req->getStatusCode() === 200)
+			{
+				$plan = new Plan();
+				$plan->setPayPalClient($this);
+				$plan->setResult($req->getBody());
+				return $plan;
+			}
+		} catch (\Exception $e) {
+			null;
 		}
+
 		return null;
 	}
 

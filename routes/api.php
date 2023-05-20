@@ -42,9 +42,7 @@ Route::prefix('v1')->group(function (){
     // Checkout
     Route::middleware([UserRequired::class])->group(function (){
 
-        Route::get('/checkout/paypal/subscription/{id}', [CheckoutController::class, "getPayPalSubscriptionId"])
-            ->where('id', "[0-9]+") # This is a Plan ID
-            ->name("paypal_subscription_id");
+        Route::post('/checkout', [CheckoutController::class, "index"])->name("checkout");
     });
 
     // Users section
