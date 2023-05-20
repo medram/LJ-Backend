@@ -95,8 +95,8 @@ class CheckoutController extends Controller
 
             return response()->json([
                 "errors" => false,
-                "subscription_id"   => $subscription->id,
-                "subscription_link" => $subscription->getSubscriptionLink()
+                "gateway_id"   => $subscription->id,
+                "gateway_link" => $subscription->getSubscriptionLink()
             ]);
         }
     }

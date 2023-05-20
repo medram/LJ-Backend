@@ -145,4 +145,21 @@ class UserController extends Controller
         ], 201);
     }
 
+    public function currentUser(Request $request)
+    {
+        $currentUser = $request->user();
+        if ($currentUser)
+        {
+            return response()->json([
+                "errors" => false,
+                "user" => $currentUser
+            ]);
+        }
+
+        return response()->json([
+            "errors" => true,
+            "message" => "Not User Found!"
+        ], 404);
+    }
+
 }

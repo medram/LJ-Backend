@@ -43,6 +43,7 @@ Route::prefix('v1')->group(function (){
     Route::middleware([UserRequired::class])->group(function (){
 
         Route::post('/checkout', [CheckoutController::class, "index"])->name("checkout");
+        Route::post('/auth/user', [UserController::class, 'currentUser'])->name('auth.user');
     });
 
     // Users section
