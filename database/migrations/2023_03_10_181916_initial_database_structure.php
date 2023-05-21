@@ -60,11 +60,16 @@ return new class extends Migration
         // Subscription table
         Schema::create('subscriptions', function (Blueprint $table) {
             $table->id();
+            $table->string('sub_id', 10)->unique();
             $table->foreignId('user_id')->constrained('users');
             $table->foreignId('plan_id')->constrained('plans');
 
-            $table->boolean('status')->default(false);
+            $table->integer('status')->default(0);
             $table->timestamp('expiring_at')->nullable();
+
+            $table->string('payment_gateway')->default("")->nullable();
+            $table->string('gateway_plan_id')->default("")->nullable();
+            $table->string('gateway_subscription_id')->default("")->nullable();
 
             $table->integer('pdfs')->default(0);
             $table->integer('questions')->default(0);
@@ -79,10 +84,14 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained('users');
             $table->foreignId('plan_id')->constrained('plans');
-            $table->foreignId('subscription_id')->constrained('subscriptions');
 
-            $table->boolean('is_paid')->default(false);
+            $table->string('invoice_id', 10)->unique();
+            $table->integer('status')->default(0);      // 1 = paid | 0 = unpaid | 2 = refunded
             $table->timestamp('paid_at')->nullable();
+            $table->string('payment_gateway')->default("")->nullable();
+            $table->string('gateway_plan_id')->default("")->nullable();
+            $table->string('gateway_subscription_id')->default("")->nullable();
+
             $table->timestamps();
         });
 
