@@ -2,6 +2,11 @@
 
 use Illuminate\Support\Facades\Route;
 
+use App\Http\Controllers\CheckoutController;
+
+use App\Http\Middleware\UserRequired;
+use App\Http\Middleware\AdminRequired;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -13,6 +18,6 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+
+Route::get('/checkout/validate/subscription/{id}/{user_id}', [CheckoutController::class, "validateSubscription"])->name("checkout.validate");
+

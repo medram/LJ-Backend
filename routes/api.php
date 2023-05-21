@@ -34,12 +34,12 @@ Route::prefix('v1')->group(function (){
     Route::post('/auth/logout', [UserController::class, 'logout'])->name('auth.logout');
     Route::post('/auth/register', [UserController::class, "register"])->name('auth.register');
 
-    // Global date
+    // Global data
     Route::get('/plans', [CommonController::class, "plans"])->name('plans');
     Route::get('/settings', [SettingsController::class, "publicSettings"])->name('settings');
     Route::get('/payment-methods', [CommonController::class, "paymentMethods"])->name('payment_methods');
 
-    // Checkout
+    // Checkout section
     Route::middleware([UserRequired::class])->group(function (){
 
         Route::post('/checkout', [CheckoutController::class, "index"])->name("checkout");
