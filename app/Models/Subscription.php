@@ -14,8 +14,8 @@ class Subscription extends Model
     use HasFactory;
 
     protected $hidden = [
-        'user_id',
-        'plan_id'
+        /*'user_id',
+        'plan_id'*/
     ];
 
 

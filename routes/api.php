@@ -12,6 +12,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\UploadController;
 use App\Http\Controllers\PlansController;
 use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\SubscriptionController;
 
 use App\Http\Middleware\UserRequired;
 use App\Http\Middleware\AdminRequired;
@@ -84,5 +85,9 @@ Route::prefix('v1')->group(function (){
         Route::post('plans/edit/{id}', [PlansController::class, 'edit'])->where('id', "[0-9]+");
         #Route::get('plans/details/{id}', [PlansController::class, 'details'])->where('id', "[0-9]+");
         Route::post('plans/delete', [PlansController::class, 'delete']);
+
+        # Manage subscriptions
+        Route::get('subscriptions', [SubscriptionController::class, "list"]);
+        Route::post('subscriptions/{sub_id}/cancel', [SubscriptionController::class, "cancel"]);
     });
 });
