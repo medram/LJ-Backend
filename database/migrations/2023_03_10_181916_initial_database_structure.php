@@ -64,7 +64,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained('users');
             $table->foreignId('plan_id')->constrained('plans');
 
-            $table->integer('status')->default(0);
+            $table->integer('status')->default(0);  # 1 = active | 0 = expired | 2 = canceled
             $table->timestamp('expiring_at')->nullable();
 
             $table->string('payment_gateway')->default("")->nullable();
