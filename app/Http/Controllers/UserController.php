@@ -100,13 +100,14 @@ class UserController extends Controller
         if ($user->save())
         {
             return response()->json([
-                "error" => false,
-                "user"  => $user
+                "errors" => false,
+                "user"  => $user,
+                "message" => "Updated successfully."
             ]);
         }
 
         return response()->json([
-            "error" => true,
+            "errors" => true,
             "message" => "Something went wrong!"
         ]);
     }
