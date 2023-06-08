@@ -56,6 +56,8 @@ Route::prefix('v1')->group(function (){
 
         Route::get('subscription', [UserController::class, 'subscription']);
         Route::get('invoices', [UserController::class, 'invoices']);
+
+        Route::post('update-password', [UserController::class, 'updatePassword']);
     });
 
     // Admin section
