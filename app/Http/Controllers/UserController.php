@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
 use App\Models\User;
+use App\Models\Invoice;
 use App\Models\Subscription;
 use App\Rules\StripTagsRule;
 
@@ -128,6 +129,23 @@ class UserController extends Controller
             "subscription" => $subscription
         ]);
     }
+
+
+    public function invoices(Request $request)
+    {
+        $user = $request->user();
+
+        $invoices = Invoice::select("invoices.*", "plans.name as plan_name", "plans.price", "plans.billing_cycle", "plans.is_free")
+                    ->leftJoin("plans", "invoices.plan_id", "=", "plans.id")
+                    ->where("user_id", $user->id)
+                    ->get();
+
+        return response()->json([
+            "errors" => false,
+            "invoices" => $invoices
+        ]);
+    }
+
 
     public function register(Request $request)
     {

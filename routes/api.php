@@ -55,6 +55,7 @@ Route::prefix('v1')->group(function (){
         Route::post('profile', [UserController::class, 'updateProfile']);
 
         Route::get('subscription', [UserController::class, 'subscription']);
+        Route::get('invoices', [UserController::class, 'invoices']);
     });
 
     // Admin section
