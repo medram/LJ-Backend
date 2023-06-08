@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
 use App\Models\User;
+use App\Models\Subscription;
 use App\Rules\StripTagsRule;
 
 
@@ -116,10 +117,14 @@ class UserController extends Controller
     {
         $user = $request->user();
 
-        $subscription = $user->subscription()->first();
+        //$subscription = $user->subscription()->first();
+        $subscription = Subscription::select("subscriptions.*", "plans.name as plan_name", "plans.price", "plans.billing_cycle", "plans.is_free")
+                    ->leftJoin("plans", "subscriptions.plan_id", "=", "plans.id")
+                    ->where("user_id", $user->id)
+                    ->first();
 
         return response()->json([
-            "error" => false,
+            "errors" => false,
             "subscription" => $subscription
         ]);
     }
