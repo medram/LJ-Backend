@@ -192,36 +192,38 @@ class UserController extends Controller
         $user = $request->user();
 
         $request->validate([
-            "current_password", "string|required",
-            "new_password", "string|required|min:8"
+            "current_password"  => "string|required",
+            "new_password"      => "string|required|min:8"
         ]);
 
         $old_hashed_password = $user->password;
-        $new_password = $request->json('current_password');
+        $new_password = $request->json('new_password');
+        $current_password = $request->json('current_password');
 
-        if (!Hash::check($request->json('current_password'), $old_hashed_password))
+        if (!Hash::check($current_password, $old_hashed_password))
         {
             return response()->json([
                 "errors" => true,
                 "message" => "Incorrect Current password!"
-            ], 400);
+            ], 200);
         }
         else
         {
             # Update user password
-            $user->password = Hash::make($new_password);
-            $user->save();
+            $user->fill([
+                "password" => Hash::make($new_password)
+            ])->save();
 
             return response()->json([
                 "errors" => false,
-                "message" => "Password updated."
-            ], 400);
+                "message" => "Password updated successfully."
+            ], 200);
         }
 
 
         return response()->json([
             "errors" => true,
             "message" => "Something went wrong!"
-        ], 400);
+        ], 200);
     }
 }
