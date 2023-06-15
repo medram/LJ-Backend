@@ -83,7 +83,7 @@ class User extends Authenticatable
         ], function ($message) {
 
             $message->to($this->email, $this->username);
-            //$message->replyTo($settings['SMTP_HOST'], $settings['SITE_NAME']);
+            //$message->replyTo($settings['SMTP_USER'], $settings['SITE_NAME']);
             $message->subject("Account Verification.");
 
         });
@@ -119,7 +119,7 @@ class User extends Authenticatable
         ], function ($message) {
 
             $message->to($this->email, $this->username);
-            //$message->replyTo($settings['SMTP_HOST'], $settings['SITE_NAME']);
+            //$message->replyTo($settings['SMTP_USER'], $settings['SITE_NAME']);
             $message->subject("Password Reset.");
 
         });
