@@ -12,6 +12,8 @@ use App\Models\Invoice;
 use App\Models\Subscription;
 use App\Rules\StripTagsRule;
 
+use DB;
+
 
 class UserController extends Controller
 {
@@ -161,11 +163,23 @@ class UserController extends Controller
 
         $user = User::create($data);
 
-        // TODO: Send email verification.
+        // Send email verification.
+        if ($user)
+        {
+            try {
+                $user->sendVerificationEmail();
+            } catch (\Exception $e){
+                return response()->json([
+                    "errors" => true,
+                    "message" => "Something went wrong!, check out your SMTP config."
+                ]);
+            }
+        }
+
 
         return response()->json([
             "error" => false,
-            "message" => "Registered Successfully!"
+            "message" => "Registered Successfully, and an verification email has been sent."
         ], 201);
     }
 
@@ -225,5 +239,84 @@ class UserController extends Controller
             "errors" => true,
             "message" => "Something went wrong!"
         ], 200);
+    }
+
+    public function forgetPassword(Request $request)
+    {
+        // Get the user, check the email, send reset link via email
+        $request->validate([
+            "email" => "required|email"
+        ]);
+
+        $email = $request->json('email');
+        $user = User::where('email', $email)->first();
+
+        if ($user)
+        {
+            try {
+                $user->sendResetPasswordEmail();
+            } catch (\Exception $e){
+                return response()->json([
+                    "errors" => true,
+                    "message" => "Something went wrong!, check out your SMTP config."
+                ]);
+            }
+        }
+
+        return response()->json([
+            "errors" => false,
+            "message" => "An email message has been sent, please check your email inbox!"
+        ]);
+    }
+
+    public function resetPassword(Request $request)
+    {
+        /*
+            request should be like:
+            {
+                "token": "...",
+                "new_password": "...",
+                "new_password_confirmation": "..."
+            }
+        */
+
+        $request->validate([
+            "token" => "required",
+            "new_password" => "string|required|min:8|max:40|confirmed",
+        ]);
+
+        $token = $request->json('token');
+        $new_password = $request->json('new_password');
+
+        $tokenData = DB::table('password_reset_tokens')
+            ->where('token', $token)->first();
+
+        if ($tokenData)
+        {
+            // Save the new password and remove the password from "password_rest_tokens" table
+            $user = User::where([
+                "email" => $tokenData->email
+            ])->first();
+
+            if ($user)
+            {
+                $user->password = Hash::make($new_password);
+                $user->save();
+
+                //Delete the token
+                DB::table('password_reset_tokens')->where('email', $user->email)
+                ->delete();
+
+                return response()->json([
+                    "errors" => false,
+                    "messages" => "Updated successfully."
+                ]);
+            }
+        }
+
+        return response()->json([
+            "errors" => true,
+            "messages" => "Invalid/expired token!"
+        ]);
     }
 }

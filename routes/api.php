@@ -34,6 +34,8 @@ Route::prefix('v1')->group(function (){
     Route::post('/auth', [UserController::class, 'login'])->name('auth.login');
     Route::post('/auth/logout', [UserController::class, 'logout'])->name('auth.logout');
     Route::post('/auth/register', [UserController::class, "register"])->name('auth.register');
+    Route::post('/auth/forget-password', [UserController::class, "forgetPassword"])->name('auth.forget.password');
+    Route::post('/auth/reset-password', [UserController::class, "resetPassword"])->name('auth.reset.password');
 
     // Global data
     Route::get('/plans', [CommonController::class, "plans"])->name('plans');
