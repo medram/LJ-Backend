@@ -37,6 +37,7 @@ Route::prefix('v1')->group(function (){
     Route::post('/auth/forget-password', [UserController::class, "forgetPassword"])->name('auth.forget.password');
     Route::post('/auth/reset-password', [UserController::class, "resetPassword"])->name('auth.reset.password');
 
+
     // Global data
     Route::get('/plans', [CommonController::class, "plans"])->name('plans');
     Route::get('/settings', [SettingsController::class, "publicSettings"])->name('settings');

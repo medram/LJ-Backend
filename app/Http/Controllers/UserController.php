@@ -179,8 +179,31 @@ class UserController extends Controller
 
         return response()->json([
             "error" => false,
-            "message" => "Registered Successfully, and an verification email has been sent."
+            "message" => "Registered Successfully, please check you email inbox for account activation."
         ], 201);
+    }
+
+    public function verifyAccount(Request $request, string $token)
+    {
+        $personal_token = DB::table("personal_access_tokens")->where('token', $token)
+                                                            ->where("expires_at", ">",  now())
+                                                            ->first();
+
+        if ($personal_token)
+        {
+            // activate user account
+            $user = User::where('id', $personal_token->tokenable_id)->first();
+            if ($user)
+            {
+                $user->is_active = 1;
+                $user->email_verified_at = now();
+                $user->save();
+            }
+            // delete the token
+            DB::table("personal_access_tokens")->where('token', $token)->delete();
+        }
+
+        return redirect("/login");
     }
 
     public function currentUser(Request $request)

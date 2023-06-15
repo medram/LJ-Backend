@@ -71,14 +71,19 @@ class User extends Authenticatable
     {
         $settings = getAllSettings();
 
-        $user_token = "";
-        $verification_link = url("verify/{$user_token}");
+        $personal_token = $this->createToken('reset_password', ["RESET_PASSWORD"])->accessToken;
+        $personal_token->expires_at = now()->addMinutes(30); // the token will expire after 30 minutes.
+        $personal_token->save();
+
+        $token = $personal_token->token;
+
+        $verification_link = url("verify/{$token}");
 
         return Mail::send('mails.verification', [
             "SITE_NAME" => $settings['SITE_NAME'],
 
             "USERNAME"  => $this->username,
-            "EMAIL"     => $email,
+            "EMAIL"     => $this->email,
             "VERIFICATION_LINK" => $verification_link,
         ], function ($message) {
 
