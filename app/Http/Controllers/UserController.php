@@ -309,14 +309,14 @@ class UserController extends Controller
 
                 return response()->json([
                     "errors" => false,
-                    "messages" => "Updated successfully."
+                    "message" => "Updated successfully."
                 ]);
             }
         }
 
         return response()->json([
             "errors" => true,
-            "messages" => "Invalid/expired token!"
+            "message" => "Invalid/expired token!"
         ]);
     }
 }
