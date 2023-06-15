@@ -42,6 +42,9 @@ Route::prefix('v1')->group(function (){
     Route::get('/settings', [SettingsController::class, "publicSettings"])->name('settings');
     Route::get('/payment-methods', [CommonController::class, "paymentMethods"])->name('payment_methods');
 
+    // Contact Us
+    Route::post('/contact', [CommonController::class, "contactUs"])->name("contact_us");
+
     // Checkout section
     Route::middleware([UserRequired::class])->group(function (){
 
