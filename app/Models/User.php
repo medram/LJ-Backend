@@ -8,10 +8,15 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Laravel\Sanctum\HasApiTokens;
+use Carbon\Carbon;
 
-
-use App\Models\Image;
 use App\Models\Subscription;
+
+use Mail;
+use Str;
+use DB;
+
+$settings = getAllSettings();
 
 
 class User extends Authenticatable
@@ -52,11 +57,6 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
-    public function images(): HasMany
-    {
-        return $this->hasMany(Image::class);
-    }
-
     public function subscription()
     {
         return $this->hasMany(Subscription::class);
@@ -65,5 +65,63 @@ class User extends Authenticatable
     public function isAdmin()
     {
         return $this->role == 1;
+    }
+
+    public function sendVerificationEmail()
+    {
+        $settings = getAllSettings();
+
+        $user_token = "";
+        $verification_link = url("verify/{$user_token}");
+
+        return Mail::send('mails.verification', [
+            "SITE_NAME" => $settings['SITE_NAME'],
+
+            "USERNAME"  => $this->username,
+            "EMAIL"     => $email,
+            "VERIFICATION_LINK" => $verification_link,
+        ], function ($message) {
+
+            $message->to($this->email, $this->username);
+            //$message->replyTo($settings['SMTP_HOST'], $settings['SITE_NAME']);
+            $message->subject("Account Verification.");
+
+        });
+    }
+
+
+    public function sendResetPasswordEmail()
+    {
+        $settings = getAllSettings();
+
+        $token = Str::random(60);
+
+        // Delete any previous tokens for this particular email.
+        DB::table('password_reset_tokens')
+                ->where('email', $this->email)
+                ->delete();
+
+        //Create Password Reset Token
+        DB::table('password_reset_tokens')->insert([
+            'email' => $this->email,
+            'token' => $token,
+            'created_at' => Carbon::now()
+        ]);
+
+        $reset_password_link = url("reset/{$token}");
+
+        return Mail::send('mails.reset_password', [
+            "SITE_NAME" => $settings['SITE_NAME'],
+
+            "USERNAME"  => $this->username,
+            "EMAIL"     => $this->email,
+            "RESET_PASSWORD_LINK" => $reset_password_link,
+        ], function ($message) {
+
+            $message->to($this->email, $this->username);
+            //$message->replyTo($settings['SMTP_HOST'], $settings['SITE_NAME']);
+            $message->subject("Password Reset.");
+
+        });
     }
 }
