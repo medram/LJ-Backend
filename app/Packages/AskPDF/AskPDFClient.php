@@ -1,6 +1,6 @@
 <?php
 
-$config = [
+/*$config = [
 	"RAPID_API_KEY" 	=> "26c891ee9emsh9e4f1eb317edd6ap1a9dc4jsn3f07ef931f4f",
 	"RAPID_API_HOST"	=> "askpdf1.p.rapidapi.com"
 ];
@@ -13,7 +13,7 @@ $chatRoom = new ChatRoom();
 $chatRoom->clearHistory();
 $chatRoom->destroy(); # delete
 $chatRoom->details();
-$chatRoom->send($prompt);
+$chatRoom->send($prompt);*/
 
 namespace App\Packages\AskPDF;
 
@@ -23,7 +23,7 @@ use App\Packages\AskPDF\ChatRoom;
 class AskPDFClient {
 
 	private $_config = [];
-	private $client = null;
+	public $client = null;
 
 	public function __construct(Array $config)
 	{
@@ -33,7 +33,8 @@ class AskPDFClient {
 			"base_uri" => $this->getBaseUrl(),
 			"headers" => [
 				"X-RapidAPI-Key"	=> $this->_config["RAPID_API_KEY"],
-				"X-RapidAPI-Host"	=> $this->_config["RAPID_API_HOST"]
+				"X-RapidAPI-Host"	=> $this->_config["RAPID_API_HOST"],
+				"Accept"			=> "application/json"
 			]
 		]);
 	}
