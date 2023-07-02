@@ -13,6 +13,7 @@ use App\Http\Controllers\UploadController;
 use App\Http\Controllers\PlansController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\SubscriptionController;
+use App\Http\Controllers\ChatController;
 
 use App\Http\Middleware\UserRequired;
 use App\Http\Middleware\AdminRequired;
@@ -38,7 +39,8 @@ Route::prefix('v1')->group(function (){
     Route::post('/auth/reset-password', [UserController::class, "resetPassword"])->name('auth.reset.password');
 
     // chat with content section
-/*    Route::get('/chat/{uuid}', [ChatController::class, "details"]);
+    Route::get('/chat/{uuid}', [ChatController::class, "details"]);
+/*
     Route::post('/chat/{uuid}', [ChatController::class, "send"]);
     Route::delete('/chat/{uuid}/delete', [ChatController::class, "delete"]);
     Route::post('/chat/{uuid}/clear-history', [ChatController::class, "clearHistory"]);
