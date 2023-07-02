@@ -3,6 +3,8 @@
 use App\Packages\Gateways\PayPal\PayPalClient;
 use App\Packages\Gateways\PayPal\Product;
 use App\Packages\Gateways\PayPal\Plan as PayPalPlan;
+use App\Packages\AskPDF\AskPDFClient;
+use App\Packages\AskPDF\ChatManager;
 
 use App\Models\Setting;
 
@@ -76,4 +78,31 @@ function getPayPalGateway()
 	$paypal = new PayPalClient($config);
 	$paypal->setCurrency(getSetting("CURRENCY"));
 	return $paypal;
+}
+
+
+function getAskPDFClient()
+{
+	static $askpdfClient = null;
+
+	$config = [
+		"RAPID_API_KEY" 	=> getSetting("RAPID_API_KEY"),
+		"RAPID_API_HOST"	=> getSetting("RAPID_API_HOST")
+	];
+
+	if ($askpdfClient == null)
+		$askpdfClient = new AskPDFClient($config);
+
+	return $askpdfClient;
+}
+
+
+function getChatManager()
+{
+	static $chatManager = null;
+
+	if ($chatManager == null)
+		$chatManager = new ChatManager();
+
+	return $chatManager;
 }
