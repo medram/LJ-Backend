@@ -7,6 +7,40 @@ use Illuminate\Http\Request;
 
 class ChatController extends Controller
 {
+    public function upload(Request $request)
+    {
+        $request->validate([
+            "file" => "required|mimes:pdf"
+        ]);
+
+        $file = $request->file("file");
+        $fileName = sha1(time()) . "." . $file->extension();
+        # may not be required
+        # $file->move(public_path("uploads/chat-files"), $fileName);
+
+        # TODO:
+        # file Size restrictions
+
+        # dd($file->path());
+        # Create a chat room
+        $chatManager = getChatManager();
+        $raw_response = $chatManager->createChatRoom($file->path(), true);
+
+        if ($raw_response)
+        {
+            return response()->json([
+                "errors" => false,
+                "message" => "Created successfully",
+                "chat_room" => $raw_response
+            ], 201);
+        }
+
+        return response()->json([
+            "errors" => true,
+            "message" => "Something went wrong, please try again or later"
+        ], 400);
+    }
+
     public function send(Request $request, string $uuid)
     {
         $request->validate([

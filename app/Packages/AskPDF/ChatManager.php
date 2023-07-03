@@ -31,4 +31,31 @@ class ChatManager {
 			return $chatRoom;
 		return null;
 	}
+
+	public function createChatRoom($filePath, $return_raw_response=false)
+	{
+		$req = $this->_askpdfClient->client->request("POST", "upload", [
+			'http_errors' => false,
+			'multipart' => [
+			        [
+			            'name'     => 'file',
+			            'contents' => fopen($filePath, 'r'),
+			            'filename' => basename($filePath)
+			        ]
+			    ]
+		]);
+
+		if ($req->getStatusCode() === 201)
+		{
+			$response = json_decode($req->getBody());
+			if ($return_raw_response)
+				return $response;
+			# return a chat room
+			$chatRoom = new ChatRoom($response->uuid);
+			$chatRoom->registerClient($this);
+			return $chatRoom;
+		}
+
+		return null;
+	}
 }

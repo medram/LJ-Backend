@@ -38,7 +38,8 @@ Route::prefix('v1')->group(function (){
     Route::post('/auth/forget-password', [UserController::class, "forgetPassword"])->name('auth.forget.password');
     Route::post('/auth/reset-password', [UserController::class, "resetPassword"])->name('auth.reset.password');
 
-    // chat with content section
+    // Chat / Playground section
+    Route::post('/chat', [ChatController::class, "upload"]);
     Route::get('/chat/{uuid}', [ChatController::class, "details"]);
     Route::post('/chat/{uuid}', [ChatController::class, "send"]);
     Route::post('/chat/{uuid}/clear-history', [ChatController::class, "clearHistory"]);

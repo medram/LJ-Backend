@@ -46,35 +46,13 @@ class AskPDFClient {
 
 	public function registerOpenAIKey($openai_key)
 	{
-		$req = $this->client->request("POST", "/openai-key/update");
+		$req = $this->client->request("POST", "/openai-key/update", [
+			'http_errors' => false
+		]);
 
 		if ($req->getStatusCode() === 201)
 			return true;
 
 		return false;
-	}
-
-	public function createChatRoom($filePath)
-	{
-		$req = $this->client->request("POST", "/upload", [
-			'multipart' => [
-			        [
-			            'name'     => 'file',
-			            'contents' => fopen($filePath, 'r'),
-			            'filename' => basename($filePath)
-			        ]
-			    ]
-		]);
-
-		if ($req->getStatusCode() === 201)
-		{
-			$response = (object)$req->getBody();
-			# return a chat room
-			$chatRoom = new ChatRoom($response->uuid);
-			$chatRoom->registerClient($this);
-			return $chatRoom;
-		}
-
-		return null;
 	}
 }
