@@ -27,7 +27,7 @@ class ChatController extends Controller
 
         return response()->json([
             "errors" => true,
-            "response" => "Chat room not found"
+            "message" => "Chat room not found"
         ], 404);
     }
 
@@ -46,7 +46,26 @@ class ChatController extends Controller
 
         return response()->json([
             "errors" => true,
-            "chat" => "Chat room not found."
+            "message" => "Chat room not found."
+        ], 404);
+    }
+
+    public function clearHistory(Request $request, string $uuid)
+    {
+        $chatManager = getChatManager();
+        $chatRoom = $chatManager->getChatRoomByUUID($uuid);
+
+        if ($chatRoom && $chatRoom->clearHistory())
+        {
+            return response()->json([
+                "errors" => false,
+                "message" => "Cleared successfully"
+            ], 204); // returns no content
+        }
+
+        return response()->json([
+            "errors" => true,
+            "message" => "Chat room not found."
         ], 404);
     }
 }
