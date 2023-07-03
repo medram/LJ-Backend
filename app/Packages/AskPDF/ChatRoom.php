@@ -83,7 +83,7 @@ class ChatRoom
 
 		if ($req->getStatusCode() === 200)
 		{
-			$response = (object)$req->getBody();
+			$response = json_decode($req->getBody());
 			return $response;
 		}
 
