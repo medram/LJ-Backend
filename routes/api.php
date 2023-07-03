@@ -42,9 +42,8 @@ Route::prefix('v1')->group(function (){
     Route::get('/chat/{uuid}', [ChatController::class, "details"]);
     Route::post('/chat/{uuid}', [ChatController::class, "send"]);
     Route::post('/chat/{uuid}/clear-history', [ChatController::class, "clearHistory"]);
-/*
     Route::delete('/chat/{uuid}/delete', [ChatController::class, "delete"]);
-*/
+
     // Global data
     Route::get('/plans', [CommonController::class, "plans"])->name('plans');
     Route::get('/settings', [SettingsController::class, "publicSettings"])->name('settings');

@@ -68,4 +68,23 @@ class ChatController extends Controller
             "message" => "Chat room not found."
         ], 404);
     }
+
+    public function delete(Request $request, string $uuid)
+    {
+        $chatManager = getChatManager();
+        $chatRoom = $chatManager->getChatRoomByUUID($uuid);
+
+        if ($chatRoom && $chatRoom->destroy())
+        {
+            return response()->json([
+                "errors" => false,
+                "message" => "Deleted successfully"
+            ], 204); // returns no content
+        }
+
+        return response()->json([
+            "errors" => true,
+            "message" => "Chat room not found."
+        ], 404);
+    }
 }

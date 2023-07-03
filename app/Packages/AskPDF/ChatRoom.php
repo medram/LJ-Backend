@@ -31,7 +31,8 @@ class ChatRoom
 		$req = $this->_askpdfClient->client->request("POST", "chat/clear-history", [
 			"json" => [
 				"uuid" => $this->uuid
-			]
+			],
+			'http_errors' => false
 		]);
 
 		if ($req->getStatusCode() === 204)
@@ -41,10 +42,11 @@ class ChatRoom
 
 	public function destroy()
 	{
-		$req = $this->_askpdfClient->client->request("POST", "chat/delete", [
+		$req = $this->_askpdfClient->client->request("DELETE", "chat/delete", [
 			"json" => [
 				"uuid" => $this->uuid
-			]
+			],
+			'http_errors' => false
 		]);
 
 		if ($req->getStatusCode() === 204)
@@ -54,7 +56,9 @@ class ChatRoom
 
 	public function details()
 	{
-		$req = $this->_askpdfClient->client->request("GET", "chat/{$this->uuid}/detail");
+		$req = $this->_askpdfClient->client->request("GET", "chat/{$this->uuid}/detail", [
+			'http_errors' => false
+		]);
 
 		if ($req->getStatusCode() === 200)
 		{
@@ -78,7 +82,8 @@ class ChatRoom
 			"json" => [
 				"uuid" 		=> $this->uuid,
 				"prompt"	=> $prompt
-			]
+			],
+			'http_errors' => false
 		]);
 
 		if ($req->getStatusCode() === 200)
