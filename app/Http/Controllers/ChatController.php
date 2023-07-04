@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 
+use App\Models\Chat;
+
 
 class ChatController extends Controller
 {
@@ -28,6 +30,19 @@ class ChatController extends Controller
 
         if ($raw_response)
         {
+            # register chat room in the db
+            $user = $request->user();
+
+            if ($user)
+            {
+                Chat::create([
+                    "user_id"   => $user->id,
+                    "title"     => $file->getClientOriginalName(),
+                    "uuid"      => $raw_response->uuid,
+                    "chat_history" => "",
+                ]);
+            }
+
             return response()->json([
                 "errors" => false,
                 "message" => "Created successfully",
@@ -120,5 +135,17 @@ class ChatController extends Controller
             "errors" => true,
             "message" => "Chat room not found."
         ], 404);
+    }
+
+    public function list(Request $request)
+    {
+        $user = $request->user();
+
+        $chats = Chat::where("user_id", $user->id)->orderBy('created_at', 'desc')->get();
+
+        return response()->json([
+            "errors" => false,
+            "chats" => ($chats ? $chats : [])
+        ]);
     }
 }
