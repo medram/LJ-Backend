@@ -38,13 +38,6 @@ Route::prefix('v1')->group(function (){
     Route::post('/auth/forget-password', [UserController::class, "forgetPassword"])->name('auth.forget.password');
     Route::post('/auth/reset-password', [UserController::class, "resetPassword"])->name('auth.reset.password');
 
-    // Chat / Playground section
-    Route::post('/chat', [ChatController::class, "upload"]);
-    Route::get('/chat/{uuid}', [ChatController::class, "details"]);
-    Route::post('/chat/{uuid}', [ChatController::class, "send"]);
-    Route::post('/chat/{uuid}/clear-history', [ChatController::class, "clearHistory"]);
-    Route::delete('/chat/{uuid}/delete', [ChatController::class, "delete"]);
-
     // Global data
     Route::get('/plans', [CommonController::class, "plans"])->name('plans');
     Route::get('/settings', [SettingsController::class, "publicSettings"])->name('settings');
@@ -71,6 +64,15 @@ Route::prefix('v1')->group(function (){
         Route::get('invoices', [UserController::class, 'invoices']);
 
         Route::post('update-password', [UserController::class, 'updatePassword']);
+
+        Route::get('chat-list', [ChatController::class, "list"]);
+
+        // Chat / Playground section
+        Route::post('chat', [ChatController::class, "upload"]);
+        Route::get('chat/{uuid}', [ChatController::class, "details"]);
+        Route::post('chat/{uuid}', [ChatController::class, "send"]);
+        Route::post('chat/{uuid}/clear-history', [ChatController::class, "clearHistory"]);
+        Route::delete('chat/{uuid}/delete', [ChatController::class, "delete"]);
     });
 
     // Admin section
