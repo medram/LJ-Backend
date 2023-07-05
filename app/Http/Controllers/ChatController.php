@@ -66,11 +66,31 @@ class ChatController extends Controller
         $chatManager = getChatManager();
         $chatRoom = $chatManager->getChatRoomByUUID($uuid);
 
+        $reply = $chatRoom->send($prompt);
+        // TODO: register the prompt & the reply
+        $chat = Chat::where("uuid", $uuid)->get()->first();
+
+        if ($chat)
+        {
+            $history = json_decode($chat->chat_history, true);
+            $history[] = [
+                "type"      => "human",
+                "content"   => $prompt
+            ];
+            $history[] = [
+                "type"      => "ai",
+                "content"   => $reply
+            ];
+
+            $chat->chat_history = json_encode($history);
+            $chat->save();
+        }
+
         if ($chatRoom)
         {
             return response()->json([
                 "errors" => false,
-                "response" => $chatRoom->send($prompt)
+                "response" => $reply
             ]);
         }
 
@@ -106,6 +126,14 @@ class ChatController extends Controller
 
         if ($chatRoom && $chatRoom->clearHistory())
         {
+            $chat = Chat::where("uuid", $uuid)->get()->first();
+
+            if ($chat)
+            {
+                $chat->chat_history = "";
+                $chat->save();
+            }
+
             return response()->json([
                 "errors" => false,
                 "message" => "Cleared successfully"
@@ -125,6 +153,13 @@ class ChatController extends Controller
 
         if ($chatRoom && $chatRoom->destroy())
         {
+            $chat = Chat::where("uuid", $uuid)->get()->first();
+
+            if ($chat)
+            {
+                $chat->delete();
+            }
+
             return response()->json([
                 "errors" => false,
                 "message" => "Deleted successfully"
