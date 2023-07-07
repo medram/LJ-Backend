@@ -2,6 +2,8 @@
 
 namespace App\Packages\AskPDF;
 
+use App\Models\Chat;
+
 
 class ChatManager {
 	private $_chats = [];
@@ -24,11 +26,17 @@ class ChatManager {
 
 	public function getChatRoomByUUID(string $uuid)
 	{
-		$chatRoom = new ChatRoom($uuid);
-		$chatRoom->registerClient($this->_askpdfClient);
-		# Sync data
-		if ($chatRoom->details())
-			return $chatRoom;
+		$chat = Chat::where("uuid", $uuid)->get()->first();
+
+		if ($chat)
+		{
+			$chatRoom = new ChatRoom($uuid);
+			$chatRoom->registerClient($this->_askpdfClient);
+
+			# Sync data
+			if ($chatRoom->details())
+				return $chatRoom;
+		}
 		return null;
 	}
 

@@ -63,15 +63,16 @@ class ChatController extends Controller
         ]);
 
         $prompt = $request->json("prompt");
+        $chat = Chat::where("uuid", $uuid)->get()->first();
         $chatManager = getChatManager();
         $chatRoom = $chatManager->getChatRoomByUUID($uuid);
 
-        $reply = $chatRoom->send($prompt);
         // TODO: register the prompt & the reply
-        $chat = Chat::where("uuid", $uuid)->get()->first();
 
         if ($chat)
         {
+            $reply = $chatRoom->send($prompt);
+
             $history = json_decode($chat->chat_history, true);
             $history[] = [
                 "type"      => "human",
