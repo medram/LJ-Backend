@@ -103,10 +103,20 @@ class CheckoutController extends Controller
                 $subscription->gateway_plan_id = $paypalSubscription->plan_id;
                 $subscription->gateway_subscription_id = $paypalSubscription->id;
 
-                $subscription->pdfs = $plan->pdfs;
-                $subscription->questions = $plan->questions;
-                $subscription->pdf_size = $plan->pdf_size;
-                $subscription->pdf_pages = $plan->pdf_pages;
+                $old_subscription = $user->getCurrentSubscription();
+                if ($old_subscription)
+                {
+                    # Add old subscription quota to the new subscription quota.
+                    $subscription->pdfs = $plan->pdfs + $old_subscription->pdfs;
+                    $subscription->questions = $plan->questions + $old_subscription->questions;
+                    $subscription->pdf_size = $plan->pdf_size;
+                }
+                else
+                {
+                    $subscription->pdfs = $plan->pdfs;
+                    $subscription->questions = $plan->questions;
+                    $subscription->pdf_size = $plan->pdf_size;
+                }
 
                 $subscription->save();
 
