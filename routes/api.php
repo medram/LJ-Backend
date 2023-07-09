@@ -73,6 +73,7 @@ Route::prefix('v1')->group(function (){
         Route::post('chat/{uuid}', [ChatController::class, "send"]);
         Route::post('chat/{uuid}/clear-history', [ChatController::class, "clearHistory"]);
         Route::delete('chat/{uuid}/delete', [ChatController::class, "delete"]);
+        Route::post('chat/{uuid}/stop', [ChatController::class, "stop"]);
     });
 
     // Admin section
