@@ -11,17 +11,27 @@ class ChatController extends Controller
 {
     public function upload(Request $request)
     {
+        $user = $request->user();
+        $max_file_size = 5 * 1024; // default max file size in KB
+
+        # file Size restrictions
+        if ($user)
+        {
+            $subscription = $user->getCurrentSubscription();
+            if ($subscription)
+            {
+                $max_file_size = $subscription->pdf_size * 1024; // in KB
+            }
+        }
+
         $request->validate([
-            "file" => "required|mimes:pdf"
+            "file" => "required|mimes:pdf|max:$max_file_size"
         ]);
 
         $file = $request->file("file");
         $fileName = sha1(time()) . "." . $file->extension();
         # may not be required
         # $file->move(public_path("uploads/chat-files"), $fileName);
-
-        # TODO:
-        # file Size restrictions
 
         # dd($file->path());
         # Create a chat room
@@ -31,10 +41,14 @@ class ChatController extends Controller
         if ($raw_response)
         {
             # register chat room in the db
-            $user = $request->user();
 
             if ($user)
             {
+                # update subscription quota
+                $subscription = $user->getCurrentSubscription();
+                $subscription->pdfs -= 1;
+                $subscription->save();
+
                 Chat::create([
                     "user_id"   => $user->id,
                     "title"     => $file->getClientOriginalName(),
@@ -85,6 +99,17 @@ class ChatController extends Controller
 
             $chat->chat_history = json_encode($history);
             $chat->save();
+        }
+
+        $user = $request->user();
+
+        if ($user)
+        {
+            # update subscription quota
+            $subscription = $user->getCurrentSubscription();
+            if ($subscription->questions > 0)
+                $subscription->questions -= 1;
+            $subscription->save();
         }
 
         if ($chatRoom)
@@ -183,5 +208,28 @@ class ChatController extends Controller
             "errors" => false,
             "chats" => ($chats ? $chats : [])
         ]);
+    }
+
+    public function stop(Request $request, string $uuid)
+    {
+        $chatManager = getChatManager();
+        $chatRoom = $chatManager->getChatRoomByUUID($uuid);
+
+        if ($chatRoom)
+        {
+            // TODO: Update user quota (questions + 1)
+
+            $chatRoom->stopAgent();
+
+            return response()->json([
+                "errors" => false,
+                "message" => "Stopped successfully"
+            ], 204); // returns no content
+        }
+
+        return response()->json([
+            "errors" => true,
+            "message" => "Chat room not found."
+        ], 400);
     }
 }

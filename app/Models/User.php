@@ -57,9 +57,14 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
-    public function subscription()
+    public function subscriptions()
     {
         return $this->hasMany(Subscription::class);
+    }
+
+    public function getCurrentSubscription()
+    {
+        return Subscription::where("user_id", $this->id)->orderBy("created_at", "desc")->first();
     }
 
     public function isAdmin()
