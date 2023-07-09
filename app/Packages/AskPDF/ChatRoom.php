@@ -28,10 +28,7 @@ class ChatRoom
 
 	public function clearHistory()
 	{
-		$req = $this->_askpdfClient->client->request("POST", "chat/clear-history", [
-			"json" => [
-				"uuid" => $this->uuid
-			],
+		$req = $this->_askpdfClient->client->request("POST", "chat/{$this->uuid}/clear-history", [
 			'http_errors' => false
 		]);
 
@@ -42,10 +39,7 @@ class ChatRoom
 
 	public function destroy()
 	{
-		$req = $this->_askpdfClient->client->request("DELETE", "chat/delete", [
-			"json" => [
-				"uuid" => $this->uuid
-			],
+		$req = $this->_askpdfClient->client->request("DELETE", "chat/{$this->uuid}/delete", [
 			'http_errors' => false
 		]);
 
@@ -78,10 +72,9 @@ class ChatRoom
 
 	public function send(string $prompt)
 	{
-		$req = $this->_askpdfClient->client->request("POST", "chat", [
+		$req = $this->_askpdfClient->client->request("POST", "chat/{$this->uuid}", [
 			"json" => [
-				"uuid" 		=> $this->uuid,
-				"prompt"	=> $prompt
+				"prompt" => $prompt
 			],
 			'http_errors' => false
 		]);
@@ -93,6 +86,21 @@ class ChatRoom
 		}
 
 		return null;
+	}
+
+	public function stopAgent()
+	{
+		// TODO: stoping the chat room agent
+		$req = $this->_askpdfClient->client->request("POST", "chat/{$this->uuid}/stop", [
+			'http_errors' => false
+		]);
+
+		if ($req->getStatusCode() === 204)
+		{
+			return true;
+		}
+
+		return false;
 	}
 
 }
