@@ -66,4 +66,18 @@ class ChatManager {
 
 		return null;
 	}
+
+	public function registerOpenAIKey($openai_key)
+	{
+		$req = $this->_askpdfClient->client->request("POST", "openai-key/update", [
+			'http_errors' => false,
+			'json' => [
+				"openai_key" => $openai_key
+			]
+		]);
+
+		if ($req->getStatusCode() === 204)
+			return true;
+		return false;
+	}
 }

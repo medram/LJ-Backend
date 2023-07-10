@@ -232,4 +232,28 @@ class ChatController extends Controller
             "message" => "Chat room not found."
         ], 400);
     }
+
+    public function registerOpenAIKey(Request $request)
+    {
+        $request->validate([
+            "openai_key" => "string|required"
+        ]);
+
+        $openai_key = $request->json("openai_key");
+
+        // inform Rapid website.
+        $chatManager = getChatManager();
+        if ($chatManager->registerOpenAIKey($openai_key))
+        {
+            return response()->json([
+                "errors" => false,
+                "message" => "Updated successfully"
+            ], 200);
+        }
+
+        return response()->json([
+            "errors" => true,
+            "message" => "Something went wrong, please check your Rapid API Key & Host again!"
+        ], 400);
+    }
 }

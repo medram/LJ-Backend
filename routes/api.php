@@ -69,6 +69,7 @@ Route::prefix('v1')->group(function (){
 
         // Chat / Playground section
         Route::post('chat', [ChatController::class, "upload"]);
+        Route::post('chat/register-openai-key', [ChatController::class, "registerOpenAIKey"]);
         Route::get('chat/{uuid}', [ChatController::class, "details"]);
         Route::post('chat/{uuid}', [ChatController::class, "send"]);
         Route::post('chat/{uuid}/clear-history', [ChatController::class, "clearHistory"]);
