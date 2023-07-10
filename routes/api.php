@@ -42,6 +42,8 @@ Route::prefix('v1')->group(function (){
     Route::get('/plans', [CommonController::class, "plans"])->name('plans');
     Route::get('/settings', [SettingsController::class, "publicSettings"])->name('settings');
     Route::get('/payment-methods', [CommonController::class, "paymentMethods"])->name('payment_methods');
+    Route::get('/pages', [CommonController::class, "getPages"]);
+    Route::get('/page/{slug}', [CommonController::class, "getPage"])->where("slug", "[a-zA-Z0-9\-\_]+");
 
     // Contact Us
     Route::post('/contact', [CommonController::class, "contactUs"])->name("contact_us");
@@ -70,11 +72,11 @@ Route::prefix('v1')->group(function (){
         // Chat / Playground section
         Route::post('chat', [ChatController::class, "upload"]);
         Route::post('chat/register-openai-key', [ChatController::class, "registerOpenAIKey"]);
-        Route::get('chat/{uuid}', [ChatController::class, "details"]);
-        Route::post('chat/{uuid}', [ChatController::class, "send"]);
-        Route::post('chat/{uuid}/clear-history', [ChatController::class, "clearHistory"]);
-        Route::delete('chat/{uuid}/delete', [ChatController::class, "delete"]);
-        Route::post('chat/{uuid}/stop', [ChatController::class, "stop"]);
+        Route::get('chat/{uuid}', [ChatController::class, "details"])->where("uuid", "[a-zA-Z0-9\-]+");
+        Route::post('chat/{uuid}', [ChatController::class, "send"])->where("uuid", "[a-zA-Z0-9\-]+");
+        Route::post('chat/{uuid}/clear-history', [ChatController::class, "clearHistory"])->where("uuid", "[a-zA-Z0-9\-]+");
+        Route::delete('chat/{uuid}/delete', [ChatController::class, "delete"])->where("uuid", "[a-zA-Z0-9\-]+");
+        Route::post('chat/{uuid}/stop', [ChatController::class, "stop"])->where("uuid", "[a-zA-Z0-9\-]+");
     });
 
     // Admin section

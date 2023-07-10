@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 
 use App\Models\Plan;
+use App\Models\Page;
 use App\Rules\StripTagsRule;
 
 use Mail;
@@ -88,5 +89,44 @@ class CommonController extends Controller
             "errors" => false,
             "message" => "Sent Successfully."
         ]);
+    }
+
+    public function getPages(Request $request)
+    {
+        # Get all active pages
+        $pages = Page::where("status", 1)->get();
+
+        # Don't return page contents
+        foreach($pages as $k => $page)
+        {
+            $pages[$k]->content = "";
+        }
+
+        return response()->json([
+            "errors" => false,
+            "pages"  => $pages ? $pages : []
+        ]);
+    }
+
+    public function getPage(Request $request, string $slug)
+    {
+        # Get all active pages
+        $page = Page::where([
+            "status" => 1,
+            "slug" => $slug
+        ])->first();
+
+        if ($page)
+        {
+            return response()->json([
+                "errors" => false,
+                "page"  => $page
+            ]);
+        }
+
+        return response()->json([
+            "errors" => false,
+            "message"  => "Page not found"
+        ], 404);
     }
 }
