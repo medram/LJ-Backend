@@ -111,5 +111,8 @@ Route::prefix('v1')->group(function (){
         # Manage subscriptions
         Route::get('subscriptions', [SubscriptionController::class, "list"]);
         Route::post('subscriptions/{sub_id}/cancel', [SubscriptionController::class, "cancel"]);
+
+        # Send a test email (SMTP)
+        Route::post('send-test-email', [CommonController::class, "sendTestEmail"]);
     });
 });

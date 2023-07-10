@@ -129,4 +129,31 @@ class CommonController extends Controller
             "message"  => "Page not found"
         ], 404);
     }
+
+    public function sendTestEmail(Request $request)
+    {
+        $fields = $request->validate([
+            "email" => "email|required"
+        ]);
+
+        $email = $fields["email"];
+
+        try {
+            Mail::raw("This is just a test email message :D, that's great, it seems working ;D", function ($message) use($email) {
+                $message->to($email);
+                //$message->replyTo($settings['SMTP_USER'], $settings['SITE_NAME']);
+                $message->subject("Test email message");
+            });
+
+            return response()->json([
+                "errors" => false,
+                "message" => "Sent successfully"
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                "errors" => true,
+                "message" => "Couldn't send the email, please check your SMTP settings again!"
+            ]);
+        }
+    }
 }
