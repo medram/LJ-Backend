@@ -20,6 +20,12 @@ function getSetting($key)
 	return Setting::getSetting($key);
 }
 
+function setSetting(string $key, $value)
+{
+	return Setting::where("name", $key)->update([
+		"value" => $value
+	]);
+}
 
 function userToken($request)
 {
