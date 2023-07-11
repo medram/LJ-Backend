@@ -11,13 +11,23 @@ class Webhook extends WrapperMixin {
 	private $_url = "";
 	private $_events = [];
 
-	public function __construct(string $url, Array $events)
+	public function __construct(string $url, Array $events, string $id = null)
 	{
+		parent::__construct();
+
 		$this->_url = $url;
 		if (count($events) === 0)
 			throw new Exception("Events are required for webhooks");
 
 		$this->_events = $events;
+		if ($id)
+			$this->setID($id);
+	}
+
+	public function setID(string $id)
+	{
+		# the same as: $this->_result->id = $id;
+		$this->id = $id;
 	}
 
 	public function register(PayPalClient $paypalGateway)
@@ -66,11 +76,11 @@ class Webhook extends WrapperMixin {
 	private function _build_json_data()
 	{
 		$payload = [
-			"url" => $this->_url,
+			"url" => $this->getURL(),
 			"event_types" => []
 		];
 
-		foreach($this->_events as $k => $event)
+		foreach($this->getEvents() as $k => $event)
 		{
 			$payload["event_types"][] = ["name" => $event];
 		}
@@ -84,7 +94,7 @@ class Webhook extends WrapperMixin {
 			[
 				"op" 	=> "replace",
 				"path" 	=> "/url",
-				"value" => "{$this->_url}"
+				"value" => "{$this->getURL()}"
 			],
 			[
 				"op" 	=> "replace",
@@ -93,11 +103,32 @@ class Webhook extends WrapperMixin {
 			]
 		];
 
-		foreach($this->_events as $k => $event)
+		foreach($this->getEvents() as $k => $event)
 		{
 			$payload[1]["value"][] = ["name" => $event];
 		}
 
 		return $payload;
+	}
+
+	public function getURL()
+	{
+		if ($this->_url)
+			return $this->_url;
+		return $this->url;
+	}
+
+
+	public function getEvents()
+	{
+		if ($this->_events)
+			return $this->_events;
+
+		// Get event names from _result
+		$events = [];
+		foreach($this->event_types as $event)
+			$events[] = $event->name;
+
+		return $events;
 	}
 }
