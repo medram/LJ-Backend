@@ -107,10 +107,11 @@ class WebhookManager {
 			]
 		]);
 
-		if ($req->getStatusCode() == 201)
+		if ($req->getStatusCode() === 200)
 		{
-			$this->setResult((string)$req->getBody());
-			return true;
+			$data = json_decode((string)$req->getBody(), true);
+			if (isset($data["verification_status"]) && $data["verification_status"] === "SUCCESS")
+				return true;
 		}
 		return false;
 	}
