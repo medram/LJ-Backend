@@ -63,6 +63,7 @@ class WebhookController extends Controller
     public function registerPayPalWebhook(Request $request)
     {
         $WEBHOOK_URL = url("api/v1/webhook/paypal");
+        $WEBHOOK_URL = "https://mr4web.com/api/v1/webhook/paypal";
         $WEBHOOK_EVENTS = [
                 "PAYMENT.SALE.COMPLETED",
                 "BILLING.SUBSCRIPTION.ACTIVATED",
@@ -78,15 +79,41 @@ class WebhookController extends Controller
 
         if ($webhook)
         {
-            // update webhook
-            $webhook = new Webhook($WEBHOOK_URL, $WEBHOOK_EVENTS, $webhook->id);
+            // check if there is any new event (can't perform webhook update on the same events)
+            $sameEvents = true;
+            $webhookEvents = $webhook->getEvents();
+            if (count($webhookEvents) === count($WEBHOOK_EVENTS))
+            {
+                foreach($WEBHOOK_EVENTS as $eventName)
+                {
+                    if (!in_array($eventName, $webhookEvents))
+                        $sameEvents = false;
+                }
+            }
+            else
+            {
+                $sameEvents = false;
+            }
 
-            if ($webhookManager->update($webhook))
+            if (!$sameEvents)
+            {
+                // update webhook
+                $webhook = new Webhook($WEBHOOK_URL, $WEBHOOK_EVENTS, $webhook->id);
+
+                if ($webhookManager->update($webhook))
+                {
+                    return response()->json([
+                        "errors" => false,
+                        "message" => "PayPal webhook updated"
+                    ], 201);
+                }
+            }
+            else
             {
                 return response()->json([
                     "errors" => false,
-                    "message" => "PayPal webhook updated"
-                ], 201);
+                    "message" => "PayPal webhook updated!"
+                ], 200);
             }
         }
         else
