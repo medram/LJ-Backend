@@ -79,6 +79,7 @@ class CheckoutController extends Controller
                 $invoice->invoice_id = rand(1000000, 9999999);
                 $invoice->user_id = $user->id;
                 $invoice->plan_id = $plan->id;
+                $invoice->amount = $plan->price;
                 $invoice->status = 1; // 1 = paid | 0 = unpaid | 2 = refunded
                 $invoice->paid_at = Carbon::parse($paypalSubscription->create_time);
                 $invoice->payment_gateway = "PAYPAL"; // PAYPAL | STRIPE
