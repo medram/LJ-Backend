@@ -28,12 +28,14 @@ return new class extends Migration
      */
     public function down(): void
     {
-        $table->dropUnique("uuid");
-        $table->dropIndex("uuid");
+        Schema::table('chats', function (Blueprint $table) {
+            $table->dropUnique("uuid");
+            $table->dropIndex("uuid");
 
-        $table->dropColumn("chat_history");
+            $table->dropColumn("chat_history");
 
-        $table->renameColumn('title', 'name');
-        $table->renameColumn('uuid', 'hash');
+            $table->renameColumn('title', 'name');
+            $table->renameColumn('uuid', 'hash');
+        });
     }
 };
