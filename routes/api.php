@@ -15,6 +15,7 @@ use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\WebhookController;
+use App\Http\Controllers\AnalyticsController;
 
 use App\Http\Middleware\UserRequired;
 use App\Http\Middleware\AdminRequired;
@@ -85,6 +86,8 @@ Route::prefix('v1')->group(function (){
 
     // Admin section
     Route::prefix('admin')->middleware([AdminRequired::class])->group(function (){
+        Route::get('analytics', [AnalyticsController::class, "analytics"]);
+
         Route::get('customers', [CustomerController::class, 'customers']);
         Route::post('customers/add', [CustomerController::class, 'add']);
         Route::post('customers/edit/{id}', [CustomerController::class, 'edit'])->where('id', "[0-9]+");
@@ -109,7 +112,6 @@ Route::prefix('v1')->group(function (){
         Route::get('plans', [PlansController::class, 'list']);
         Route::post('plans/add', [PlansController::class, 'add']);
         Route::post('plans/edit/{id}', [PlansController::class, 'edit'])->where('id', "[0-9]+");
-        #Route::get('plans/details/{id}', [PlansController::class, 'details'])->where('id', "[0-9]+");
         Route::post('plans/delete', [PlansController::class, 'delete']);
 
         # Manage subscriptions

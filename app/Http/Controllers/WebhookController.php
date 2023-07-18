@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 
 use App\Models\Subscription;
+use App\Models\Invoice;
 use App\Packages\Gateways\PayPal\Webhook;
 use App\Packages\Gateways\PayPal\WebhookManager;
 
@@ -47,6 +48,25 @@ class WebhookController extends Controller
 
                 if ($plan)
                 {
+                    $user = $subscription->user();
+
+                    if ($user)
+                    {
+                        // create an invoice
+                        $invoice = new Invoice();
+                        $invoice->invoice_id = rand(1000000, 9999999);
+                        $invoice->user_id = $user->id;
+                        $invoice->plan_id = $plan->id;
+                        $invoice->amount = $plan->price;
+                        $invoice->status = 1; // 1 = paid | 0 = unpaid | 2 = refunded
+                        $invoice->paid_at = Carbon::now();
+                        $invoice->payment_gateway = "PAYPAL"; // PAYPAL | STRIPE
+                        $invoice->gateway_plan_id = $subscription->gateway_plan_id;
+                        $invoice->gateway_subscription_id = $subscription->gateway_subscription_id;
+
+                        $invoice->save();
+                    }
+
                     $duration = $plan->billing_cycle == "monthly"? 30 : 365;
                     $subscription->expiring_at = Carbon::now()->addDays($duration);
 
