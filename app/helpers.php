@@ -112,3 +112,9 @@ function getChatManager()
 
 	return $chatManager;
 }
+
+
+function isDemo()
+{
+	return isset($_ENV['DEMO_MODE']) ? (in_array($_ENV['DEMO_MODE'], ["1", 1, "true"]) ? true : false) : false;
+}
