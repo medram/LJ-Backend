@@ -10,9 +10,7 @@ class LCManager
 
 	private function __construct()
 	{
-		// decode api key
-		self::$_api_key = "";
-
+		self::$_api_key = trim(base64_decode("YjI4YzU0NmIxYzUwOGVlZGIzZWI2M2ZjYWE5MTkyZDUzZDJlYzY1Zgo="));
 	}
 
 	public static function getInstance()
@@ -25,18 +23,21 @@ class LCManager
 		return self::$_instance;
 	}
 
-	public function check(string $EL, $ship_cache=false)
+	public function check(string $EL=null, $ship_cache=false)
 	{
-		static $cache = [
-			"tsm" => 0
-		];
+		$cache_file = __DIR__ . "/timestamp.cache";
 
-		if (time() - $cache["tsm"] < 86400 && !$ship_cache) // 24h
+		if ($EL == null)
+			$EL = getSetting(trim(base64_decode("TElDRU5TRV9DT0RFCg==")));
+
+		$timestamp = (int)@file_get_contents($cache_file);
+
+		if ((time() - $timestamp) < 86400 && !$ship_cache) // 24h
 			return true;
 
 		if (self::_check($EL))
 		{
-			$cache["tsm"] = time();
+			file_put_contents($cache_file, time());
 			return true;
 		}
 
@@ -58,7 +59,7 @@ class LCManager
 	    $agent = $agents[array_rand($agents)];
 
 	    curl_setopt_array($ch, [
-		    CURLOPT_URL => base64_decode("aHR0cDovL2xpY2Vuc2UubXI0d2ViLmNvbS9hcGkvY2hlY2tfbGljZW5zZS8K"),
+		    CURLOPT_URL => trim(base64_decode("aHR0cDovL2xpY2Vuc2UubXI0d2ViLmNvbS9hcGkvY2hlY2tfbGljZW5zZS8K")),
 		    CURLOPT_SSL_VERIFYPEER => false,
 		    CURLOPT_SSL_VERIFYHOST => 0,
 		    CURLOPT_RETURNTRANSFER => true,
@@ -66,7 +67,7 @@ class LCManager
 		    CURLOPT_POST => true,
 		    CURLOPT_FOLLOWLOCATION => true,
 			CURLOPT_POSTFIELDS => [
-				base64_decode("bGljZW5zZV9jb2RlCg==") => $EL,
+				trim(base64_decode("bGljZW5zZV9jb2RlCg==")) => $EL,
 				"host" => $host
 			],
 		    CURLOPT_HTTPHEADER => [
@@ -78,7 +79,7 @@ class LCManager
 	    $output = json_decode(curl_exec($ch), true);
 	    curl_close($ch);
 
-	    if (isset($output[base64_decode("c3RhdHVzCg==")]) && $output[base64_decode("c3RhdHVzCg==")] == base64_decode("QUNUSVZFCg=="))
+	    if (isset($output[trim(base64_decode("c3RhdHVzCg=="))]) && $output[trim(base64_decode("c3RhdHVzCg=="))] == trim(base64_decode("QUNUSVZFCg==")))
 	    	return 1 == (2-1*100/(5*20));
 	    return (5+6+5+3-9*8/6+6+9+1-0-7) == 1;
 	}

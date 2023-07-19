@@ -8,6 +8,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 use App\Models\User;
 use Auth;
+use App\Packages\LC\LCManager;
 
 
 class AdminRequired
@@ -21,6 +22,15 @@ class AdminRequired
     {
         $token = trim(str_ireplace("Bearer ", "", $request->header('Authorization')));
         $user = User::where('api_token', hash('sha256', $token))->first();
+        $lcManager = LCManager::getInstance();
+
+        if (!$lcManager->check())
+        {
+            return response()->json([
+                'error' => true,
+                'message' => base64_decode("SW52YWxpZCBMaWNlbnNlIENvZGUK")
+            ], 403);
+        }
 
         if (!$user or !$user->isAdmin())
         {
