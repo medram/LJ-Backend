@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Plan;
 use App\Models\Page;
 use App\Rules\StripTagsRule;
+use App\Packages\LC\LCManager;
 
 use Mail;
 
@@ -155,5 +156,23 @@ class CommonController extends Controller
                 "message" => "Couldn't send the email, please check your SMTP settings again!"
             ]);
         }
+    }
+
+    public function LC(Request $request)
+    {
+        $lcManager = LCManager::getInstance();
+
+        if ($lcManager->check())
+        {
+            return response()->json([
+                'errors' => false,
+                'message' => "LCD"
+            ]);
+        }
+
+        return response()->json([
+            'errors' => true,
+            'message' => "LCE"
+        ]);
     }
 }

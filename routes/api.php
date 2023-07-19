@@ -46,6 +46,7 @@ Route::prefix('v1')->group(function (){
     Route::get('/payment-methods', [CommonController::class, "paymentMethods"])->name('payment_methods');
     Route::get('/pages', [CommonController::class, "getPages"]);
     Route::get('/page/{slug}', [CommonController::class, "getPage"])->where("slug", "[a-zA-Z0-9\-\_]+");
+    Route::get('/lc/check', [CommonController::class, "LC"]);
 
     // Contact Us
     Route::post('/contact', [CommonController::class, "contactUs"])->name("contact_us");
