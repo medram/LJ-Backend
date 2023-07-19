@@ -175,4 +175,20 @@ class CommonController extends Controller
             'message' => "LCE"
         ]);
     }
+
+    public function demo(Request $request)
+    {
+        if (isDemo())
+        {
+            return response()->json([
+                "errors" => false,
+                "status" => true
+            ]);
+        }
+
+        return response()->json([
+            "errors" => false,
+            "status" => false
+        ]);
+    }
 }
