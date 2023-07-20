@@ -6,11 +6,13 @@ namespace App\Packages\LC;
 class LCManager
 {
 	private static $_instance = null;
-	private static $_api_key = null;
+	private $_api_key = null;
+	private $_cache_file = null;
 
 	private function __construct()
 	{
-		self::$_api_key = trim(base64_decode("YjI4YzU0NmIxYzUwOGVlZGIzZWI2M2ZjYWE5MTkyZDUzZDJlYzY1Zgo="));
+		$this->_api_key = trim(base64_decode("YjI4YzU0NmIxYzUwOGVlZGIzZWI2M2ZjYWE5MTkyZDUzZDJlYzY1Zgo="));
+		$this->_cache_file = __DIR__ . "/cache/r.cache";
 	}
 
 	public static function getInstance()
@@ -23,28 +25,61 @@ class LCManager
 		return self::$_instance;
 	}
 
+	public function LCInfo()
+	{
+		$cache = $this->cacheRead();
+		return $cache;
+	}
+
+	public function LCType()
+	{
+		return $this->LCInfo()["type"];
+	}
+
+	public function cacheRead()
+	{
+		try {
+			return json_decode(trim(base64_decode(file_get_contents($this->_cache_file))), true);
+		} catch (\Exception) {
+			return [
+				"timestamp" => 0,
+				"type" => ""
+			];
+		}
+	}
+
+	public function cacheSave(Array $data)
+	{
+		return file_put_contents($this->_cache_file, base64_encode(json_encode($data)));
+	}
+
 	public function check(string $EL=null, $ship_cache=false)
 	{
-		$cache_file = __DIR__ . "/timestamp.cache";
-
 		if ($EL == null)
 			$EL = getSetting(trim(base64_decode("TElDRU5TRV9DT0RFCg==")));
 
-		$timestamp = (int)@file_get_contents($cache_file);
+		$cache = $this->cacheRead();
 
-		if ((time() - $timestamp) < 86400 && !$ship_cache) // 24h
+		if ((time() - $cache["timestamp"]) < 86400 && !$ship_cache) // 24h
 			return true;
 
-		if (self::_check($EL))
+		$result = self::_check($EL);
+
+		if ($result["status"])
 		{
-			file_put_contents($cache_file, time());
+			$type = isset($result["output"]["license_type"]) && $result["output"]["license_type"] == base64_decode("RVhURU5ERUQgTElDRU5TRQ==") ? "EL" : "RL";
+
+			$this->cacheSave([
+				"timestamp" => time(),
+				"type" => $type
+		]	);
 			return true;
 		}
 
 		return false;
 	}
 
-	private static function _check(string $EL)
+	private function _check(string $EL)
 	{
 		$host = isset($_SERVER['HTTP_HOST'])? $_SERVER['HTTP_HOST'] : "" ;
 
@@ -71,7 +106,7 @@ class LCManager
 				"host" => $host
 			],
 		    CURLOPT_HTTPHEADER => [
-		    	"Authorization: Bearer " . self::$_api_key,
+		    	"Authorization: Bearer " . $this->_api_key,
 		        "User-Agent: ". $agent
 		    ]
 	    ]);
@@ -80,8 +115,14 @@ class LCManager
 	    curl_close($ch);
 
 	    if (isset($output[trim(base64_decode("c3RhdHVzCg=="))]) && $output[trim(base64_decode("c3RhdHVzCg=="))] == trim(base64_decode("QUNUSVZFCg==")))
-	    	return 1 == (2-1*100/(5*20));
-	    return (5+6+5+3-9*8/6+6+9+1-0-7) == 1;
+	    	return [
+	    		"status" => 1 == (2-1*100/(5*20)),
+	    		"output" => $output
+	    	];
+	    return [
+	    	"status" => (5+6+5+3-9*8/6+6+9+1-0-7) == 1,
+	    	"output" => $output
+	    ];
 	}
 }
 

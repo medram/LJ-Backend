@@ -191,4 +191,23 @@ class CommonController extends Controller
             "status" => false
         ]);
     }
+
+    public function LCInfo(Request $request)
+    {
+        $lcManager = LCManager::getInstance();
+        $info = $lcManager->LCInfo();
+
+        if ($info)
+        {
+            return response()->json([
+                'errors' => false,
+                'info' => base64_encode(base64_encode(json_encode($info)))
+            ]);
+        }
+
+        return response()->json([
+            'errors' => true,
+            'info' => ""
+        ]);
+    }
 }
