@@ -23,6 +23,9 @@ class AnalyticsController extends Controller
         // All Subscriptions
         $subscriptions_count = Subscription::count();
 
+        // All Active Subscriptions
+        $active_subscriptions_count = Subscription::where("status", 1)->count();
+
         // All amount invoices
         $invoices_count = Invoice::count();
 
@@ -48,6 +51,7 @@ class AnalyticsController extends Controller
             "invoices_count"        => $invoices_count,
             "recent_customers"      => $recent_customers,
             "recent_subscriptions"  => $recent_subscriptions,
+            "active_subscriptions_count" => $active_subscriptions_count
         ];
 
         return response()->json([
