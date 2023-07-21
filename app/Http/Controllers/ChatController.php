@@ -45,9 +45,15 @@ class ChatController extends Controller
             if ($user)
             {
                 # update subscription quota
-                $subscription = $user->getCurrentSubscription();
-                $subscription->pdfs -= 1;
-                $subscription->save();
+                if (!isDemo())
+                {
+                    $subscription = $user->getCurrentSubscription();
+                    if ($subscription->pdfs > 0)
+                    {
+                        $subscription->pdfs -= 1;
+                        $subscription->save();
+                    }
+                }
 
                 Chat::create([
                     "user_id"   => $user->id,
@@ -105,11 +111,16 @@ class ChatController extends Controller
 
         if ($user)
         {
-            # update subscription quota
-            $subscription = $user->getCurrentSubscription();
-            if ($subscription->questions > 0)
-                $subscription->questions -= 1;
-            $subscription->save();
+            if (!isDemo())
+            {
+                # update subscription quota
+                $subscription = $user->getCurrentSubscription();
+                if ($subscription->questions > 0)
+                {
+                    $subscription->questions -= 1;
+                    $subscription->save();
+                }
+            }
         }
 
         if ($chatRoom)
