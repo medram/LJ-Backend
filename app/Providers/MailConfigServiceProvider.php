@@ -16,6 +16,10 @@ class MailConfigServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        // to ensure that the platform already installed
+        if (!isInstalled())
+            return null;
+
         $settings = getAllSettings();
 
         $config = array(
@@ -51,22 +55,6 @@ class MailConfigServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        /*$settings = getAllSettings();
 
-        $config = array(
-            'driver'     => "smtp",
-            'host'       => $settings['SMTP_HOST'],
-            'port'       => $settings['SMTP_PORT'],
-            'from'       => array('address' => $settings['SMTP_USER'], 'name' => $settings['SITE_NAME']),
-            'encryption' => strtolower($settings['SMTP_MAIL_ENCRIPTION']),
-            'username'   => $settings['SMTP_USER'],
-            'password'   => $settings['SMTP_PASSWORD'],
-            'sendmail'   => '/usr/sbin/sendmail -bs',
-            'pretend'    => false,
-        );
-
-        #config(['mail.mailers.smtp' => $config]);
-        Config::set('mail', $config);
-        */
     }
 }
