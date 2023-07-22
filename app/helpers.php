@@ -124,3 +124,9 @@ function getAppVersion()
 {
 	return "1.0.0";
 }
+
+
+function isInstalled()
+{
+	return in_array(env("INSTALLED"), ["1", 1, "true"]) ? true : false;
+}
