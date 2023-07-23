@@ -5,7 +5,10 @@ namespace App\Http\Controllers;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Http\Request;
 
+use App\Packages\LC\LCManager;
+
 use App\Models\User;
+
 use Str;
 use Hash;
 
@@ -125,7 +128,7 @@ class InstallController extends Controller
                 session(["database" => true]);
 
                 // redirect to the next step
-                return redirect()->route("install.database.install");
+                return redirect()->route("install.verify");
             }
             else
             {
@@ -142,9 +145,10 @@ class InstallController extends Controller
     {
         $requirements = session("requirements");
         $database = session("database");
+        $verify = session("verify");
 
-        if (!$requirements OR !$database)
-            return redirect()->route("install.index");
+        if (!$verify OR !$requirements OR !$database)
+            return redirect()->route("install.verify");
 
         // Perform the installation
         echo "<b>📥 Installing, Please wait...<br></b>";
@@ -174,6 +178,48 @@ class InstallController extends Controller
         return redirect()->route("install.completed");
     }
 
+    public function verify(Request $request)
+    {
+        $requirements = session("requirements");
+        $database = session("database");
+
+        if (!$requirements OR !$database)
+            return redirect()->route("install.database");
+
+        // clear value
+        session()->forget("verify");
+        session()->forget("lc");
+
+        $results = [];
+
+        if ($request->method() == "POST")
+        {
+            $fields = $request->validate([
+                "lc" => "string|required"
+            ]);
+
+            $lc = $fields["lc"];
+            $lcManager = LCManager::getInstance();
+
+            if ($lcManager->check($lc, true))
+            {
+                session(["verify" => true]);
+                session(["lc" => $lc]);
+
+                // redirect to the next step
+                return redirect()->route("install.database.install");
+            }
+            else
+            {
+                return redirect()->back()->with("error", "Invalid Purchase Code 🫢!");
+            }
+        }
+
+        return view("install.verify", [
+            "results" => $results
+        ]);
+    }
+
     public function completed(Request $request)
     {
         if (!session("installed"))
@@ -186,10 +232,17 @@ class InstallController extends Controller
         if (!$adminCredentials)
             return redirect("/");
 
+        // register lc in db
+        $lc = session("lc");
+        if ($lc)
+            setSetting("LICENSE_CODE", $lc);
+
         // clear all prvious sessions
         session()->forget("requirements");
         session()->forget("database");
         session()->forget("admin");
+        session()->forget("verify");
+        session()->forget("lc");
 
         return view("install.completed", [
             "admin" => $adminCredentials

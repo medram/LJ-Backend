@@ -42,6 +42,8 @@ Route::group(["prefix" => "/install", "middleware" => InstallerMiddleware::class
         Route::get("/requirements", "requirements")->name("install.requirements");
         Route::get("/database", "database")->name("install.database");
         Route::post("/database", "database")->name("install.database.post");
+        Route::get("/verify", "verify")->name("install.verify");
+        Route::post("/verify", "verify")->name("install.verify.post");
         Route::get("/install", "installDatabase")->name("install.database.install");
         Route::get("/completed", "completed")->name("install.completed");
 
