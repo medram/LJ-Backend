@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 
 use App\Models\User;
 use Str;
+use Hash;
 
 
 class InstallController extends Controller
@@ -242,7 +243,7 @@ class InstallController extends Controller
         $admin = new User();
         $admin->username = "admin";
         $admin->email = $default_email;
-        $admin->password = $generated_password;
+        $admin->password = Hash::make($generated_password);
         $admin->role = 1;
         $admin->is_active = 1;
         $admin->email_verified_at = now();

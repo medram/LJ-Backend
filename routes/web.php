@@ -49,4 +49,6 @@ Route::group(["prefix" => "/install", "middleware" => InstallerMiddleware::class
 });
 
 # Home page (For Frontent React Project)
-Route::fallback([FrontendController::class, "index"])->name("frontend")->middleware(InstallerMiddleware::class);
+Route::fallback([FrontendController::class, "index"])
+    ->name("frontend")
+    ->middleware(InstallerMiddleware::class);

@@ -20,19 +20,25 @@ class PagesSeeder extends Seeder
                 "title"     => "Privacy Policy",
                 "slug"      => "privacy-policy",
                 "content"   => "",
-                "status"    => "1"
+                "status"    => "1",
+                "updated_at"    => now(),
+                "created_at"    => now(),
             ],
             [
                 "title"     => "Terms of Use",
                 "slug"      => "terms",
                 "content"   => "",
-                "status"    => "1"
+                "status"    => "1",
+                "updated_at"    => now(),
+                "created_at"    => now(),
             ],
             [
                 "title"     => "FAQ",
                 "slug"      => "faq",
                 "content"   => "",
-                "status"    => "1"
+                "status"    => "1",
+                "updated_at"    => now(),
+                "created_at"    => now(),
             ],
         ];
 
