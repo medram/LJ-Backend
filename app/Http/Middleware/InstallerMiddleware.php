@@ -24,6 +24,8 @@ class InstallerMiddleware
             "install.requirements",
             "install.database",
             "install.database.post",
+            "install.verify",
+            "install.verify.post",
             "install.database.install",
         ]))
             return redirect("/");
