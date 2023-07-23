@@ -11,6 +11,21 @@ class SettingsController extends Controller
 {
     public $private_settings = [
         //e.g. "SITE_NAME",
+        "LICENSE_CODE",
+        "SMTP_HOST",
+        "SMTP_PORT",
+        "SMTP_USER",
+        "SMTP_PASSWORD",
+        "SMTP_MAIL_ENCRIPTION",
+        "SMTP_ALLOW_INSECURE_MODE",
+        "PM_PAYPAL_CLIENT_ID",
+        "PM_PAYPACLIENT_SECRET",
+        "PM_STRIP_PUBLIC_KEY",
+        "PM_STRIP_PRIVATE_KEY",
+        "RAPID_API_KEY",
+        "RAPID_API_HOST",
+        "OPENAI_API_KEY",
+        "PM_PAYPAL_WEBHOOK_ID",
     ];
 
     public function publicSettings(Request $request)
