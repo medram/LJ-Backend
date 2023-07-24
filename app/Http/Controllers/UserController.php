@@ -169,13 +169,21 @@ class UserController extends Controller
         // Send email verification.
         if ($user)
         {
-            try {
-                $user->sendVerificationEmail();
-            } catch (\Exception $e){
-                return response()->json([
-                    "errors" => true,
-                    "message" => "Something went wrong!, check out your SMTP config."
-                ]);
+            if (isDemo())
+            {
+                $user->is_active = 1; // activate the user automatically on demo mode.
+                $user->save();
+            }
+            else
+            {
+                try {
+                    $user->sendVerificationEmail();
+                } catch (\Exception $e){
+                    return response()->json([
+                        "errors" => true,
+                        "message" => "Something went wrong!, check out your SMTP config."
+                    ]);
+                }
             }
         }
 

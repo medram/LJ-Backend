@@ -31,9 +31,7 @@ class ChatController extends Controller
         $file = $request->file("file");
         $fileName = sha1(time()) . "." . $file->extension();
         # may not be required
-        # $file->move(public_path("uploads/chat-files"), $fileName);
 
-        # dd($file->path());
         # Create a chat room
         $chatManager = getChatManager();
         $raw_response = $chatManager->createChatRoom($file->path(), true);
