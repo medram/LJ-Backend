@@ -9,8 +9,11 @@ use Illuminate\Support\Str;
 
 use App\Models\User;
 use App\Models\Invoice;
+use App\Models\Plan;
 use App\Models\Subscription;
 use App\Rules\StripTagsRule;
+
+use Carbon\Carbon;
 
 use DB;
 
@@ -223,7 +226,6 @@ class UserController extends Controller
         ], 404);
     }
 
-
     public function updatePassword(Request $request)
     {
         $user = $request->user();
@@ -340,6 +342,46 @@ class UserController extends Controller
         return response()->json([
             "errors" => true,
             "message" => "Invalid/expired token!"
+        ]);
+    }
+
+    public function activateFreePlan(Request $request)
+    {
+        $fields = $request->validate([
+            "plan_id" => "string|required", // could be integer
+        ]);
+
+        $plan_id = $fields["plan_id"];
+
+        $plan = Plan::where("id", intval($plan_id))->first();
+        $user = $request->user();
+
+        if ($plan && $plan->isFree() && $user)
+        {
+            // register new free subscription for this user
+            $duration = $plan->billing_cycle == "monthly"? 30 : 365;
+            $subscription = new Subscription();
+            $subscription->sub_id = Str::random(10);
+            $subscription->user_id = $user->id;
+            $subscription->plan_id = $plan->id;
+            $subscription->status = 1; // active
+            $subscription->expiring_at = Carbon::now()->addDays($duration);
+
+            $subscription->pdfs = $plan->pdfs;
+            $subscription->questions = $plan->questions;
+            $subscription->pdf_size = $plan->pdf_size;
+
+            $subscription->save();
+
+            return response()->json([
+                "errors" => false,
+                "message" => "Subscribed successfully."
+            ]);
+        }
+
+        return response()->json([
+            "errors" => true,
+            "message" => "Plan Not Found/Free"
         ]);
     }
 }

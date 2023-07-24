@@ -72,6 +72,8 @@ Route::prefix('v1')->group(function (){
 
         Route::get('subscription', [UserController::class, 'subscription']);
         Route::get('invoices', [UserController::class, 'invoices']);
+        // activate free plan for this user.
+        Route::post('afp', [UserController::class, 'activateFreePlan']);
 
         Route::post('update-password', [UserController::class, 'updatePassword']);
 

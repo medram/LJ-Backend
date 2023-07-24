@@ -19,7 +19,7 @@ class SettingsController extends Controller
         "SMTP_MAIL_ENCRIPTION",
         "SMTP_ALLOW_INSECURE_MODE",
         "PM_PAYPAL_CLIENT_ID",
-        "PM_PAYPACLIENT_SECRET",
+        "PM_PAYPAL_CLIENT_SECRET",
         "PM_STRIP_PUBLIC_KEY",
         "PM_STRIP_PRIVATE_KEY",
         "RAPID_API_KEY",
