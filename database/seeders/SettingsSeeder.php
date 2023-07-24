@@ -36,9 +36,10 @@ class SettingsSeeder extends Seeder
             ["name" => "EMAIL_TEMPLATE_SUBSCRIBTION_EXPIRED",   "value" => "",              "type" => "string"],
             ["name" => "EMAIL_TEMPLATE_SUBSCRIPTION_RENEWED",   "value" => "",              "type" => "string"],
             ["name" => "PM_PAYPAL_CLIENT_ID",   "value" => "",          "type" => "string"],
-            ["name" => "PM_PAYPACLIENT_SECRET", "value" => "",          "type" => "string"],
+            ["name" => "PM_PAYPAL_CLIENT_SECRET", "value" => "",          "type" => "string"],
             ["name" => "PM_PAYPAL_SANDBOX",     "value" => "1",         "type" => "boolean"],
             ["name" => "PM_PAYPAL_STATUS",      "value" => "0",         "type" => "boolean"],
+            ["name" => "PM_PAYPAL_WEBHOOK_ID",  "value" => "",          "type" => "string"],
             ["name" => "PM_STRIP_PUBLIC_KEY",   "value" => "",          "type" => "string"],
             ["name" => "PM_STRIP_PRIVATE_KEY",  "value" => "",          "type" => "string"],
             ["name" => "PM_STRIP_SANDBOX",      "value" => "1",         "type" => "boolean"],
@@ -46,7 +47,6 @@ class SettingsSeeder extends Seeder
             ["name" => "RAPID_API_KEY",         "value" => "",          "type" => "string"],
             ["name" => "RAPID_API_HOST",        "value" => "askpdf1.p.rapidapi.com", "type" => "string"],
             ["name" => "OPENAI_API_KEY",        "value" => "",          "type" => "string"],
-            ["name" => "PM_PAYPAL_WEBHOOK_ID",  "value" => "",          "type" => "string"],
             ["name" => "LICENSE_CODE",          "value" => "",          "type" => "string"],
 
         ];
