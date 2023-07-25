@@ -85,7 +85,7 @@ class ChatController extends Controller
         $chatManager = getChatManager();
         $chatRoom = $chatManager->getChatRoomByUUID($uuid);
 
-        // TODO: register the prompt & the reply
+        // register the prompt & the reply
 
         if ($chat)
         {
