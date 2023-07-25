@@ -89,7 +89,14 @@ class ChatController extends Controller
 
         if ($chat)
         {
-            $reply = $chatRoom->send($prompt);
+            try {
+                $reply = $chatRoom->send($prompt);
+            } catch (\Exception $e){
+                return response()->json([
+                    "errors" => true,
+                    "message" => $e->getMessage()
+                ], 400);
+            }
 
             $history = json_decode($chat->chat_history, true);
             $history[] = [

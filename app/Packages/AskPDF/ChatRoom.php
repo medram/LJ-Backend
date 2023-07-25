@@ -84,6 +84,11 @@ class ChatRoom
 			$response = json_decode($req->getBody());
 			return $response;
 		}
+		else if ($req->getStatusCode() === 400)
+		{
+			$response = json_decode($req->getBody());
+			throw new \Exception($response->detail);
+		}
 
 		return null;
 	}
