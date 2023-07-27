@@ -13,6 +13,7 @@ use App\Rules\StripTagsRule;
 
 class CustomerController extends Controller
 {
+    // List all available customers
     public function customers(Request $request)
     {
         $customers = User::where('role', 0)->orderBy('id', 'DESC')->get();
@@ -23,6 +24,7 @@ class CustomerController extends Controller
         ]);
     }
 
+    // add a new customer
     public function add(Request $request)
     {
         $request->validate([
@@ -47,6 +49,7 @@ class CustomerController extends Controller
         ], 201);
     }
 
+    // Edit a specific customer
     public function edit(Request $request, $id)
     {
         $request->validate([
@@ -80,6 +83,7 @@ class CustomerController extends Controller
         ]);
     }
 
+    // Get customer's details
     public function details(Request $request, $id)
     {
         $customer = User::where('id', $id)->first();
@@ -90,6 +94,7 @@ class CustomerController extends Controller
         ]);
     }
 
+    // delete customer
     public function delete(Request $request)
     {
         try {

@@ -20,7 +20,7 @@ use DB;
 
 class UserController extends Controller
 {
-
+    // Login user/customer.
     public function login(Request $request)
     {
         $credentials = $request->validate([
@@ -51,6 +51,7 @@ class UserController extends Controller
         ]);
     }
 
+    // Logout user/customer.
     public function logout(Request $request)
     {
         $token = userToken($request);
@@ -77,6 +78,7 @@ class UserController extends Controller
         ]);
     }
 
+    // User dashboard insights (Not needed currently).
     public function dashboard(Request $request)
     {
         return response()->json([
@@ -84,6 +86,7 @@ class UserController extends Controller
         ]);
     }
 
+    // Get User/Customer profile details.
     public function profile(Request $request)
     {
         return response()->json([
@@ -92,6 +95,7 @@ class UserController extends Controller
         ]);
     }
 
+    // Update User/Customer profile details.
     public function updateProfile(Request $request)
     {
         $request->validate([
@@ -119,6 +123,7 @@ class UserController extends Controller
         ]);
     }
 
+    // Get User/Customer recent valid subscription.
     public function subscription(Request $request)
     {
         $user = $request->user();
@@ -135,7 +140,7 @@ class UserController extends Controller
         ]);
     }
 
-
+    // List all available User/Customer's invoices.
     public function invoices(Request $request)
     {
         $user = $request->user();
@@ -151,7 +156,7 @@ class UserController extends Controller
         ]);
     }
 
-
+    // Register User/Customer.
     public function register(Request $request)
     {
         $request->validate([
@@ -194,6 +199,7 @@ class UserController extends Controller
         ], 201);
     }
 
+    // Verify User/Customer's account.
     public function verifyAccount(Request $request, string $token)
     {
         $personal_token = DB::table("personal_access_tokens")->where('token', $token)
@@ -217,6 +223,7 @@ class UserController extends Controller
         return redirect("/login");
     }
 
+    // Get Current Logged in User/Customer.
     public function currentUser(Request $request)
     {
         $currentUser = $request->user();
@@ -234,6 +241,7 @@ class UserController extends Controller
         ], 404);
     }
 
+    // Update User/Customer's Password.
     public function updatePassword(Request $request)
     {
         $user = $request->user();
@@ -274,6 +282,7 @@ class UserController extends Controller
         ], 200);
     }
 
+    // Sent "Forget Password" email to reset User/Customer's password.
     public function forgetPassword(Request $request)
     {
         // Get the user, check the email, send reset link via email
@@ -302,6 +311,7 @@ class UserController extends Controller
         ]);
     }
 
+    // Rest User/Customer's password.
     public function resetPassword(Request $request)
     {
         /*
@@ -353,6 +363,7 @@ class UserController extends Controller
         ]);
     }
 
+    // Activate Free Plan for a specific user.
     public function activateFreePlan(Request $request)
     {
         $fields = $request->validate([

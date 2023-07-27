@@ -9,6 +9,7 @@ use App\Models\Subscription;
 
 class SubscriptionController extends Controller
 {
+    // List all available Subscriptions.
     public function list(Request $request)
     {
         //$subscriptions = Subscription::orderByDesc('id')->get();
@@ -25,6 +26,7 @@ class SubscriptionController extends Controller
         ]);
     }
 
+    // Cancel a specific subscription.
     public function cancel(Request $request, string $sub_id)
     {
         $subscription = Subscription::where("sub_id", $sub_id)->first();

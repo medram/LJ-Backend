@@ -22,6 +22,7 @@ use App\Models\Invoice;
 
 class CheckoutController extends Controller
 {
+    // Create a Gateway Subscription for that spesific order
     public function index(Request $request)
     {
         $request->validate([
@@ -54,6 +55,7 @@ class CheckoutController extends Controller
         }
     }
 
+    // Validate Payment
     public function validateSubscription(Request $request, string $id, int $user_id) # id of a db Plan
     {
         $request->validate([
@@ -128,6 +130,7 @@ class CheckoutController extends Controller
         return redirect("/pricing");
     }
 
+    // Create PayPal subscription
     public function createPayPalSubscription(Plan $plan)
     {
         $user = request()->user();

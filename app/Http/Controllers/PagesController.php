@@ -10,6 +10,7 @@ use App\Rules\StripTagsRule;
 
 class PagesController extends Controller
 {
+    // List all available pages.
     public function list(Request $request)
     {
         $pages = Page::all();
@@ -20,6 +21,7 @@ class PagesController extends Controller
         ]);
     }
 
+    // Add a new Page.
     public function add(Request $request)
     {
         $request->validate([
@@ -41,7 +43,7 @@ class PagesController extends Controller
         }
     }
 
-
+    // Edit a specific page.
     public function edit(Request $request, $id)
     {
         $page = Page::where('id', $id)->get()->first();
@@ -70,6 +72,7 @@ class PagesController extends Controller
         ]);
     }
 
+    // Get Page details.
     public function details(Request $request, $id)
     {
         $page = Page::find($id);
@@ -88,6 +91,7 @@ class PagesController extends Controller
         ]);
     }
 
+    // Delete the page.
     public function delete(Request $request)
     {
         $id = $request->json('id');

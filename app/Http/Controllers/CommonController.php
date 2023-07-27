@@ -16,6 +16,7 @@ $settings = getAllSettings();
 
 class CommonController extends Controller
 {
+    // Get all active plans
     public function plans(Request $request)
     {
         $plans = Plan::where([
@@ -29,6 +30,7 @@ class CommonController extends Controller
         ]);
     }
 
+    // Get all available payment methods
     public function paymentMethods(Request $request)
     {
         $payment_mothods = [];
@@ -59,6 +61,7 @@ class CommonController extends Controller
         ]);
     }
 
+    // send email to the website owner
     public function contactUs(Request $request)
     {
         $request->validate([
@@ -92,6 +95,7 @@ class CommonController extends Controller
         ]);
     }
 
+    // Get all available website pages
     public function getPages(Request $request)
     {
         # Get all active pages
@@ -109,6 +113,7 @@ class CommonController extends Controller
         ]);
     }
 
+    // Get website page details
     public function getPage(Request $request, string $slug)
     {
         # Get all active pages
@@ -131,6 +136,7 @@ class CommonController extends Controller
         ], 404);
     }
 
+    // Send a test email (useful for SMTP configuration)
     public function sendTestEmail(Request $request)
     {
         $fields = $request->validate([
@@ -176,6 +182,7 @@ class CommonController extends Controller
         ]);
     }
 
+    // Inform frontend with demo status
     public function demo(Request $request)
     {
         if (isDemo())

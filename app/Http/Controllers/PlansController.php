@@ -11,7 +11,7 @@ use App\Rules\StripTagsRule;
 
 class PlansController extends Controller
 {
-
+    // List all available plans.
     public function list()
     {
         //$plans = Plan::where('status', 1)->get();
@@ -23,6 +23,7 @@ class PlansController extends Controller
         ]);
     }
 
+    // Add a new Plan
     public function add(Request $request)
     {
         $request->validate([
@@ -58,6 +59,7 @@ class PlansController extends Controller
         }
     }
 
+    // Edit a specific Plan.
     public function edit(Request $request, $id)
     {
         $plan = plan::where(['id' => $id, 'soft_delete' => 0])->get()->first();
@@ -130,6 +132,7 @@ class PlansController extends Controller
         ]);
     }
 
+    // Delete plan.
     public function delete(Request $request)
     {
         $id = $request->json("id");

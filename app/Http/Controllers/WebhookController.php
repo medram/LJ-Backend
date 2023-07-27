@@ -14,6 +14,7 @@ use Carbon\Carbon;
 
 class WebhookController extends Controller
 {
+    // PayPal webhook
     public function paypal(Request $request)
     {
         $data = $request->json()->all();
@@ -80,6 +81,7 @@ class WebhookController extends Controller
         }
     }
 
+    // Register a webhook into PayPal.
     public function registerPayPalWebhook(Request $request)
     {
         $WEBHOOK_URL = url("api/v1/webhook/paypal");

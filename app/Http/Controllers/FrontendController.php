@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 
 class FrontendController extends Controller
 {
-    // for React Frontend
+    // Integrate React Frontend
     public function index(Request $request)
     {
         $settings = getAllSettings();

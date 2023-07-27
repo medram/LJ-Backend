@@ -9,6 +9,8 @@ use Symfony\Component\HttpFoundation\Response;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 
+
+// User required Middleware
 class UserRequired
 {
     /**

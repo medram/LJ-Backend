@@ -15,11 +15,13 @@ use Hash;
 
 class InstallController extends Controller
 {
+    // Installer index page.
     public function index(Request $request)
     {
         return redirect()->route("install.requirements");
     }
 
+    // installer Requirements step.
     public function requirements(Request $request)
     {
         $requirements = config("install.extensions");
@@ -86,6 +88,7 @@ class InstallController extends Controller
         ]);
     }
 
+    // Installer Database step.
     public function database(Request $request)
     {
         $results = [];
@@ -141,6 +144,7 @@ class InstallController extends Controller
         ]);
     }
 
+    // Installer perform database migrations, seeds and register default admin account.
     public function installDatabase(Request $request)
     {
         $requirements = session("requirements");
@@ -178,6 +182,7 @@ class InstallController extends Controller
         return redirect()->route("install.completed");
     }
 
+    // LC verification.
     public function verify(Request $request)
     {
         $requirements = session("requirements");
@@ -220,6 +225,7 @@ class InstallController extends Controller
         ]);
     }
 
+    // Installer Complate page.
     public function completed(Request $request)
     {
         if (!session("installed"))
@@ -249,6 +255,7 @@ class InstallController extends Controller
         ]);
     }
 
+    // edit .env file.
     private function storeConfiguration($key, $value)
     {
         $path = base_path('.env');
@@ -266,6 +273,7 @@ class InstallController extends Controller
         }
     }
 
+    // Perform database migrations.
     private function installDatabaseMigrations()
     {
         try {
@@ -277,6 +285,7 @@ class InstallController extends Controller
         }
     }
 
+    // Inserting database seeds into DB.
     private function installDatabaseSeeds()
     {
         try {
@@ -288,6 +297,7 @@ class InstallController extends Controller
         }
     }
 
+    // Register default admin account after installation.
     private function registerDefaultAdminAccount()
     {
         $generated_password = Str::random(8);
@@ -308,6 +318,7 @@ class InstallController extends Controller
         ]]);
     }
 
+    // Check database credentials
     private function checkDatabaseCredentials(string $db_host="localhost", string $db_name, string $db_user, string $db_pass)
     {
         try

@@ -9,17 +9,19 @@ use App\Packages\AskPDF\ChatManager;
 use App\Models\Setting;
 
 
-
+// Get all available website settings.
 function getAllSettings()
 {
 	return Setting::getAllSettings();
 }
 
+// Get indevidual website setting.
 function getSetting($key)
 {
 	return Setting::getSetting($key);
 }
 
+// Update website setting.
 function setSetting(string $key, $value)
 {
 	return Setting::where("name", $key)->update([
@@ -27,12 +29,13 @@ function setSetting(string $key, $value)
 	]);
 }
 
+// Get user token.
 function userToken($request)
 {
 	return trim(str_ireplace("Bearer ", "", $request->header('Authorization')));
 }
 
-# Create a PayPal plan from a db_plan
+// Create a PayPal plan from a db_plan.
 function getOrCreatePaypalPlan($db_plan)
 {
 	$paypal = getPayPalGateway();
@@ -73,6 +76,7 @@ function getOrCreatePaypalPlan($db_plan)
 	return $paypalPlan;
 }
 
+// Get available PayPal gateway.
 function getPayPalGateway()
 {
 	$config = [
@@ -86,7 +90,7 @@ function getPayPalGateway()
 	return $paypal;
 }
 
-
+// Get RapidAPI client instance.
 function getAskPDFClient()
 {
 	static $askpdfClient = null;
@@ -102,7 +106,7 @@ function getAskPDFClient()
 	return $askpdfClient;
 }
 
-
+// Get chat Manager instance.
 function getChatManager()
 {
 	static $chatManager = null;
@@ -113,19 +117,19 @@ function getChatManager()
 	return $chatManager;
 }
 
-
+// Get Demo status
 function isDemo()
 {
 	return isset($_ENV['DEMO_MODE']) ? (in_array($_ENV['DEMO_MODE'], ["1", 1, "true"]) ? true : false) : false;
 }
 
-
+// Return app version.
 function getAppVersion()
 {
 	return "1.0.0";
 }
 
-
+// Return installation status.
 function isInstalled()
 {
 	return in_array(env("INSTALLED"), ["1", 1, "true"]) ? true : false;

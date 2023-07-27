@@ -11,6 +11,7 @@ use Auth;
 use App\Packages\LC\LCManager;
 
 
+// Admin Required Middleware
 class AdminRequired
 {
     /**

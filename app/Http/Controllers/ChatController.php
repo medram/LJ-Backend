@@ -9,6 +9,7 @@ use App\Models\Chat;
 
 class ChatController extends Controller
 {
+    // Upload Document for chat room
     public function upload(Request $request)
     {
         $user = $request->user();
@@ -74,6 +75,7 @@ class ChatController extends Controller
         ], 400);
     }
 
+    // send prompt of the chat room to backend/RapidAPI
     public function send(Request $request, string $uuid)
     {
         $request->validate([
@@ -142,6 +144,7 @@ class ChatController extends Controller
         ], 404);
     }
 
+    // Get Chat history/info
     public function details(Request $request, string $uuid)
     {
         $chatManager = getChatManager();
@@ -161,6 +164,7 @@ class ChatController extends Controller
         ], 404);
     }
 
+    // Clear chat history
     public function clearHistory(Request $request, string $uuid)
     {
         $chatManager = getChatManager();
@@ -188,6 +192,7 @@ class ChatController extends Controller
         ], 404);
     }
 
+    // Delete chat room
     public function delete(Request $request, string $uuid)
     {
         $chatManager = getChatManager();
@@ -214,6 +219,7 @@ class ChatController extends Controller
         ], 404);
     }
 
+    // Get all user's chat rooms
     public function list(Request $request)
     {
         $user = $request->user();
@@ -226,6 +232,7 @@ class ChatController extends Controller
         ]);
     }
 
+    // Stop chat room agent
     public function stop(Request $request, string $uuid)
     {
         $chatManager = getChatManager();
@@ -249,6 +256,7 @@ class ChatController extends Controller
         ], 400);
     }
 
+    // inform RapidAPI with User's OpenAPI key
     public function registerOpenAIKey(Request $request)
     {
         $request->validate([

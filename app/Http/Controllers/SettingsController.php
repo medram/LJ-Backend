@@ -9,9 +9,9 @@ use App\Models\Setting;
 
 class SettingsController extends Controller
 {
+    // Exclude this list of sensitive data from public settings
     public $private_settings = [
         //e.g. "SITE_NAME",
-        "LICENSE_CODE",
         "SMTP_HOST",
         "SMTP_PORT",
         "SMTP_USER",
@@ -26,8 +26,10 @@ class SettingsController extends Controller
         "RAPID_API_HOST",
         "OPENAI_API_KEY",
         "PM_PAYPAL_WEBHOOK_ID",
+        "LICENSE_CODE",
     ];
 
+    // Get public website settings
     public function publicSettings(Request $request)
     {
         $settings = getAllSettings();
@@ -46,6 +48,7 @@ class SettingsController extends Controller
         ]);
     }
 
+    // List all available settings
     public function list(Request $request)
     {
         $settings = getAllSettings();
@@ -56,6 +59,7 @@ class SettingsController extends Controller
         ]);
     }
 
+    // Update settings
     public function update(Request $request)
     {
         $fields = $request->json()->all();

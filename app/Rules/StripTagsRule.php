@@ -6,6 +6,7 @@ use Illuminate\Contracts\Validation\DataAwareRule;
 use Illuminate\Contracts\Validation\InvokableRule;
 
 
+// Clean up input from HTML tags.
 class StripTagsRule implements DataAwareRule, InvokableRule
 {
     protected $data = [];
