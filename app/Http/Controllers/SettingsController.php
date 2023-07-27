@@ -35,7 +35,7 @@ class SettingsController extends Controller
         $settings = getAllSettings();
         $filtered_settings = [];
 
-        // TODO: filters out private settings
+        // filters out private settings
         foreach ($settings as $name => $value)
         {
             if (!in_array($name, $this->private_settings))
@@ -52,10 +52,21 @@ class SettingsController extends Controller
     public function list(Request $request)
     {
         $settings = getAllSettings();
+        $filtered_settings = [];
+
+        if (isDemo())
+        {
+            // filters out private settings
+            foreach ($settings as $name => $value)
+            {
+                if (!in_array($name, $this->private_settings))
+                    $filtered_settings[$name] = $value;
+            }
+        }
 
         return response()->json([
             'errors' => false,
-            'settings' => $settings
+            'settings' => isDemo() ? $filtered_settings : $settings
         ]);
     }
 
