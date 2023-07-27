@@ -1,0 +1,2 @@
+"use strict";(self.webpackChunklj_frontend=self.webpackChunklj_frontend||[]).push([[347],{7347:function(n,e,t){t.r(e),t.d(e,{default:function(){return f}});var r=t(7689),u=t(5385),c=t(5480),s=t(184);function f(){return(0,c.A)().isAuthenticated?(0,s.jsx)(u.Z,{children:(0,s.jsx)(r.j3,{})}):(0,s.jsx)(r.Fg,{to:"/login",replace:!0})}}}]);
+//# sourceMappingURL=347.7ecd6258.chunk.js.map
