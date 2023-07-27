@@ -10,6 +10,8 @@ class FrontendController extends Controller
     // for React Frontend
     public function index(Request $request)
     {
-        return view("frontend");
+        $settings = getAllSettings();
+
+        return view("frontend", $settings);
     }
 }
