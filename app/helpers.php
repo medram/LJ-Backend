@@ -12,12 +12,14 @@ use App\Models\Setting;
 // Get all available website settings.
 function getAllSettings()
 {
-	return Setting::getAllSettings();
+	return Setting::getAllSettings() + ["APP_VERSION" => getAppVersion()];
 }
 
 // Get indevidual website setting.
 function getSetting($key)
 {
+	if ($key === "APP_VERSION")
+		return getAppVersion();
 	return Setting::getSetting($key);
 }
 
@@ -126,7 +128,7 @@ function isDemo()
 // Return app version.
 function getAppVersion()
 {
-	return "1.0.0";
+	return "1.0.1";
 }
 
 // Return installation status.
