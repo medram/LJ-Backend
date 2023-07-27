@@ -1,0 +1,2 @@
+"use strict";(self.webpackChunkaskPDF_frontend=self.webpackChunkaskPDF_frontend||[]).push([[347],{7347:function(n,e,t){t.r(e),t.d(e,{default:function(){return a}});var r=t(7689),s=t(5385),u=t(5480),c=t(184);function a(){return(0,u.A)().isAuthenticated?(0,c.jsx)(s.Z,{children:(0,c.jsx)(r.j3,{})}):(0,c.jsx)(r.Fg,{to:"/login",replace:!0})}}}]);
+//# sourceMappingURL=347.ea05b9ed.chunk.js.map
