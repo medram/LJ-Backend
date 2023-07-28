@@ -26,6 +26,8 @@ RUN sed -i 's!DocumentRoot /var/www/html!DocumentRoot /var/www/html/public!g' /e
 
 COPY --chown=www-data:www-data . .
 
+COPY --chown=www-data:www-data .env.prod .env
+
 # Install composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 

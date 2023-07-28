@@ -10,8 +10,8 @@ services:
         ports:
             - "${APP_PORT:-7000}:80"
             - "${VITE_PORT:-5173}:${VITE_PORT:-5173}"
-        env_file:
-            - .env.dev
+        # env_file:
+        #     - .env.dev
         environment:
             DB_HOST: host.docker.internal
         volumes:
