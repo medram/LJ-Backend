@@ -178,6 +178,11 @@ class UserController extends Controller
             {
                 $user->is_active = 1; // activate the user automatically on demo mode.
                 $user->save();
+
+                return response()->json([
+                    "error" => false,
+                    "message" => "Registered Successfully, No need for email verification on the demo mode."
+                ], 201);
             }
             else
             {
