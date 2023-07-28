@@ -16,6 +16,7 @@ class SettingsSeeder extends Seeder
     {
         $data = [
             ["name" => "SITE_NAME",         "value" => "AskPDF",        "type" => "string"],
+            ["name" => "SITE_DESC",         "value" => "",              "type" => "string"],
             ["name" => "TIMEZONE",          "value" => "UTC",           "type" => "string"],
             ["name" => "CURRENCY",          "value" => "USD",           "type" => "string"],
             ["name" => "CURRENCY_SYMBOL",   "value" => "$",             "type" => "string"],
