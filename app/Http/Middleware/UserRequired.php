@@ -4,11 +4,12 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
 use App\Models\User;
-use Illuminate\Support\Facades\Auth;
-
+use App\Models\AccessToken;
+use Carbon\Carbon;
 
 // User required Middleware
 class UserRequired
@@ -21,19 +22,30 @@ class UserRequired
     public function handle(Request $request, Closure $next): Response
     {
         $token = trim(str_ireplace("Bearer ", "", $request->header('Authorization')));
-        $user = User::where('api_token', hash('sha256', $token))->first();
+        $accessToken = AccessToken::where("token", hash("sha256", $token))->first();
 
-        if (!$user)
+        if ($accessToken && ($accessToken->expires_at == null || Carbon::now()->lt($accessToken->expires_at)))
         {
-            return response()->json([
-                'error' => true,
-                'message' => 'Login is required'
-            ], 401);
+            $user = $accessToken->user;
+
+            if ($user && $user->is_active)
+            {
+                # Set the user
+                Auth::login($user);
+
+                return $next($request);
+            }
+        }
+        else
+        {
+            // delete the expired access token
+            if ($accessToken)
+                $accessToken->delete();
         }
 
-        # Set the user
-        Auth::login($user);
-
-        return $next($request);
+        return response()->json([
+            'error' => true,
+            'message' => 'Login is required'
+        ], 401);
     }
 }

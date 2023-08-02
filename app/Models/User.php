@@ -11,6 +11,7 @@ use Laravel\Sanctum\HasApiTokens;
 use Carbon\Carbon;
 
 use App\Models\Subscription;
+use App\Models\AccessToken;
 
 use Mail;
 use Str;
@@ -60,6 +61,39 @@ class User extends Authenticatable
     public function subscriptions()
     {
         return $this->hasMany(Subscription::class);
+    }
+
+    public function accessTokens()
+    {
+        return $this->hasMany(AccessToken::class);
+    }
+
+    public function availableAccessTokens()
+    {
+        $tokens = $this->accessTokens();
+        $validTokens = [];
+
+        foreach($tokens as $token)
+        {
+            if ($token->expires_at == null || Carbon::now()->lt($token->expires_at))
+                $validTokens[] = $token;
+        }
+
+        return $validTokens;
+    }
+
+    public function generateAccessToken(int $days = 30)
+    {
+        $token = Str::random(64);
+        $hashedToken = hash("sha256", $token);
+
+        $accessToken = new AccessToken();
+        $accessToken->user_id = $this->id;
+        $accessToken->token = $hashedToken;
+        $accessToken->expires_at = Carbon::now()->addDays($days);
+        $accessToken->save();
+
+        return ["access_token" => $accessToken, "token" => $token];
     }
 
     public function getCurrentSubscription()

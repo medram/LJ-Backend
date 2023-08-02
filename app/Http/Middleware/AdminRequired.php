@@ -7,8 +7,11 @@ use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 use App\Models\User;
-use Auth;
+use App\Models\AccessToken;
 use App\Packages\LC\LCManager;
+use Carbon\Carbon;
+
+use Auth;
 
 
 // Admin Required Middleware
@@ -22,28 +25,40 @@ class AdminRequired
     public function handle(Request $request, Closure $next): Response
     {
         $token = trim(str_ireplace("Bearer ", "", $request->header('Authorization')));
-        $user = User::where('api_token', hash('sha256', $token))->first();
-        $lcManager = LCManager::getInstance();
+        $accessToken = AccessToken::where("token", hash("sha256", $token))->first();
 
-        if (!$lcManager->check())
+        if ($accessToken && ($accessToken->expires_at == null || Carbon::now()->lt($accessToken->expires_at)))
         {
-            return response()->json([
-                'error' => true,
-                'message' => base64_decode("SW52YWxpZCBMaWNlbnNlIENvZGUK")
-            ], 403);
+            $user = $accessToken->user;
+
+            if ($user && $user->is_active && $user->isAdmin())
+            {
+                $lcManager = LCManager::getInstance();
+
+                if (!$lcManager->check())
+                {
+                    return response()->json([
+                        'error' => true,
+                        'message' => base64_decode("SW52YWxpZCBMaWNlbnNlIENvZGUK")
+                    ], 403);
+                }
+
+                # Set the user
+                Auth::login($user);
+
+                return $next($request);
+            }
+        }
+        else
+        {
+            // delete the expired access token
+            if ($accessToken)
+                $accessToken->delete();
         }
 
-        if (!$user or !$user->isAdmin())
-        {
-            return response()->json([
-                'error' => true,
-                'message' => 'Admin login required'
-            ], 401);
-        }
-
-        # Set the user
-        Auth::login($user);
-
-        return $next($request);
+        return response()->json([
+            'error' => true,
+            'message' => 'Login is required'
+        ], 401);
     }
 }

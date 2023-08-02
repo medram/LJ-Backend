@@ -11,6 +11,7 @@ use App\Models\User;
 use App\Models\Invoice;
 use App\Models\Plan;
 use App\Models\Subscription;
+use App\Models\AccessToken;
 use App\Rules\StripTagsRule;
 
 use Carbon\Carbon;
@@ -28,14 +29,17 @@ class UserController extends Controller
             'password' => ['required']
         ]);
 
-        if (Auth::attempt($credentials, function (User $user) {
+        if (Auth::attemptWhen($credentials, function (User $user) {
             return $user->is_active;
         }))
         {
-            $token = Str::random(60);
             $user = $request->user();
-            $user->api_token = hash('sha256', $token);
-            $user->save();
+            $tokens = $user->generateAccessToken();
+            // update access token
+            $token = $tokens["token"];
+            $accessToken = $tokens["access_token"];
+            $accessToken->last_used_at = Carbon::now();
+            $accessToken->save();
 
             return response()->json([
                 'errors'   => false,
@@ -55,17 +59,12 @@ class UserController extends Controller
     public function logout(Request $request)
     {
         $token = userToken($request);
-        $user = User::where('api_token', hash('sha256', $token))->first();
-        if ($user)
+        $accessToken = AccessToken::where("token", hash('sha256', $token))->first();
+
+        if ($accessToken)
         {
-            $user->api_token = null;
-            $user->save();
+            $accessToken->delete();
         }
-        /*
-        return response()->json([
-            'errors' => true,
-            'message' => 'A valid User token required!'
-        ], 403);*/
 
         // Used for sessions (Not required).
         Auth::logout();
