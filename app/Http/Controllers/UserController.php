@@ -297,7 +297,7 @@ class UserController extends Controller
         $email = $request->json('email');
         $user = User::where('email', $email)->first();
 
-        if ($user)
+        if ($user && !isDemo())
         {
             try {
                 $user->sendResetPasswordEmail();
