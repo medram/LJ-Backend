@@ -35,7 +35,14 @@ class ChatController extends Controller
 
         # Create a chat room
         $chatManager = getChatManager();
-        $raw_response = $chatManager->createChatRoom($file->path(), true);
+        try {
+            $raw_response = $chatManager->createChatRoom($file->path(), true);
+        } catch (\Exception $e){
+            return response()->json([
+                "errors" => true,
+                "message" => $e->getMessage()
+            ], 400);
+        }
 
         if ($raw_response)
         {

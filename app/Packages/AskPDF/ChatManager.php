@@ -63,6 +63,12 @@ class ChatManager {
 			$chatRoom->registerClient($this);
 			return $chatRoom;
 		}
+		else if ($req->getStatusCode() === 422)
+		{
+			$response = json_decode($req->getBody());
+
+			return throw new \Exception($response->detail);
+		}
 
 		return null;
 	}
