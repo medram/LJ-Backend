@@ -27,7 +27,9 @@ class AskPDFClient {
 
 	public function getBaseUrl()
 	{
-		return "https://askpdf1.p.rapidapi.com/api/v1/";
+		if (env("RAPID_API_URL") && env("RAPID_API_URL") != "")
+			return env("RAPID_API_URL");
+		return "{$this->_config["RAPID_API_HOST"]}/api/v1/";
 	}
 
 	public function registerOpenAIKey($openai_key)
