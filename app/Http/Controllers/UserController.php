@@ -127,10 +127,11 @@ class UserController extends Controller
     {
         $user = $request->user();
 
-        //$subscription = $user->subscription()->first();
+        // This cound be useful too: $subscription = $user->getCurrentSubscription();
         $subscription = Subscription::select("subscriptions.*", "plans.name as plan_name", "plans.price", "plans.billing_cycle", "plans.is_free")
                     ->leftJoin("plans", "subscriptions.plan_id", "=", "plans.id")
                     ->where("user_id", $user->id)
+                    ->orderBy("subscriptions.created_at", "desc")
                     ->first();
 
         return response()->json([

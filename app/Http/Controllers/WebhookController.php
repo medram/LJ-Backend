@@ -45,11 +45,11 @@ class WebhookController extends Controller
             else if ($data["event_type"] === "PAYMENT.SALE.COMPLETED")
             {
                 $subscription->status = 1;
-                $plan = $subscription->plan();
+                $plan = $subscription->plan;
 
                 if ($plan)
                 {
-                    $user = $subscription->user();
+                    $user = $subscription->user;
 
                     if ($user)
                     {

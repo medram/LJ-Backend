@@ -8,16 +8,31 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\User;
 use App\Models\Plan;
 
+use Carbon\Carbon;
+
 
 class Subscription extends Model
 {
     use HasFactory;
 
     protected $hidden = [
-        /*'user_id',
-        'plan_id'*/
+
     ];
 
+    public function isActive()
+    {
+        return $this->status == 1;
+    }
+
+    public function isExpired()
+    {
+        return Carbon::now()->gte($this->expiring_at);
+    }
+
+    public function isValid()
+    {
+        return $this->isActive() && !$this->isExpired();
+    }
 
     public function user()
     {

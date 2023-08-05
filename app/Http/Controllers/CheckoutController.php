@@ -65,7 +65,6 @@ class CheckoutController extends Controller
         $subscription_id = $request->input("subscription_id");
         $plan = Plan::where(["id" => $id, "soft_delete" => 0])->first();
         $user = User::where(["id" => $user_id])->first();
-        //$user = $request->user();
 
         $existed = Subscription::where("gateway_subscription_id", $subscription_id)->first();
 
@@ -107,12 +106,16 @@ class CheckoutController extends Controller
                 $subscription->gateway_subscription_id = $paypalSubscription->id;
 
                 $old_subscription = $user->getCurrentSubscription();
-                if ($old_subscription)
+                if ($old_subscription && $old_subscription->isValid())
                 {
                     # Add old subscription quota to the new subscription quota.
                     $subscription->pdfs = $plan->pdfs + $old_subscription->pdfs;
                     $subscription->questions = $plan->questions + $old_subscription->questions;
                     $subscription->pdf_size = $plan->pdf_size;
+
+                    // Disable old subscription
+                    $old_subscription->status = 0;
+                    $old_subscription->save();
                 }
                 else
                 {
@@ -154,14 +157,14 @@ class CheckoutController extends Controller
             {
                 return response()->json([
                     "errors" => true,
-                    "message" => "PayPal Subscription Plan invalid!"
+                    "message" => "Invalid PayPal Subscription Plan!"
                 ], 400);
             }
             else if ($paypalPlan->status != "ACTIVE")
             {
                 return response()->json([
                     "errors" => true,
-                    "message" => "PayPal Subscription Plan inactive!"
+                    "message" => "Inactive PayPal Subscription Plan!"
                 ], 400);
             }
 
