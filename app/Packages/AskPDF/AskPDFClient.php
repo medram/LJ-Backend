@@ -29,7 +29,7 @@ class AskPDFClient {
 	{
 		if (env("RAPID_API_URL") && env("RAPID_API_URL") != "")
 			return env("RAPID_API_URL");
-		return "{$this->_config["RAPID_API_HOST"]}/api/v1/";
+		return "https://{$this->_config["RAPID_API_HOST"]}/api/v1/";
 	}
 
 	public function registerOpenAIKey($openai_key)
