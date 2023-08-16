@@ -52,10 +52,23 @@ function getOrCreatePaypalPlan($db_plan)
 	if (!$paypalPlan)
 	{
 		// Create a PayPal Product
-		$product_name = getSetting('SITE_NAME') . " service";
-		$product = new Product(["name" => $product_name, "type" => "SERVICE"]);
-		$product->setPayPalClient($paypal);
-		$product->setup();
+		$product = null;
+
+		if (getSetting('PM_PAYPAL_PRODUCT_ID'))
+		{
+			$product = $paypal->getProductById(getSetting('PM_PAYPAL_PRODUCT_ID'));
+		}
+
+		if (!$product)
+		{
+			$product_name = getSetting('SITE_NAME') . " service";
+			$product = new Product(["name" => $product_name, "type" => "SERVICE"]);
+			$product->setPayPalClient($paypal);
+			$product->setup();
+
+			if ($product)
+				setSetting("PM_PAYPAL_PRODUCT_ID", $product->id);
+		}
 
 		// Create a PayPal Plan
 		$paypalPlan = new PayPalPlan();
