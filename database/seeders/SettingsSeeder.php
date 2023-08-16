@@ -42,6 +42,7 @@ class SettingsSeeder extends Seeder
             ["name" => "PM_PAYPAL_SANDBOX",     "value" => "1",         "type" => "boolean"],
             ["name" => "PM_PAYPAL_STATUS",      "value" => "0",         "type" => "boolean"],
             ["name" => "PM_PAYPAL_WEBHOOK_ID",  "value" => "",          "type" => "string"],
+            ["name" => "PM_PAYPAL_PRODUCT_ID",  "value" => "",          "type" => "string"],
             ["name" => "PM_STRIP_PUBLIC_KEY",   "value" => "",          "type" => "string"],
             ["name" => "PM_STRIP_PRIVATE_KEY",  "value" => "",          "type" => "string"],
             ["name" => "PM_STRIP_SANDBOX",      "value" => "1",         "type" => "boolean"],
