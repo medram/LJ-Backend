@@ -14,8 +14,9 @@ use App\Http\Controllers\PlansController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\ChatController;
-use App\Http\Controllers\WebhookController;
 use App\Http\Controllers\AnalyticsController;
+use App\Http\Controllers\Webhooks\PayPalWebhookController;
+use App\Http\Controllers\GatewaySynchronizers\PayPalSynchronizerController;
 
 use App\Http\Middleware\UserRequired;
 use App\Http\Middleware\AdminRequired;
@@ -54,7 +55,7 @@ Route::prefix('v1')->group(function (){
     Route::post('/contact', [CommonController::class, "contactUs"])->name("contact_us");
 
     // Webhooks registration
-    Route::post("/webhook/paypal", [WebhookController::class, "paypal"]);
+    Route::post("/webhook/paypal", [PayPalWebhookController::class, "handle"]);
 
     // Checkout section
     Route::middleware([UserRequired::class])->group(function (){
@@ -126,7 +127,7 @@ Route::prefix('v1')->group(function (){
         # Send a test email (SMTP)
         Route::post('send-test-email', [CommonController::class, "sendTestEmail"]);
 
-        # Webhooks registration
-        Route::post("/register-paypal-webhook", [WebhookController::class, "registerPayPalWebhook"]);
+        # Sync with PayPal gateway.
+        Route::post("/sync/paypal", [PayPalSynchronizerController::class, "sync"]);
     });
 });
