@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Webhooks;
 
 use Illuminate\Http\Request;
 
@@ -8,14 +8,15 @@ use App\Models\Subscription;
 use App\Models\Invoice;
 use App\Packages\Gateways\PayPal\Webhook;
 use App\Packages\Gateways\PayPal\WebhookManager;
+use App\Http\Controllers\Webhooks\WebhookController;
 
 use Carbon\Carbon;
 
 
-class WebhookController extends Controller
+class PayPalWebhookController extends WebhookController
 {
     // PayPal webhook
-    public function paypal(Request $request)
+    public function handle(Request $request)
     {
         $data = $request->json()->all();
         # 1 = active | 0 = expired | 2 = canceled | 3 suspended
@@ -79,86 +80,5 @@ class WebhookController extends Controller
 
             $subscription->save();
         }
-    }
-
-    // Register a webhook into PayPal.
-    public function registerPayPalWebhook(Request $request)
-    {
-        $WEBHOOK_URL = url("api/v1/webhook/paypal");
-        $WEBHOOK_URL = "https://mr4web.com/api/v1/webhook/paypal";
-        $WEBHOOK_EVENTS = [
-                "PAYMENT.SALE.COMPLETED",
-                "BILLING.SUBSCRIPTION.ACTIVATED",
-                "BILLING.SUBSCRIPTION.CANCELLED",
-                "BILLING.SUBSCRIPTION.SUSPENDED",
-                "BILLING.SUBSCRIPTION.EXPIRED",
-                "BILLING.SUBSCRIPTION.PAYMENT.FAILED",
-            ];
-
-        $webhookManager = WebhookManager::getInstance();
-        $webhook_id = getSetting("PM_PAYPAL_WEBHOOK_ID");
-        $webhook = $webhookManager->getWebhookById($webhook_id);
-
-        if ($webhook)
-        {
-            // check if there is any new event (can't perform webhook update on the same events)
-            $sameEvents = true;
-            $webhookEvents = $webhook->getEvents();
-            if (count($webhookEvents) === count($WEBHOOK_EVENTS))
-            {
-                foreach($WEBHOOK_EVENTS as $eventName)
-                {
-                    if (!in_array($eventName, $webhookEvents))
-                        $sameEvents = false;
-                }
-            }
-            else
-            {
-                $sameEvents = false;
-            }
-
-            if (!$sameEvents)
-            {
-                // update webhook
-                $webhook = new Webhook($WEBHOOK_URL, $WEBHOOK_EVENTS, $webhook->id);
-
-                if ($webhookManager->update($webhook))
-                {
-                    return response()->json([
-                        "errors" => false,
-                        "message" => "PayPal webhook updated"
-                    ], 201);
-                }
-            }
-            else
-            {
-                return response()->json([
-                    "errors" => false,
-                    "message" => "PayPal webhook updated!"
-                ], 200);
-            }
-        }
-        else
-        {
-            // create webhook
-            $webhook = new Webhook($WEBHOOK_URL, $WEBHOOK_EVENTS);
-
-            if ($webhookManager->register($webhook))
-            {
-                // Update PM_PAYPAL_WEBHOOK_ID
-                setSetting("PM_PAYPAL_WEBHOOK_ID", $webhook->id);
-
-                return response()->json([
-                    "errors" => false,
-                    "message" => "PayPal webhook registered"
-                ], 201);
-            }
-        }
-
-
-        return response()->json([
-            "errors" => true,
-            "message" => "Something went wrong during PayPal webhook registration!"
-        ], 400);
     }
 }

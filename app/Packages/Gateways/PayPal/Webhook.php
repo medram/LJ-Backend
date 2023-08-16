@@ -32,8 +32,6 @@ class Webhook extends WrapperMixin {
 
 	public function register(PayPalClient $paypalGateway)
 	{
-		# dd(json_encode($this->_build_json_data()));
-
 		$req = $paypalGateway->client->request("POST", "notifications/webhooks", [
 			"http_errors" => false,
 			"json" => $this->_build_json_data()

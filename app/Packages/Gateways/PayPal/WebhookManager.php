@@ -18,13 +18,19 @@ class WebhookManager {
 
 	public static function getInstance(PayPalClient $client=null)
 	{
-		if (self::$_instance === null)
+		if (self::$_instance === null or $client)
 		{
 			$paypalClient = $client ? $client : getPayPalGateway();
 			self::$_instance = new WebhookManager($paypalClient);
 		}
 
 		return self::$_instance;
+	}
+
+	public static function refreshInstance()
+	{
+		self::$_instance = null;
+		return self::getInstance();
 	}
 
 	public function register(Webhook $webhook)
@@ -35,6 +41,11 @@ class WebhookManager {
 	public function update(Webhook $webhook)
 	{
 		return $webhook->update($this->paypalGateway);
+	}
+
+	public function delete(Webhook $webhook)
+	{
+		return $webhook->delete($this->paypalGateway);
 	}
 
 	public function webhookList(string $anchor_type=null)

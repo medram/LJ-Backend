@@ -46,6 +46,9 @@ class PlansController extends Controller
         try {
             $plan = Plan::create($request->all());
 
+            // Create PayPal Plan
+            getOrCreatePaypalPlan($plan);
+
             return response()->json([
                 'errors' => false,
                 'message' => "Create successfully.",
@@ -88,7 +91,7 @@ class PlansController extends Controller
 
                 // Update PayPal plan (pricing)
 
-                /*if ($plan->paypal_plan_id && !$plan->isFree())
+                if ($plan->paypal_plan_id && !$plan->isFree())
                 {
                     $paypal = getPayPalGateway();
                     $paypalPlan = $paypal->getPlanById($plan->paypal_plan_id);
@@ -109,7 +112,7 @@ class PlansController extends Controller
                         }
                     }
                     // May need to create a PayPal plan from db_plan (in case plan deleted from PayPal dashboard.)
-                }*/
+                }
 
                 return response()->json([
                     'errors' => false,
@@ -141,6 +144,15 @@ class PlansController extends Controller
         if ($plan)
         {
             $plan->update(['soft_delete' => 1]);
+
+            // Deactivate PayPal plan
+            $paypal = getPayPalGateway();
+            $paypalPlan = $paypal->getPlanById($plan->paypal_plan_id);
+
+            if ($paypalPlan)
+            {
+                $paypalPlan->deactivate();
+            }
 
             return response()->json([
                 'errors' => false,
