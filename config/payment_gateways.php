@@ -1,0 +1,19 @@
+<?php
+
+return [
+
+	"paypal" => [
+
+		"WEBHOOK_URL" => url("api/v1/webhook/paypal"),
+
+		"WEBHOOK_EVENTS" => [
+		    "PAYMENT.SALE.COMPLETED",
+		    "BILLING.SUBSCRIPTION.ACTIVATED",
+		    "BILLING.SUBSCRIPTION.CANCELLED",
+		    "BILLING.SUBSCRIPTION.SUSPENDED",
+		    "BILLING.SUBSCRIPTION.EXPIRED",
+		    "BILLING.SUBSCRIPTION.PAYMENT.FAILED",
+		],
+	],
+
+];
