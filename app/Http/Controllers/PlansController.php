@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
 use App\Models\Plan;
+use App\Models\Subscription;
 use App\Rules\StripTagsRule;
 
 
@@ -139,19 +140,57 @@ class PlansController extends Controller
     public function delete(Request $request)
     {
         $id = $request->json("id");
+        $plan = Plan::where(['id' => $id, 'soft_delete' => 0])->first();
 
-        $plan = Plan::where(['id' => $id, 'soft_delete' => 0])->get()->first();
         if ($plan)
         {
-            $plan->update(['soft_delete' => 1]);
+            $plan->update([
+                'soft_delete' => 1,
+                'status' => 0
+            ]);
 
-            // Deactivate PayPal plan
-            $paypal = getPayPalGateway();
-            $paypalPlan = $paypal->getPlanById($plan->paypal_plan_id);
-
-            if ($paypalPlan)
+            if (!$plan->is_free)
             {
-                $paypalPlan->deactivate();
+                // Deactivate PayPal plan
+                $paypal = getPayPalGateway();
+                $paypalPlan = $paypal->getPlanById($plan->paypal_plan_id);
+
+                if ($paypalPlan)
+                {
+                    try
+                    {
+                        $paypalPlan->deactivate();
+                    } catch (\Exception $e) {
+                        // Do nothing
+                    }
+                }
+
+                // Cancel all subscriptions of that plan
+                $subscriptions = Subscription::where([
+                    "plan_id"   => $plan->id,
+                    "status"    => 1, // active subscriptions
+                ])->get();
+
+                foreach($subscriptions as $sub)
+                {
+                    // if it's PayPal subscription
+                    if ($sub->payment_gateway == "PAYPAL")
+                    {
+                        $paypalSubscription = $paypal->getSubscriptionById($sub->gateway_subscription_id);
+                        if ($paypalSubscription)
+                        {
+                            try {
+                                $paypalSubscription->cancel();
+                            } catch (\Exception $e){
+                                // it's fine, do nothing or maybe log it.
+                            }
+                        }
+                    }
+                    else if ($sub->payment_gateway == "STRIPE")
+                    {
+                        // Handle stripe
+                    }
+                }
             }
 
             return response()->json([
@@ -159,12 +198,10 @@ class PlansController extends Controller
                 'message' => "Deleted successfully."
             ]);
         }
-        else
-        {
-            return response()->json([
-                'errors' => true,
-                'message' => "Something went wrong."
-            ]);
-        }
+
+        return response()->json([
+            'errors' => true,
+            'message' => "Something went wrong."
+        ]);
     }
 }
