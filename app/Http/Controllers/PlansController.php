@@ -47,8 +47,9 @@ class PlansController extends Controller
         try {
             $plan = Plan::create($request->all());
 
-            // Create PayPal Plan
-            getOrCreatePaypalPlan($plan);
+            // Create PayPal Plan (if Payment gateway is setup)
+            if (getSetting("PM_PAYPAL_CLIENT_ID") && getSetting("PM_PAYPAL_CLIENT_SECRET"))
+                getOrCreatePaypalPlan($plan);
 
             return response()->json([
                 'errors' => false,
