@@ -200,7 +200,7 @@ class UserController extends Controller
 
         return response()->json([
             "error" => false,
-            "message" => "Registered Successfully, please check you email inbox for account activation."
+            "message" => "Registered successfully, please check your email inbox to activate your account."
         ], 201);
     }
 
