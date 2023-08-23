@@ -51,7 +51,7 @@ class SettingsSeeder extends Seeder
             ["name" => "RAPID_API_HOST",        "value" => "askpdf1.p.rapidapi.com", "type" => "string"],
             ["name" => "OPENAI_API_KEY",        "value" => "",          "type" => "string"],
             ["name" => "LICENSE_CODE",          "value" => "",          "type" => "string"],
-
+            ["name" => "TRIAL_PLANS",           "value" => "0",         "type" => "int"],
         ];
 
         Setting::insert($data);

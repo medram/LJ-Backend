@@ -195,6 +195,31 @@ class UserController extends Controller
                     ]);
                 }
             }
+
+            // assign default subscription trial.
+
+            $plan = Plan::where([
+                "id" => getSetting("TRIAL_PLANS"),
+                "status" => 1 // the plan should be active
+            ])->first();
+
+            if ($plan)
+            {
+                // register new free subscription for this user
+                $duration = $plan->billing_cycle == "monthly"? 30 : 365;
+                $subscription = new Subscription();
+                $subscription->sub_id = Str::random(10);
+                $subscription->user_id = $user->id;
+                $subscription->plan_id = $plan->id;
+                $subscription->status = 1; // active
+                $subscription->expiring_at = Carbon::now()->addDays($duration);
+
+                $subscription->pdfs = $plan->pdfs;
+                $subscription->questions = $plan->questions;
+                $subscription->pdf_size = $plan->pdf_size;
+
+                $subscription->save();
+            }
         }
 
 
