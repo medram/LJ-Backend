@@ -51,8 +51,8 @@ jobs:
             docker-compose up -d
 
             # Run migrations
-            docker exec core_askpdf_1 php artisan migrate
-            docker exec core_askdox_1 php artisan migrate
+            docker exec core_askpdf_1 php artisan migrate --force -n
+            docker exec core_askdox_1 php artisan migrate --force -n
 
             # Some space clean up
             docker image prune -f
