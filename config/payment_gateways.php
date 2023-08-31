@@ -4,7 +4,7 @@ return [
 
 	"paypal" => [
 
-		"WEBHOOK_URL" => url("api/v1/webhook/paypal"),
+		"WEBHOOK_URL" => isset($_SERVER['HTTP_HOST']) ? "https://{$_SERVER['HTTP_HOST']}/api/v1/webhook/paypal" : "",
 
 		"WEBHOOK_EVENTS" => [
 		    "PAYMENT.SALE.COMPLETED",
