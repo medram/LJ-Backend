@@ -41,7 +41,18 @@ jobs:
           script_stop: true
           script: |
             cd ~/core
+            # Pull the new image
             docker pull mrmed/askpdf:latest
+
+            # Stop and remove the old demo containers
             docker rm -fv core_askpdf_1 core_askdox_1
+
+            # Up everything
             docker-compose up -d
+
+            # Run migrations
+            docker exec core_askpdf_1 php artisan migrate
+            docker exec core_askdox_1 php artisan migrate
+
+            # Some space clean up
             docker image prune -f
