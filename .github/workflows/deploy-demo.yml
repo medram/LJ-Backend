@@ -42,6 +42,6 @@ jobs:
           script: |
             cd ~/core
             docker pull mrmed/askpdf:latest
-            docker stop rm -fv core_askpdf_1 core_askdox_1
+            docker rm -fv core_askpdf_1 core_askdox_1
             docker-compose up -d
             docker image prune -f
