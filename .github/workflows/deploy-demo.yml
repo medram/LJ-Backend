@@ -3,7 +3,7 @@ name: Deploy demo
 on:
   workflow_dispatch:
   push:
-    tag:
+    tags:
       - "*"
 
 jobs:
