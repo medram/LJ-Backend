@@ -60,4 +60,5 @@ jobs:
             # Inform me
             curl -H "Authorization: Bearer ${{ secrets.NTFY_TOKEN }}" \
             -H "Title: ✅ AskPDF & AskDox demo successfully deployed." \
+            -d "" \
             https://ntfy.mr4web.com/dev
