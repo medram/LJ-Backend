@@ -15,7 +15,7 @@ class SettingsSeeder extends Seeder
     public function run(): void
     {
         $data = [
-            ["name" => "SITE_NAME",         "value" => "AskPDF",        "type" => "string"],
+            ["name" => "SITE_NAME",         "value" => "ChatPDF",        "type" => "string"],
             ["name" => "SITE_DESC",         "value" => "",              "type" => "string"],
             ["name" => "SITE_KEYWORDS",     "value" => "",              "type" => "string"],
             ["name" => "TIMEZONE",          "value" => "UTC",           "type" => "string"],
