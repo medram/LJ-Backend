@@ -72,7 +72,8 @@ class LCManager
 			$this->cacheSave([
 				"timestamp" => time(),
 				"type" => $type
-		]	);
+			]);
+
 			return true;
 		}
 

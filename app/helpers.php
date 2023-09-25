@@ -16,7 +16,7 @@ function getAllSettings()
 }
 
 // Get indevidual website setting.
-function getSetting($key)
+function getSetting(string $key)
 {
 	if ($key === "APP_VERSION")
 		return getAppVersion();
