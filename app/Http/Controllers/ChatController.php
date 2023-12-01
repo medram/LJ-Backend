@@ -26,7 +26,7 @@ class ChatController extends Controller
         }
 
         $request->validate([
-            "file" => "required|mimes:pdf|max:$max_file_size"
+            "file" => "required|mimes:pdf,txt,doc,docx,xlsx,xls,epub,csv,json|max:$max_file_size"
         ]);
 
         $file = $request->file("file");
@@ -36,7 +36,7 @@ class ChatController extends Controller
         # Create a chat room
         $chatManager = getChatManager();
         try {
-            $raw_response = $chatManager->createChatRoom($file->path(), true);
+            $raw_response = $chatManager->createChatRoom($file, true);
         } catch (\Exception $e){
             return response()->json([
                 "errors" => true,
@@ -202,23 +202,24 @@ class ChatController extends Controller
     // Delete chat room
     public function delete(Request $request, string $uuid)
     {
+        $chat = Chat::where("uuid", $uuid)->get()->first();
+
+        // Delete from remote
         $chatManager = getChatManager();
         $chatRoom = $chatManager->getChatRoomByUUID($uuid);
 
-        if ($chatRoom && $chatRoom->destroy())
-        {
-            $chat = Chat::where("uuid", $uuid)->get()->first();
+        if ($chatRoom)
+            $chatRoom->destroy();
 
-            if ($chat)
-            {
-                $chat->delete();
-            }
+        // Delete from DB
+        if ($chat)
+            $chat->delete();
 
-            return response()->json([
-                "errors" => false,
-                "message" => "Deleted successfully"
-            ], 204); // returns no content
-        }
+        return response()->json([
+            "errors" => false,
+            "message" => "Deleted successfully"
+        ], 204); // returns no content
+
 
         return response()->json([
             "errors" => true,
