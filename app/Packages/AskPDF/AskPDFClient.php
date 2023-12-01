@@ -20,7 +20,7 @@ class AskPDFClient {
 				"X-RapidAPI-Key"	=> $this->_config["RAPID_API_KEY"],
 				"X-RapidAPI-Host"	=> $this->_config["RAPID_API_HOST"],
 				"Accept"			=> "application/json",
-				"X-RapidAPI-Client-Key" => $this->_config["RAPID_API_KEY"],
+				"X-RapidAPI-Client-Key" => hash("sha256", $this->_config["RAPID_API_KEY"]),
 			]
 		]);
 	}

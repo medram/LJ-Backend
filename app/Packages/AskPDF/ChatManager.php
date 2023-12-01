@@ -40,15 +40,15 @@ class ChatManager {
 		return null;
 	}
 
-	public function createChatRoom($filePath, $return_raw_response=false)
+	public function createChatRoom($file, $return_raw_response=false)
 	{
 		$req = $this->_askpdfClient->client->request("POST", "upload", [
 			'http_errors' => false,
 			'multipart' => [
 			        [
 			            'name'     => 'file',
-			            'contents' => fopen($filePath, 'r'),
-			            'filename' => basename($filePath)
+			            'contents' => $file->get(),
+			            'filename' => basename($file->getClientOriginalName())
 			        ]
 			    ]
 		]);
