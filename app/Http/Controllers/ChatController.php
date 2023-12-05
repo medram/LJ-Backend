@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-
+use Illuminate\Validation\Rules\File;
 use App\Models\Chat;
 
 
@@ -13,7 +13,7 @@ class ChatController extends Controller
     public function upload(Request $request)
     {
         $user = $request->user();
-        $max_file_size = 5 * 1024; // default max file size in KB
+        $max_file_size = 5; // default max file size in MB
 
         # file Size restrictions
         if ($user)
@@ -21,12 +21,15 @@ class ChatController extends Controller
             $subscription = $user->getCurrentSubscription();
             if ($subscription)
             {
-                $max_file_size = $subscription->pdf_size * 1024; // in KB
+                $max_file_size = $subscription->pdf_size; // in MB
             }
         }
 
         $request->validate([
-            "file" => "required|mimes:pdf,txt,doc,docx,xlsx,xls,epub,csv,json|max:$max_file_size"
+            "file" => [
+                "required",
+                File::types(["pdf", "txt", "docx", "xlsx", "pptx", "epub", "csv", "json"])->max($max_file_size * 1024) // in KB
+            ]
         ]);
 
         $file = $request->file("file");
