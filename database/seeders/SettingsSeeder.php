@@ -52,6 +52,10 @@ class SettingsSeeder extends Seeder
             ["name" => "OPENAI_API_KEY",        "value" => "",          "type" => "string"],
             ["name" => "LICENSE_CODE",          "value" => "",          "type" => "string"],
             ["name" => "TRIAL_PLANS",           "value" => "0",         "type" => "int"],
+            ["name" => "CHAT_AGENT_MODEL",          "value" => "gpt-3.5-turbo-1106",    "type" => "string"],
+            ["name" => "CHAT_AGENT_MODEL_TEMP",     "value" => "0.5",                   "type" => "float"],
+            ["name" => "CHAT_SUMMARIZATION_MODEL",  "value" => "gpt-3.5-turbo-16k",     "type" => "string"],
+            ["name" => "CHAT_SUMMARIZATION_MODEL_TEMP",  "value" => "0.3",              "type" => "float"],
         ];
 
         Setting::insert($data);
