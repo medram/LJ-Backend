@@ -73,13 +73,11 @@ class ChatManager {
 		return null;
 	}
 
-	public function registerOpenAIKey($openai_key)
+	public function updateAIModelSettings(array $payload)
 	{
-		$req = $this->_askpdfClient->client->request("POST", "openai-key/update", [
+		$req = $this->_askpdfClient->client->request("POST", "ai-model-settings/update", [
 			'http_errors' => false,
-			'json' => [
-				"openai_key" => $openai_key
-			]
+			'json' => $payload,
 		]);
 
 		if ($req->getStatusCode() === 204)

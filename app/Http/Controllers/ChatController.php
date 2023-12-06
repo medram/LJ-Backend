@@ -268,21 +268,26 @@ class ChatController extends Controller
     }
 
     // inform RapidAPI with User's OpenAPI key
-    public function registerOpenAIKey(Request $request)
+    public function updateAIModelSettings(Request $request)
     {
         $request->validate([
-            "openai_key" => "string|required"
+            "openai_key"                    => "string|required",
+            "chat_agent_model"              => "string|required",
+            "chat_agent_model_temp"         => "numeric|required|min:0|max:2",
+            "chat_tools_model"      => "string|required",
+            "chat_tools_model_temp" => "numeric|required|min:0|max:2",
         ]);
 
-        $openai_key = $request->json("openai_key");
+        // $openai_key = $request->json("openai_key");
+        $payload = $request->json()->all();
 
         // inform Rapid website.
         $chatManager = getChatManager();
-        if ($chatManager->registerOpenAIKey($openai_key))
+        if ($chatManager->updateAIModelSettings($payload))
         {
             return response()->json([
                 "errors" => false,
-                "message" => "Updated successfully"
+                "message" => "Updated successfully."
             ], 200);
         }
 

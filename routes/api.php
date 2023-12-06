@@ -82,7 +82,7 @@ Route::prefix('v1')->group(function (){
 
         // Chat / Playground section
         Route::post('chat', [ChatController::class, "upload"]);
-        Route::post('chat/register-openai-key', [ChatController::class, "registerOpenAIKey"]);
+        Route::post('chat/ai-model-settings/update', [ChatController::class, "updateAIModelSettings"]);
         Route::get('chat/{uuid}', [ChatController::class, "details"])->where("uuid", "[a-zA-Z0-9\-]+");
         Route::post('chat/{uuid}', [ChatController::class, "send"])->where("uuid", "[a-zA-Z0-9\-]+");
         Route::post('chat/{uuid}/clear-history', [ChatController::class, "clearHistory"])->where("uuid", "[a-zA-Z0-9\-]+");
