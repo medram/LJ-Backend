@@ -274,11 +274,10 @@ class ChatController extends Controller
             "openai_key"                    => "string|required",
             "chat_agent_model"              => "string|required",
             "chat_agent_model_temp"         => "numeric|required|min:0|max:2",
-            "chat_tools_model"      => "string|required",
-            "chat_tools_model_temp" => "numeric|required|min:0|max:2",
+            "chat_tools_model"              => "string|required",
+            "chat_tools_model_temp"         => "numeric|required|min:0|max:2",
         ]);
 
-        // $openai_key = $request->json("openai_key");
         $payload = $request->json()->all();
 
         // inform Rapid website.
