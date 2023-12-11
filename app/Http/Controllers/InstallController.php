@@ -319,8 +319,11 @@ class InstallController extends Controller
     }
 
     // Check database credentials
-    private function checkDatabaseCredentials(string $db_host="localhost", string $db_name, string $db_user, string $db_pass)
+    private function checkDatabaseCredentials(string $db_host, string $db_name, string $db_user, string $db_pass)
     {
+        if ($db_host == "")
+            $db_host = "localhost";
+
         try
         {
             $conn = mysqli_connect($db_host, $db_user, $db_pass, $db_name);
