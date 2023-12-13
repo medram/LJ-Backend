@@ -1,6 +1,10 @@
 FROM php:8.2-apache
 
+# in MB
+ENV MAX_FILE_SIZE=50
+
 WORKDIR /var/www/html
+
 
 RUN apt-get update && apt-get upgrade -y \
 	&& apt-get install -y libfreetype6-dev \
@@ -21,8 +25,12 @@ RUN pecl install mcrypt \
 	&& docker-php-ext-enable mysqli pdo pdo_mysql mbstring mcrypt xml gd \
 	&& a2enmod rewrite
 
-# Fixing apache DocumentRoot
-RUN sed -i 's!DocumentRoot /var/www/html!DocumentRoot /var/www/html/public!g' /etc/apache2/sites-available/000-default.conf
+# Override some php.ini configs
+RUN echo -e "\n\
+post_max_size = ${MAX_FILE_SIZE}M \n\
+upload_max_filesize = ${MAX_FILE_SIZE}M \n\
+memory_limit = ${MAX_FILE_SIZE}M \n\
+" > /usr/local/etc/php/conf.d/override.ini
 
 COPY --chown=www-data:www-data . .
 
