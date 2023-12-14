@@ -47,9 +47,19 @@ class PlansController extends Controller
         try {
             $plan = Plan::create($request->all());
 
-            // Create PayPal Plan (if Payment gateway is setup)
-            if (getSetting("PM_PAYPAL_CLIENT_ID") && getSetting("PM_PAYPAL_CLIENT_SECRET"))
-                getOrCreatePaypalPlan($plan);
+            // set "is_free" = true if the price = 0
+            if ($plan->price == 0)
+            {
+                $plan->is_free = true;
+                $plan->save();
+            }
+
+            if (!$plan->isFree())
+            {
+                // Create PayPal Plan (if Payment gateway is setup)
+                if (getSetting("PM_PAYPAL_CLIENT_ID") && getSetting("PM_PAYPAL_CLIENT_SECRET"))
+                    getOrCreatePaypalPlan($plan);
+            }
 
             return response()->json([
                 'errors' => false,
@@ -150,7 +160,7 @@ class PlansController extends Controller
                 'status' => 0
             ]);
 
-            if (!$plan->is_free)
+            if (!$plan->isFree())
             {
                 // Deactivate PayPal plan
                 $paypal = getPayPalGateway();

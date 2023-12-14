@@ -16,4 +16,8 @@ class Page extends Model
         'content',
         'status'
     ];
+
+    protected $casts = [
+        "status" => "integer",
+    ];
 }

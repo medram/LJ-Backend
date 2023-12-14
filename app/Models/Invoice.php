@@ -15,6 +15,14 @@ class Invoice extends Model
 
     protected $hidden = [];
 
+    protected $casts = [
+        "user_id"   => "integer",
+        "plan_id"   => "integer",
+        "status"    => "integer",
+        "amount"    => "float",
+        "paid_at"   => "datetime",
+    ];
+
     public function user()
     {
         return $this->belongsTo(User::class);

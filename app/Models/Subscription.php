@@ -19,6 +19,18 @@ class Subscription extends Model
 
     ];
 
+    protected $casts = [
+        "user_id"   => "integer",
+        "plan_id"   => "integer",
+        "status"    => "integer",
+        "pdfs"      => "integer",
+        "questions" => "integer",
+        "pdf_size"  => "float",
+        "pdf_pages" => "integer",
+        "price"     => "float",
+        "is_free"   => "boolean",
+    ];
+
     public function isActive()
     {
         return $this->status == 1;

@@ -29,13 +29,25 @@ class Plan extends Model
         "soft_delete"
     ];
 
+    protected $casts = [
+        "is_free"       => "boolean",
+        "is_popular"    => "boolean",
+        "is_popular"    => "boolean",
+        "price"         => "float",
+        "status"        => "integer",
+        "pdfs"          => "integer",
+        "questions"     => "integer",
+        "pdf_size"      => "float",
+        "pdf_pages"     => "integer",
+        "soft_delete"   => "integer",
+    ];
 
     public function subscriptions()
     {
         return $this->hasMany(Subscription::class);
     }
 
-    public function isFree()
+    public function isFree(): bool
     {
         return $this->is_free || $this->price == 0;
     }
