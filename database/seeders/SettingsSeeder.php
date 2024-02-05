@@ -15,7 +15,7 @@ class SettingsSeeder extends Seeder
     public function run(): void
     {
         $data = [
-            ["name" => "SITE_NAME",         "value" => "ChatPDF",        "type" => "string"],
+            ["name" => "SITE_NAME",         "value" => "ChatPDF",       "type" => "string"],
             ["name" => "SITE_DESC",         "value" => "",              "type" => "string"],
             ["name" => "SITE_KEYWORDS",     "value" => "",              "type" => "string"],
             ["name" => "TIMEZONE",          "value" => "UTC",           "type" => "string"],
@@ -24,7 +24,7 @@ class SettingsSeeder extends Seeder
             ["name" => "CURRENCY_POSITION", "value" => "LEFT",          "type" => "string"],
             ["name" => "HEAD_CODE",         "value" => "",              "type" => "string"],
             ["name" => "SITE_LOGO",         "value" => "",              "type" => "string"],
-            ["name" => "SITE_FAVICON",      "value" => "",              "type" => "string"],
+            ["name" => "SITE_FAVICON",      "value" => "logo192.png",   "type" => "string"],
             ["name" => "SHOW_LOGO",         "value" => "0",             "type" => "boolean"],
             ["name" => "SMTP_HOST",         "value" => "",              "type" => "string"],
             ["name" => "SMTP_PORT",         "value" => "465",           "type" => "int"],
