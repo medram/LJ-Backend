@@ -50,7 +50,6 @@ class CommonController extends Controller
             $payment_mothods[] = [
                 "name"      => "Stripe",
                 "type"      => "STRIPE",
-                "key"       => getSetting("PM_STRIP_PUBLIC_KEY"),
                 "sandbox"   => getSetting("PM_STRIP_SANDBOX"),
             ];
         }
