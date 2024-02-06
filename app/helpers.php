@@ -7,7 +7,7 @@ use App\Packages\AskPDF\AskPDFClient;
 use App\Packages\AskPDF\ChatManager;
 
 use App\Models\Setting;
-
+use App\Models\Plan;
 
 // Get all available website settings.
 function getAllSettings()
@@ -37,8 +37,84 @@ function userToken($request)
 	return trim(str_ireplace("Bearer ", "", $request->header('Authorization')));
 }
 
+function getOrCreateStripePlan(Plan $db_plan)
+{
+	$stripe = getStripeClient();
+
+	if ($db_plan->stripe_plan_id)
+	{
+		return getStripePlanById($db_plan->stripe_plan_id);
+	}
+
+	// Create a Stripe Plan
+	$stripeProduct = getStripeProduct();
+
+	$cycle = $db_plan->billing_cycle === "monthly"? "month" : "year";
+
+	$stripePlan = createStripePlan([
+		"product" 		=> $stripeProduct->id,
+		"billing_scheme" => "per_unit",
+		"currency" 		=> strtolower(getSetting("CURRENCY")),
+		"unit_amount" 	=> $db_plan->price * 100,
+		"recurring" 	=> [
+			"interval" => $cycle,
+			# "trial_period_days" => 15, // days
+		],
+	]);
+
+	if ($stripePlan)
+	{
+		$db_plan->stripe_plan_id = $stripePlan->id;
+		$db_plan->save();
+	}
+
+	return $stripePlan;
+}
+
+
+function getStripePlanById(string $id)
+{
+	$stripe = getStripeClient();
+	return $stripe->prices->retrieve($id, []);
+}
+
+function updateStripePlan(string $id, array $data)
+{
+	$stripe = getStripeClient();
+	return $stripe->prices->update($id, $data);
+}
+
+function createStripePlan(array $data)
+{
+	$stripe = getStripeClient();
+	return $stripe->prices->create($data);
+}
+
+function getStripeProduct()
+{
+	// TODO: Create a Stripe product
+	$stripe = getStripeClient();
+	static $product = null;
+	$stripe_product_id = getSetting("PM_STRIP_PRODUCT_ID");
+
+	if ($product != null)
+		return $product;
+
+	if ($stripe_product_id) // product exists
+		$product = $stripe->products->retrieve($stripe_product_id, []);
+	else
+	{
+		// create product
+		$product = $stripe->products->create(['name' => getSetting("SITE_NAME")." service"]);
+		// Save the product ID into the DB
+		setSetting("PM_STRIP_PRODUCT_ID", $product->id);
+	}
+
+	return $product;
+}
+
 // Create a PayPal plan from a db_plan.
-function getOrCreatePaypalPlan($db_plan)
+function getOrCreatePaypalPlan(Plan $db_plan)
 {
 	$paypal = getPayPalGateway();
 	$paypalPlan = null;
@@ -130,6 +206,25 @@ function getChatManager()
 		$chatManager = new ChatManager();
 
 	return $chatManager;
+}
+
+function getStripeClient()
+{
+	static $client = null;
+
+	if ($client == null)
+	{
+		$secret_key = getSetting("PM_STRIP_SECRET_KEY");
+		$secret_key_test = getSetting("PM_STRIP_SECRET_KEY_TEST");
+		$sandbox = getSetting("PM_STRIP_SANDBOX");
+
+		if ($sandbox)
+			$secret_key = $secret_key_test;
+
+		$client = new \Stripe\StripeClient($secret_key);
+	}
+
+	return $client;
 }
 
 // Get Demo status
