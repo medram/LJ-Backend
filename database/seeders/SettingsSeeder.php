@@ -44,9 +44,12 @@ class SettingsSeeder extends Seeder
             ["name" => "PM_PAYPAL_WEBHOOK_ID",  "value" => "",          "type" => "string"],
             ["name" => "PM_PAYPAL_PRODUCT_ID",  "value" => "",          "type" => "string"],
             ["name" => "PM_STRIP_PUBLIC_KEY",   "value" => "",          "type" => "string"],
-            ["name" => "PM_STRIP_PRIVATE_KEY",  "value" => "",          "type" => "string"],
+            ["name" => "PM_STRIP_SECRET_KEY",  "value" => "",          "type" => "string"],
+            ["name" => "PM_STRIP_SECRET_KEY_TEST",  "value" => "",          "type" => "string"],
             ["name" => "PM_STRIP_SANDBOX",      "value" => "1",         "type" => "boolean"],
             ["name" => "PM_STRIP_STATUS",       "value" => "0",         "type" => "boolean"],
+            ["name" => "PM_STRIP_PRODUCT_ID",   "value" => "",          "type" => "string"],
+            ["name" => "PM_STRIP_WEBHOOK_ID",   "value" => "",          "type" => "string"],
             ["name" => "RAPID_API_KEY",         "value" => "",          "type" => "string"],
             ["name" => "RAPID_API_HOST",        "value" => "askpdf1.p.rapidapi.com", "type" => "string"],
             ["name" => "OPENAI_API_KEY",        "value" => "",          "type" => "string"],
@@ -58,6 +61,13 @@ class SettingsSeeder extends Seeder
             ["name" => "CHAT_TOOLS_MODEL_TEMP",  "value" => "0.3",              "type" => "float"],
         ];
 
-        Setting::insert($data);
+        // Insert only the new keys
+        $settings = getAllSettings();
+        $settingsKeys = array_keys($settings);
+
+        $newSettingsToInsert = array_filter($data, fn($option) => !in_array($option["name"], $settingsKeys) );
+
+        // Insert new settings
+        Setting::insert($newSettingsToInsert);
     }
 }
