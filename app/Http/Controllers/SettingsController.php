@@ -20,8 +20,12 @@ class SettingsController extends Controller
         "SMTP_ALLOW_INSECURE_MODE",
         "PM_PAYPAL_CLIENT_ID",
         "PM_PAYPAL_CLIENT_SECRET",
-        "PM_STRIP_PUBLIC_KEY",
-        "PM_STRIP_PRIVATE_KEY",
+        "PM_STRIP_PRIVATE_KEY",     // For backword compatibility
+        "PM_STRIP_PUBLIC_KEY",      // For backword compatibility
+        "PM_STRIP_SECRET_KEY",
+        "PM_STRIP_SECRET_KEY_TEST",
+        "PM_STRIP_PRODUCT_ID",
+        "PM_STRIP_WEBHOOK_ID",
         "RAPID_API_KEY",
         "RAPID_API_HOST",
         "OPENAI_API_KEY",
