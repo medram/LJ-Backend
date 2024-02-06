@@ -17,6 +17,7 @@ use App\Http\Controllers\ChatController;
 use App\Http\Controllers\AnalyticsController;
 use App\Http\Controllers\Webhooks\PayPalWebhookController;
 use App\Http\Controllers\GatewaySynchronizers\PayPalSynchronizerController;
+use App\Http\Controllers\GatewaySynchronizers\StripeSynchronizerController;
 
 use App\Http\Middleware\UserRequired;
 use App\Http\Middleware\AdminRequired;
@@ -56,6 +57,7 @@ Route::prefix('v1')->group(function (){
 
     // Webhooks registration
     Route::post("/webhook/paypal", [PayPalWebhookController::class, "handle"]);
+    Route::post("/webhook/stripe", [StripeWebhookController::class, "handle"]);
 
     // Checkout section
     Route::middleware([UserRequired::class])->group(function (){
@@ -129,5 +131,6 @@ Route::prefix('v1')->group(function (){
 
         # Sync with PayPal gateway.
         Route::post("/sync/paypal", [PayPalSynchronizerController::class, "sync"]);
+        Route::post("/sync/stripe", [StripeSynchronizerController::class, "sync"]);
     });
 });
