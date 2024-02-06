@@ -51,7 +51,19 @@ class CheckoutController extends Controller
         }
         else if ($data->gateway == "STRIPE")
         {
-            // TODO: do the same for stripe.
+            // Do the same for stripe.
+            if ($data->type == "subscription")
+            {
+                $plan = Plan::where(['status' => 1, 'soft_delete' => 0, 'id' => $data->id])->first();
+                if ($plan)
+                    return $this->createStripeSubscription($plan);
+
+                return response()->json([
+                    "errors" => true,
+                    "message" => "The selected plan / subscription not available!"
+                ], 404);
+
+            }
         }
     }
 
@@ -175,7 +187,10 @@ class CheckoutController extends Controller
                         ->setPlanById($paypalPlan->id)
                         ->setNoShipping()
                         //->setAutoRenewal()
-                        ->addReturnAndCancelUrl(url("/checkout/validate/subscription/{$db_plan->id}/{$user->id}/"), url("/pricing"))
+                        ->addReturnAndCancelUrl(
+                            url("/checkout/validate/subscription/{$db_plan->id}/{$user->id}/"),
+                            url("/pricing")
+                        )
                         ->setSubscriber($user->email, $user->username)
                         ->setup();
 
@@ -185,5 +200,60 @@ class CheckoutController extends Controller
                 "gateway_link" => $subscription->getSubscriptionLink()
             ]);
         }
+    }
+
+    public function createStripeSubscription(Plan $plan)
+    {
+        $user = request()->user();
+        $db_plan = $plan;
+
+        if (!getSetting("PM_STRIP_STATUS"))
+        {
+            return response()->json([
+                "errors" => true,
+                "message" => "Invalid Payment method"
+            ], 400);
+        }
+
+        // Get Stripe Plan
+        $stripePlan = getOrCreateStripePlan($db_plan);
+
+        if (!$stripePlan)
+        {
+            return response()->json([
+                "errors" => true,
+                "message" => "Invalid Stripe Subscription Plan!"
+            ], 400);
+        }
+        else if ($stripePlan->active != true)
+        {
+            return response()->json([
+                "errors" => true,
+                "message" => "Inactive Stripe Subscription Plan!"
+            ], 400);
+        }
+
+        // Create a Stripe Subscription
+        $stripe = getStripeClient();
+        $checkout_session = $stripe->checkout->sessions->create([
+            'line_items' => [[
+              'price' => $stripePlan->id,
+              'quantity' => 1,
+            ]],
+            'mode' => 'subscription',
+            'success_url' => url("/checkout/validate/subscription/{$db_plan->id}/{$user->id}/"),
+            'cancel_url' => url("/pricing"),
+          ]);
+
+        $subscription_link = $checkout_session->url;
+
+        echo "Link: ".$subscription_link;
+
+        return response()->json([
+            "errors" => false,
+            "gateway_id"   => $stripePlan->id, // Subscription ID
+            "gateway_link" => $subscription_link
+        ]);
+
     }
 }
