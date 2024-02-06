@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Log;
 
 use App\Models\Plan;
 use App\Models\Subscription;
@@ -56,9 +57,14 @@ class PlansController extends Controller
 
             if (!$plan->isFree())
             {
-                // Create PayPal Plan (if Payment gateway is setup)
+                // Create PayPal Plan (if Payment gateway was setup)
                 if (getSetting("PM_PAYPAL_CLIENT_ID") && getSetting("PM_PAYPAL_CLIENT_SECRET"))
                     getOrCreatePaypalPlan($plan);
+
+                // Create Stripe Plan (if Payment gateway was setup)
+                if (getSetting("PM_STRIP_SECRET_KEY") && getSetting("PM_STRIP_SECRET_KEY_TEST"))
+                    getOrCreateStripePlan($plan);
+
             }
 
             return response()->json([
@@ -67,6 +73,7 @@ class PlansController extends Controller
                 'plans' => $plan
             ], 201);
         } catch (\Exception $e) {
+            Log::error($e);
             return response()->json([
                 'errors' => true,
                 'message' => "Something went wrong!"
@@ -101,8 +108,7 @@ class PlansController extends Controller
             try {
                 $plan->update($request->all());
 
-                // Update PayPal plan (pricing)
-
+                // Update PayPal plan (pricing & status)
                 if ($plan->paypal_plan_id && !$plan->isFree())
                 {
                     $paypal = getPayPalGateway();
@@ -126,13 +132,57 @@ class PlansController extends Controller
                     // May need to create a PayPal plan from db_plan (in case plan deleted from PayPal dashboard.)
                 }
 
+                // Update Stripe Plan (pricing & status)
+                if ($plan->stripe_plan_id && !$plan->isFree())
+                {
+                    $stripePlan = getStripePlanById($plan->stripe_plan_id);
+                    $stripeProduct = getStripeProduct();
+
+                    if ($stripePlan)
+                    {
+                        $currency = strtolower(getSetting("CURRENCY"));
+
+                        if ($plan->price * 100 == $stripePlan->unit_amount)
+                        {
+                            # Update just Plan status
+                            updateStripePlan($stripePlan->id, ["active" => (boolean)$plan->status]);
+                        }
+                        else
+                        {
+                            #### the price changed, so let's create a new Plan.
+                            # Delete/archive the Plan
+                            updateStripePlan($stripePlan->id, ["active" => false]);
+                            # Let's create a new Plan
+                            $cycle = $plan->billing_cycle === "monthly"? "month" : "year";
+
+                            $stripePlan = createStripePlan([
+                                "active"            => !!$plan->status,
+                                "product"           => $stripeProduct->id,
+                                "billing_scheme"    => "per_unit",
+                                "currency"          => $currency,
+                                "unit_amount"       => $plan->price * 100,
+                                "recurring"         => [
+                                    "interval" => $cycle,
+                                ],
+                            ]);
+
+                            # Update the db_plan
+                            if ($stripePlan)
+                            {
+                                $plan->stripe_plan_id = $stripePlan->id;
+                                $plan->save();
+                            }
+                        }
+                    }
+
+                }
                 return response()->json([
                     'errors' => false,
                     'message' => "Updated successfully.",
                     'plan' => $plan
                 ], 200);
             } catch (\Exception $e) {
-                echo $e;
+                Log::error($e);
                 return response()->json([
                     'errors' => true,
                     'message' => "Something went wrong."
@@ -163,17 +213,26 @@ class PlansController extends Controller
             if (!$plan->isFree())
             {
                 // Deactivate PayPal plan
-                $paypal = getPayPalGateway();
-                $paypalPlan = $paypal->getPlanById($plan->paypal_plan_id);
-
-                if ($paypalPlan)
+                if ($plan->paypal_plan_id)
                 {
-                    try
+                    $paypal = getPayPalGateway();
+                    $paypalPlan = $paypal->getPlanById($plan->paypal_plan_id);
+
+                    if ($paypalPlan)
                     {
-                        $paypalPlan->deactivate();
-                    } catch (\Exception $e) {
-                        // Do nothing
+                        try {
+                            $paypalPlan->deactivate();
+                        } catch (\Exception $e) {
+                            // Do nothing
+                        }
                     }
+                }
+
+                // Delete Stripe Plan (or make as archive)
+                if ($plan->stripe_plan_id)
+                {
+                    # Delete/archive the Plan
+                    updateStripePlan($plan->stripe_plan_id, ["active" => false]);
                 }
 
                 // Cancel all subscriptions of that plan
@@ -194,12 +253,18 @@ class PlansController extends Controller
                                 $paypalSubscription->cancel();
                             } catch (\Exception $e){
                                 // it's fine, do nothing or maybe log it.
+                                Log::error($e);
                             }
                         }
                     }
                     else if ($sub->payment_gateway == "STRIPE")
                     {
-                        // Handle stripe
+                        try {
+                            // TODO: Cancel all stripe subscriptions??
+                        } catch (\Exception $e){
+                            // it's fine, do nothing or maybe log it.
+                            Log::error($e);
+                        }
                     }
                 }
             }
