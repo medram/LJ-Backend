@@ -1,5 +1,7 @@
 <?php
 
+use Illuminate\Support\Facades\Log;
+
 use App\Packages\Gateways\PayPal\PayPalClient;
 use App\Packages\Gateways\PayPal\Product;
 use App\Packages\Gateways\PayPal\Plan as PayPalPlan;
@@ -8,6 +10,7 @@ use App\Packages\AskPDF\ChatManager;
 
 use App\Models\Setting;
 use App\Models\Plan;
+
 
 // Get all available website settings.
 function getAllSettings()
@@ -88,6 +91,62 @@ function createStripePlan(array $data)
 {
 	$stripe = getStripeClient();
 	return $stripe->prices->create($data);
+}
+
+function getStripeSubscriptionById(string $id)
+{
+	$stripe = getStripeClient();
+	return $stripe->subscriptions->retrieve($id, []);
+}
+
+function registerStripeWebhook()
+{
+	$stripe = getStripeClient();
+	$stripe_webhook_url = config("payment_gateways.stripe.WEBHOOK_URL");
+	$events = config("payment_gateways.stripe.WEBHOOK_EVENTS");
+
+	# Delete the old webhook
+	if (getSetting("PM_STRIP_WEBHOOK_ID"))
+	{
+		try {
+			$stripe->webhookEndpoints->delete(getSetting("PM_STRIP_WEBHOOK_ID"), []);
+		} catch (\Exception $e){
+			// Do nothing is fine
+			Log::warning($e);
+		}
+	}
+
+	# Create a new webhook
+	$webhook = $stripe->webhookEndpoints->create([
+	  'url' => $stripe_webhook_url,
+	  'enabled_events' => $events,
+	]);
+
+	# Save the new webhook id into the db
+	setSetting("PM_STRIP_WEBHOOK_ID", $webhook->id);
+	return $webhook;
+}
+
+function getStripeWebhook(bool $refresh = false)
+{
+	static $webhook = null;
+
+	if ($webhook == null || $refresh)
+	{
+		if (getSetting("PM_STRIP_WEBHOOK_ID"))
+		{
+			# Retrieve
+			$stripe = getStripeClient();
+			$webhook = $stripe->webhookEndpoints->retrieve(getSetting("PM_STRIP_WEBHOOK_ID"), []);
+		}
+		else
+		{
+			# Create a webhook
+			$webhook = registerStripeWebhook();
+		}
+	}
+
+	return $webhook;
 }
 
 function getStripeProduct()
