@@ -15,6 +15,11 @@ class Subscription extends Model
 {
     use HasFactory;
 
+    const EXPIRED = 0;
+    const ACTIVE = 1;
+    const CANCELED = 2;
+    const SUSPENDED = 3;
+
     protected $hidden = [
 
     ];
