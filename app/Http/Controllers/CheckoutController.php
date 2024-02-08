@@ -68,10 +68,10 @@ class CheckoutController extends Controller
     }
 
     // Validate Payment
-    public function validateSubscription(Request $request, string $id, int $user_id) # id of a db Plan
+/*    public function validateSubscription(Request $request, string $id, int $user_id) # id of a db Plan
     {
         $request->validate([
-            "subscription_id" => "string|required"
+            "subscription_id" => "string|required" # For PayPal only
         ]);
 
         $subscription_id = $request->input("subscription_id");
@@ -82,132 +82,69 @@ class CheckoutController extends Controller
 
         if (!$existed && $plan && $user)
         {
-            if (substr($subscription_id, 0, 4) != "sub_")
+            ## For PayPal
+            $paypal = getPayPalGateway();
+            $paypalSubscription = $paypal->getSubscriptionById($subscription_id);
+
+            if ($paypalSubscription && $paypalSubscription->status == "ACTIVE")
             {
-                ## For PayPal
-                $paypal = getPayPalGateway();
-                $paypalSubscription = $paypal->getSubscriptionById($subscription_id);
+                // Create a db Payment / invoice
+                $invoice = new Invoice();
+                $invoice->invoice_id = rand(1000000, 9999999);
+                $invoice->user_id = $user->id;
+                $invoice->plan_id = $plan->id;
+                $invoice->amount = $plan->price;
+                $invoice->status = 1; // 1 = paid | 0 = unpaid | 2 = refunded
+                $invoice->paid_at = Carbon::parse($paypalSubscription->create_time);
+                $invoice->payment_gateway = "PAYPAL"; // PAYPAL | STRIPE
+                $invoice->gateway_plan_id = $paypalSubscription->plan_id;
+                $invoice->gateway_subscription_id = $paypalSubscription->id;
 
-                if ($paypalSubscription && $paypalSubscription->status == "ACTIVE")
+                $invoice->save();
+
+                // Create a new db subscription foreach Gateway Payment Method.
+                $subscription = new Subscription();
+                $subscription->sub_id = strtoupper(Str::random(10));
+                $subscription->user_id = $user->id;
+                $subscription->plan_id = $plan->id;
+                $subscription->status = 1; // 1 = Active | 0 = expired | 2 = Cancelled
+
+                if ($plan->billing_cycle == "monthly")
+                    $subscription->expiring_at = Carbon::now()->addMonth(); // add one month
+                else if ($plan->billing_cycle == "yearly")
+                    $subscription->expiring_at = Carbon::now()->addYear(); // add one year
+
+                $subscription->payment_gateway = "PAYPAL"; // PAYPAL | STRIPE
+                $subscription->gateway_plan_id = $paypalSubscription->plan_id;
+                $subscription->gateway_subscription_id = $paypalSubscription->id;
+
+                $old_subscription = $user->getCurrentSubscription();
+                if ($old_subscription && $old_subscription->isValid())
                 {
-                    // Create a db Payment / invoice
-                    $invoice = new Invoice();
-                    $invoice->invoice_id = rand(1000000, 9999999);
-                    $invoice->user_id = $user->id;
-                    $invoice->plan_id = $plan->id;
-                    $invoice->amount = $plan->price;
-                    $invoice->status = 1; // 1 = paid | 0 = unpaid | 2 = refunded
-                    $invoice->paid_at = Carbon::parse($paypalSubscription->create_time);
-                    $invoice->payment_gateway = "PAYPAL"; // PAYPAL | STRIPE
-                    $invoice->gateway_plan_id = $paypalSubscription->plan_id;
-                    $invoice->gateway_subscription_id = $paypalSubscription->id;
+                    # Add old subscription quota to the new subscription quota.
+                    $subscription->pdfs = $plan->pdfs + $old_subscription->pdfs;
+                    $subscription->questions = $plan->questions + $old_subscription->questions;
+                    $subscription->pdf_size = $plan->pdf_size;
 
-                    $invoice->save();
-
-                    // Create a new db subscription foreach Gateway Payment Method.
-                    $subscription = new Subscription();
-                    $subscription->sub_id = strtoupper(Str::random(10));
-                    $subscription->user_id = $user->id;
-                    $subscription->plan_id = $plan->id;
-                    $subscription->status = 1; // 1 = Active | 0 = expired | 2 = Cancelled
-
-                    if ($plan->billing_cycle == "monthly")
-                        $subscription->expiring_at = Carbon::now()->addMonth(); // add one month
-                    else if ($plan->billing_cycle == "yearly")
-                        $subscription->expiring_at = Carbon::now()->addYear(); // add one year
-
-                    $subscription->payment_gateway = "PAYPAL"; // PAYPAL | STRIPE
-                    $subscription->gateway_plan_id = $paypalSubscription->plan_id;
-                    $subscription->gateway_subscription_id = $paypalSubscription->id;
-
-                    $old_subscription = $user->getCurrentSubscription();
-                    if ($old_subscription && $old_subscription->isValid())
-                    {
-                        # Add old subscription quota to the new subscription quota.
-                        $subscription->pdfs = $plan->pdfs + $old_subscription->pdfs;
-                        $subscription->questions = $plan->questions + $old_subscription->questions;
-                        $subscription->pdf_size = $plan->pdf_size;
-
-                        // Disable old subscription
-                        $old_subscription->status = 0;
-                        $old_subscription->save();
-                    }
-                    else
-                    {
-                        $subscription->pdfs = $plan->pdfs;
-                        $subscription->questions = $plan->questions;
-                        $subscription->pdf_size = $plan->pdf_size;
-                    }
-
-                    $subscription->save();
-
-                    return redirect("/thank-you?t=sub&ref={$invoice->invoice_id}");
+                    // Disable old subscription
+                    $old_subscription->status = 0;
+                    $old_subscription->save();
                 }
-            }
-            else # it's Stripe
-            {
-                $stripeSubscription = getStripeSubscription($subscription_id);
-
-                if ($stripeSubscription && $stripeSubscription->status == "active")
+                else
                 {
-                    // Create a db Payment / invoice
-                    $invoice = new Invoice();
-                    $invoice->invoice_id = rand(1000000, 9999999);
-                    $invoice->user_id = $user->id;
-                    $invoice->plan_id = $plan->id;
-                    $invoice->amount = $plan->price;
-                    $invoice->status = 1; // 1 = paid | 0 = unpaid | 2 = refunded
-                    $invoice->paid_at = Carbon::now();
-                    $invoice->payment_gateway = "STRIPE"; // PAYPAL | STRIPE
-                    $invoice->gateway_plan_id = $stripeSubscription->items->data[0]->plan->id;
-                    $invoice->gateway_subscription_id = $stripeSubscription->id;
-
-                    $invoice->save();
-
-                    // Create a new db subscription foreach Gateway Payment Method.
-                    $subscription = new Subscription();
-                    $subscription->sub_id = strtoupper(Str::random(10));
-                    $subscription->user_id = $user->id;
-                    $subscription->plan_id = $plan->id;
-                    $subscription->status = 1; // 1 = Active | 0 = expired | 2 = Cancelled
-
-                    if ($plan->billing_cycle == "monthly")
-                        $subscription->expiring_at = Carbon::now()->addMonth(); // add one month
-                    else if ($plan->billing_cycle == "yearly")
-                        $subscription->expiring_at = Carbon::now()->addYear(); // add one year
-
-                    $subscription->payment_gateway = "PAYPAL"; // PAYPAL | STRIPE
-                    $subscription->gateway_plan_id = $stripeSubscription->items->data[0]->plan->id;
-                    $subscription->gateway_subscription_id = $stripeSubscription->id;
-
-                    $old_subscription = $user->getCurrentSubscription();
-                    if ($old_subscription && $old_subscription->isValid())
-                    {
-                        # Add old subscription quota to the new subscription quota.
-                        $subscription->pdfs = $plan->pdfs + $old_subscription->pdfs;
-                        $subscription->questions = $plan->questions + $old_subscription->questions;
-                        $subscription->pdf_size = $plan->pdf_size;
-
-                        // Disable old subscription
-                        $old_subscription->status = 0;
-                        $old_subscription->save();
-                    }
-                    else
-                    {
-                        $subscription->pdfs = $plan->pdfs;
-                        $subscription->questions = $plan->questions;
-                        $subscription->pdf_size = $plan->pdf_size;
-                    }
-
-                    $subscription->save();
-
-                    return redirect("/thank-you?t=sub&ref={$invoice->invoice_id}");
+                    $subscription->pdfs = $plan->pdfs;
+                    $subscription->questions = $plan->questions;
+                    $subscription->pdf_size = $plan->pdf_size;
                 }
+
+                $subscription->save();
+
+                return redirect("/thank-you?t=sub&ref={$invoice->invoice_id}");
             }
         }
 
         return redirect("/pricing");
-    }
+    }*/
 
     // Create PayPal subscription
     public function createPayPalSubscription(Plan $plan)
@@ -247,13 +184,14 @@ class CheckoutController extends Controller
             // Create a PayPal Subscription
             $subscription = new PayPalSubscription();
             $subscription->setPayPalClient($paypal)
-                        ->setBrandName(getSetting("SITE_NAME"))
+                        ->setBrandName(getSetting("SITE_NAME")." service")
                         ->setPlanById($paypalPlan->id)
                         ->setNoShipping()
                         //->setAutoRenewal()
                         ->addReturnAndCancelUrl(
-                            url("/checkout/validate/subscription/{$db_plan->id}/{$user->id}/"),
-                            url("/pricing")
+                            // url("/checkout/validate/subscription/{$db_plan->id}/{$user->id}/"),
+                            url("/thank-you?t=sub&ref="),
+                            url("/checkout/{$db_plan->id}")
                         )
                         ->setSubscriber($user->email, $user->username)
                         ->setup();
@@ -298,33 +236,42 @@ class CheckoutController extends Controller
         }
 
         // Create a Stripe Subscription
-        $stripe = getStripeClient();
-        $checkout_session = $stripe->checkout->sessions->create([
+        $payload = [
             "line_items" => [[
               "price" => $stripePlan->id,
               "quantity" => 1,
             ]],
             "mode" => "subscription",
-            "success_url" => url("/checkout/validate/subscription/{$db_plan->id}/{$user->id}/"),
+            // "success_url" => url("/checkout/validate/subscription/{$db_plan->id}/{$user->id}/"),
+            "success_url" => url("/thank-you?t=sub&ref="),
             "cancel_url" => url("/checkout/{$db_plan->id}"),
             "subscription_data" => [
                 "description" => "Plan: {$db_plan->name}",
-                "trial_period_days" => intval(getSetting("TRIAL_DAYS")), # default: 30 days
                 "trial_settings" => [
                     "end_behavior" => [
                         "missing_payment_method" => "create_invoice", # cancel | create_invoice | pause
                     ],
                 ],
+                "metadata" => [
+                    "plan_id" => $db_plan->id,
+                    "customer_id" => $user->id,
+                    "customer_email" => $user->email,
+                ],
             ],
             // "allow_promotion_codes" => true,
             # Additional params
             "customer_email" => $user->email,
-            "metadata" => [
-                "db_plan" => $db_plan->id,
-                "customer_id" => $user->id,
-                "customer_email" => $user->email,
-            ],
-          ]);
+        ];
+
+        $trial_days = intval(getSetting("TRIAL_DAYS"));
+        if ($db_plan->id == getSetting("TRIAL_PLANS") && $trial_days > 0)
+        {
+            $payload["subscription_data"]["trial_period_days"] = $trial_days; # default: 30 days (via db seeds)
+        }
+
+
+        $stripe = getStripeClient();
+        $checkout_session = $stripe->checkout->sessions->create($payload);
 
         $subscription_link = $checkout_session->url;
 
@@ -333,6 +280,5 @@ class CheckoutController extends Controller
             "gateway_id"   => $stripePlan->id, // Subscription ID
             "gateway_link" => $subscription_link
         ]);
-
     }
 }
