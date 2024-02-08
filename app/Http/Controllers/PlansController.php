@@ -223,7 +223,8 @@ class PlansController extends Controller
                         try {
                             $paypalPlan->deactivate();
                         } catch (\Exception $e) {
-                            // Do nothing
+                            // Doing nothing is fine
+                            Log::error("PAYPAL_ERROR: ".$e->getMessage());
                         }
                     }
                 }
