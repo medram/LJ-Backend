@@ -16,6 +16,7 @@ use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\AnalyticsController;
 use App\Http\Controllers\Webhooks\PayPalWebhookController;
+use App\Http\Controllers\Webhooks\StripeWebhookController;
 use App\Http\Controllers\GatewaySynchronizers\PayPalSynchronizerController;
 use App\Http\Controllers\GatewaySynchronizers\StripeSynchronizerController;
 

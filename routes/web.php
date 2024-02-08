@@ -24,10 +24,6 @@ use App\Http\Middleware\InstallerMiddleware;
 |
 */
 
-# For subscription activation (after payment).
-Route::get('/checkout/validate/subscription/{id}/{user_id}', [CheckoutController::class, "validateSubscription"])->name("checkout.validate");
-
-
 # For user account verification.
 Route::get('/verify/{token}', [UserController::class, "verifyAccount"])
     ->where("token", "[a-zA-Z0-9]+")
