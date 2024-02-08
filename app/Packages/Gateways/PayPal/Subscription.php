@@ -21,10 +21,9 @@ class Subscription extends WrapperMixin
 	    ]
 	];
 
-	public function __construct(Array|null $config = null)
+	public function __construct(array $config = [])
 	{
-		if (is_array($config) && $config != null)
-			$this->_data = $config + $this->_data;
+		$this->_data = [...$this->_data, ...$config];
 	}
 
 	public function setPayPalClient(PayPalClient $paypal)
@@ -79,6 +78,12 @@ class Subscription extends WrapperMixin
 	public function setPlanById(string $planId)
 	{
 		$this->_data["plan_id"] = $planId;
+		return $this;
+	}
+
+	public function overridePlanData(array $data)
+	{
+		$this->_data["plan"] = $data;
 		return $this;
 	}
 
