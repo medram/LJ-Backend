@@ -286,6 +286,13 @@ function getStripeClient()
 	return $client;
 }
 
+function WebhookLog(string $error_message)
+{
+	$datetime = date('c');
+	$message = "[{$datetime}]: ".$error_message."\n";
+	file_put_contents("../storage/logs/webhook.log", $message, FILE_APPEND);
+}
+
 // Get Demo status
 function isDemo()
 {
@@ -303,3 +310,4 @@ function isInstalled()
 {
 	return in_array(env("INSTALLED"), ["1", 1, "true"]) ? true : false;
 }
+
