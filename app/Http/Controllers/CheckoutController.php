@@ -67,8 +67,8 @@ class CheckoutController extends Controller
         }
     }
 
-    // Validate Payment
-/*    public function validateSubscription(Request $request, string $id, int $user_id) # id of a db Plan
+    // Validate Payment For PayPal to create a db subscription
+    public function validateSubscription(Request $request, string $id, int $user_id) # id of a db Plan
     {
         $request->validate([
             "subscription_id" => "string|required" # For PayPal only
@@ -76,25 +76,25 @@ class CheckoutController extends Controller
 
         $subscription_id = $request->input("subscription_id");
         $plan = Plan::where(["id" => $id, "soft_delete" => 0])->first();
-        $user = User::where(["id" => $user_id])->first();
+        $user = $request->user();
 
         $existed = Subscription::where("gateway_subscription_id", $subscription_id)->first();
 
         if (!$existed && $plan && $user)
         {
-            ## For PayPal
+            ## Create a Subscription For PayPal Only
             $paypal = getPayPalGateway();
             $paypalSubscription = $paypal->getSubscriptionById($subscription_id);
 
             if ($paypalSubscription && $paypalSubscription->status == "ACTIVE")
             {
-                // Create a db Payment / invoice
+                // Create a db invoice
                 $invoice = new Invoice();
                 $invoice->invoice_id = rand(1000000, 9999999);
                 $invoice->user_id = $user->id;
                 $invoice->plan_id = $plan->id;
                 $invoice->amount = $plan->price;
-                $invoice->status = 1; // 1 = paid | 0 = unpaid | 2 = refunded
+                $invoice->status = Invoice::PAID;
                 $invoice->paid_at = Carbon::parse($paypalSubscription->create_time);
                 $invoice->payment_gateway = "PAYPAL"; // PAYPAL | STRIPE
                 $invoice->gateway_plan_id = $paypalSubscription->plan_id;
@@ -107,7 +107,7 @@ class CheckoutController extends Controller
                 $subscription->sub_id = strtoupper(Str::random(10));
                 $subscription->user_id = $user->id;
                 $subscription->plan_id = $plan->id;
-                $subscription->status = 1; // 1 = Active | 0 = expired | 2 = Cancelled
+                $subscription->status = Subscription::ACTIVE;
 
                 if ($plan->billing_cycle == "monthly")
                     $subscription->expiring_at = Carbon::now()->addMonth(); // add one month
@@ -127,7 +127,7 @@ class CheckoutController extends Controller
                     $subscription->pdf_size = $plan->pdf_size;
 
                     // Disable old subscription
-                    $old_subscription->status = 0;
+                    $old_subscription->status = Subscription::CANCELED;
                     $old_subscription->save();
                 }
                 else
@@ -139,12 +139,12 @@ class CheckoutController extends Controller
 
                 $subscription->save();
 
-                return redirect("/thank-you?t=sub&ref={$invoice->invoice_id}");
+                # return redirect("/thank-you?t=sub&ref={$invoice->invoice_id}");
             }
         }
 
         return redirect("/pricing");
-    }*/
+    }
 
     // Create PayPal subscription
     public function createPayPalSubscription(Plan $plan)
@@ -189,8 +189,7 @@ class CheckoutController extends Controller
                         ->setNoShipping()
                         //->setAutoRenewal()
                         ->addReturnAndCancelUrl(
-                            // url("/checkout/validate/subscription/{$db_plan->id}/{$user->id}/"),
-                            url("/thank-you?t=sub&ref="),
+                            url("/checkout/validate/subscription/{$db_plan->id}/{$user->id}/"),
                             url("/checkout/{$db_plan->id}")
                         )
                         ->setSubscriber($user->email, $user->username)
