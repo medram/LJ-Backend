@@ -110,9 +110,9 @@ class WebhookManager {
 			"json" => [
 				'transmission_id' 	=> $request->header('PAYPAL-TRANSMISSION-ID'),
 				'transmission_time' => $request->header('PAYPAL-TRANSMISSION-TIME'),
+				'transmission_sig' 	=> $request->header('PAYPAL-TRANSMISSION-SIG'),
 				'cert_url' 			=> $request->header('PAYPAL-CERT-URL'),
 				'auth_algo' 		=> $request->header('PAYPAL-AUTH-ALGO'),
-				'transmission_sig' 	=> $request->header('PAYPAL-TRANSMISSION-SIG'),
 				'webhook_id' 		=> getSetting('PM_PAYPAL_WEBHOOK_ID'),
 				'webhook_event' 	=> $webhook_body
 			]
