@@ -53,7 +53,8 @@ class Subscription extends Model
 
     public function user()
     {
-        return $this->belongsTo(User::class);
+        // return $this->belongsTo(User::class);
+        return User::find($this->user_id)->first();
     }
 
     public function plan()

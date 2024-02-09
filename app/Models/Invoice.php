@@ -13,6 +13,10 @@ class Invoice extends Model
 {
     use HasFactory;
 
+    const UNPAID = 0;
+    const PAID = 1;
+    const REFUNDED = 2;
+
     protected $hidden = [];
 
     protected $casts = [

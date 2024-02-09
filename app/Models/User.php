@@ -17,8 +17,6 @@ use Mail;
 use Str;
 use DB;
 
-$settings = getAllSettings();
-
 
 class User extends Authenticatable
 {
