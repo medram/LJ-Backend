@@ -78,7 +78,10 @@ class CheckoutController extends Controller
         $plan = Plan::where(["id" => $id, "soft_delete" => 0])->first();
         $user = $request->user();
 
-        $existed = Subscription::where("gateway_subscription_id", $subscription_id)->first();
+        if (!$user)
+            $user = User::find($user_id);
+
+        $existed = Subscription::where("gateway_subscription_id", $subscription_id)->exists();
 
         if (!$existed && $plan && $user)
         {
@@ -139,7 +142,7 @@ class CheckoutController extends Controller
 
                 $subscription->save();
 
-                # return redirect("/thank-you?t=sub&ref={$invoice->invoice_id}");
+                return redirect("/thank-you?t=sub&ref={$invoice->invoice_id}");
             }
         }
 
