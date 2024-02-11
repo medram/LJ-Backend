@@ -99,6 +99,12 @@ function getStripeSubscriptionById(string $id)
 	return $stripe->subscriptions->retrieve($id, []);
 }
 
+function cancelStripeSubscriptionById(string $id)
+{
+	$stripe = getStripeClient();
+	return $stripe->subscriptions->cancel($id, []);
+}
+
 function registerStripeWebhook()
 {
 	$stripe = getStripeClient();
