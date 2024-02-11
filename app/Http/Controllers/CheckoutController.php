@@ -130,8 +130,19 @@ class CheckoutController extends Controller
                     $subscription->pdf_size = $plan->pdf_size;
 
                     // Disable old subscription
-                    $old_subscription->status = Subscription::CANCELED;
+                    $old_subscription->status = Subscription::UPGRADED;
                     $old_subscription->save();
+
+                    if ($old_subscription->payment_gateway == "PAYPAL" && $old_subscription->gateway_subscription_id)
+                    {
+                        // Disable the old paypal subscription
+                        try {
+                            $oldPaypalSubscription = $paypal->getSubscriptionById($old_subscription->gateway_subscription_id);
+                            $oldPaypalSubscription->cancel();
+                        } catch (\Exception $e){
+                            # Do nothing is fine.
+                        }
+                    }
                 }
                 else
                 {
