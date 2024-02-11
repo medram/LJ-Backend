@@ -82,8 +82,18 @@ class StripeWebhookController extends WebhookController
 					    $subscription->pdf_size = $plan->pdf_size;
 
 					    // Disable old subscription
-					    $old_subscription->status = Subscription::CANCELED;
+					    $old_subscription->status = Subscription::UPGRADED;
 					    $old_subscription->save();
+
+					    if ($old_subscription->payment_gateway == "STRIPE" && $old_subscription->gateway_subscription_id)
+					    {
+					        // Disable the old paypal subscription
+					        try {
+					            cancelStripeSubscriptionById($old_subscription->gateway_subscription_id);
+					        } catch (\Exception $e){
+					            # Do nothing is fine.
+					        }
+					    }
 					}
 					else
 					{
