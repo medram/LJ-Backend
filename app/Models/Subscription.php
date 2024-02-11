@@ -19,6 +19,7 @@ class Subscription extends Model
     const ACTIVE = 1;
     const CANCELED = 2;
     const SUSPENDED = 3;
+    const UPGRADED = 4;
 
     protected $hidden = [
 
