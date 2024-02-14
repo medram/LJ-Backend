@@ -24,7 +24,7 @@ class PayPalWebhookController extends WebhookController
         $webhookManager = WebhookManager::getInstance();
         $verified = $webhookManager->verifyWebhookSignature($request);
 
-        WebhookLog($payload->event_type . " Called");
+        # WebhookLog($payload->event_type . " Called");
 
         if ($verified)
         {
@@ -36,7 +36,7 @@ class PayPalWebhookController extends WebhookController
                 {
                     $subscription->status = Subscription::ACTIVE;
                     $subscription->save();
-                    WebhookLog("Subscription: active");
+                    # WebhookLog("Subscription: active");
                 }
             }
             else if ($payload->event_type === "BILLING.SUBSCRIPTION.EXPIRED")
@@ -47,7 +47,7 @@ class PayPalWebhookController extends WebhookController
                 {
                     $subscription->status = Subscription::EXPIRED;
                     $subscription->save();
-                    WebhookLog("Subscription: expired");
+                    # WebhookLog("Subscription: expired");
                 }
             }
             else if ($payload->event_type === "BILLING.SUBSCRIPTION.CANCELLED")
@@ -58,7 +58,7 @@ class PayPalWebhookController extends WebhookController
                 {
                     $subscription->status = Subscription::CANCELED;
                     $subscription->save();
-                    WebhookLog("Subscription: canceled");
+                    # WebhookLog("Subscription: canceled");
                 }
             }
             else if ($payload->event_type === "BILLING.SUBSCRIPTION.SUSPENDED")
@@ -69,7 +69,7 @@ class PayPalWebhookController extends WebhookController
                 {
                     $subscription->status = Subscription::SUSPENDED;
                     $subscription->save();
-                    WebhookLog("Subscription: suspended");
+                    # WebhookLog("Subscription: suspended");
                 }
             }
             else if ($payload->event_type === "PAYMENT.SALE.COMPLETED")
