@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 use App\Models\Subscription;
 
@@ -34,7 +35,7 @@ class SubscriptionController extends Controller
 
         if ($subscription)
         {
-            $subscription->status = 2; # 2 = canceled
+            $subscription->status = Subscription::CANCELED;
             $subscription->save();
 
             try {
@@ -47,10 +48,12 @@ class SubscriptionController extends Controller
                 }
                 else if ($subscription->payment_gateway == "STRIPE")
                 {
-                    // TODO: stripe subscription cancellation.
+                    // stripe subscription cancellation.
+                    cancelStripeSubscriptionById($subscription->gateway_subscription_id);
                 }
             } catch (\Exception $e){
                 // just pass
+                Log::error($e);
             }
 
             return response()->json([
