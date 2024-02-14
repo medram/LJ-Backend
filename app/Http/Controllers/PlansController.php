@@ -260,8 +260,9 @@ class PlansController extends Controller
                     }
                     else if ($sub->payment_gateway == "STRIPE")
                     {
+                        // Cancel all stripe subscriptions for this plan
                         try {
-                            // TODO: Cancel all stripe subscriptions??
+                            cancelStripeSubscriptionById($sub->gateway_subscription_id);
                         } catch (\Exception $e){
                             // it's fine, do nothing or maybe log it.
                             Log::error($e);
