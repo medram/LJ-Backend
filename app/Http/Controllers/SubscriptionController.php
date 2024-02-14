@@ -16,6 +16,7 @@ class SubscriptionController extends Controller
         $subscriptions = Subscription::select("subscriptions.*", "plans.name as plan_name", "plans.price", "plans.billing_cycle", "plans.is_free", "users.email as user_email", "users.username as user_username")
                     ->leftJoin("plans", "subscriptions.plan_id", "=", "plans.id")
                     ->leftJoin("users", "subscriptions.user_id", "=", "users.id")
+                    ->orderBy("id", "DESC")
                     ->get();
 
 
