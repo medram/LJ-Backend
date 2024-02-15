@@ -263,10 +263,9 @@ class InstallController extends Controller
         if (file_exists($path))
         {
             try {
-                file_put_contents($path, str_replace(
-                        "{$key}=".env($key), "{$key}={$value}",
-                        file_get_contents($path)
-                    ));
+                $content = file_get_contents($path);
+                $new_content = preg_replace("/{$key}=(.*)\\n/", "{$key}={$value}\n", $content);
+                file_put_contents($path, $new_content);
             } catch (\Exception $e) {
                 return back()->with('error', 'PHP file_put_contents() function is disabled in your hosting, enable it first');
             }
@@ -303,11 +302,20 @@ class InstallController extends Controller
         $generated_password = Str::random(8);
         $default_email = "admin@test.com";
 
-        $admin = new User();
+        $admin = User::where([
+            "email" => "admin@test.com",
+            "role" => User::ADMIN,
+        ])->first();
+
+        if (!$admin)
+        {
+            $admin = new User();
+        }
+
         $admin->username = "admin";
         $admin->email = $default_email;
         $admin->password = Hash::make($generated_password);
-        $admin->role = 1;
+        $admin->role = User::ADMIN;
         $admin->is_active = 1;
         $admin->email_verified_at = now();
         $admin->save();
@@ -324,15 +332,10 @@ class InstallController extends Controller
         if ($db_host == "")
             $db_host = "localhost";
 
-        try
-        {
-            $conn = mysqli_connect($db_host, $db_user, $db_pass, $db_name);
-            if (!$conn)
-                return back()->with("error", mysqli_connect_error());
+        $conn = mysqli_connect($db_host, $db_user, $db_pass, $db_name);
+        if (!$conn)
+            return new \Exception("Database Connection Error: " . mysqli_connect_error());
 
-            return true;
-        } catch (\Exception $e) {
-            return back()->with("error", $e->getMessage());
-        }
+        return true;
     }
 }

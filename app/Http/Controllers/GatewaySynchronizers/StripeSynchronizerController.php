@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\GatewaySynchronizers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 use App\Models\Plan;
 use App\Models\Subscription;
@@ -44,22 +45,17 @@ class StripeSynchronizerController extends BaseGatewaySynchronizer
 		// Get all current Stripe subscription
 		$db_subscriptions = Subscription::where([
 			"payment_gateway" 	=> "STRIPE",
-			"status" 			=> 1
+			"status" 			=> Subscription::ACTIVE
 		])->get();
 
 		// Cancel all old Stripe subscriptions
 		foreach ($db_subscriptions as $key => $db_sub)
 		{
-			// TODO: Cancel all stripe subscriptions
-			$subscription = null; // get all stripe subscriptions
-
-			if ($subscription)
-			{
-				try {
-					$subscription->cancel();
-				} catch (\Exception $e){
-					// It's fine, Do nothing.
-				}
+			// Cancel all stripe subscriptions
+			try {
+				cancelStripeSubscriptionById($db_sub->gateway_subscription_id);
+			} catch (\Exception $e){
+				// It's fine, Do nothing.
 			}
 		}
 
@@ -68,7 +64,8 @@ class StripeSynchronizerController extends BaseGatewaySynchronizer
 
 		if ($webhook_id)
 		{
-			// TODO: Delete stripe webhook
+			// Delete stripe webhook
+			deleteStripeWebhook($webhook_id);
 		}
 
 		$data = $request->json()->all();
@@ -79,7 +76,15 @@ class StripeSynchronizerController extends BaseGatewaySynchronizer
 		setSetting("PM_STRIP_SANDBOX", $data["PM_STRIP_SANDBOX"]);
 
 		// MUST use the new for Stripe Client.
-		$stripe = getStripeClient(); // TODO: refresh
+		$stripe = getStripeClient(true); 		# refresh stripe client
+		try {
+			$product_id = getStripeProduct(true); 	# refresh product id
+		} catch (\Stripe\Exception\ApiErrorException $e) {
+			return response()->json([
+				"errors" => true,
+				"message" => "Stripe sync error: Invalid Stripe Key!"
+			], 400);
+		}
 
 		// Create new Product/Plans
 		# Get all active plans
@@ -90,21 +95,12 @@ class StripeSynchronizerController extends BaseGatewaySynchronizer
 
 		foreach($db_plans as $db_plan)
 		{
-			// Create PayPal plan & PayPal product (if not exists), and update db_plan with new plan ID.
-			$plan = getOrCreateStripePlan($db_plan);
-
-			// sync db_plan status
-/*			if ($db_plan->status == 0)
-				$plan->deactivate();*/
+			// Create Stripe plan & Stripe product (if not exists), and update db_plan with new plan ID.
+			$stripePlan = getOrCreateStripePlan($db_plan);
 		}
 
-		// TODO: Register new webhook
-
-/*	    if ($webhookManager->register($webhook))
-	    {
-	        // Update PM_PAYPAL_WEBHOOK_ID
-	        setSetting("PM_PAYPAL_WEBHOOK_ID", $webhook->id);
-	    }*/
+		// Register new webhook
+	    registerStripeWebhook();
 
 	    return response()->json([
 	    	"errors" => false,
