@@ -117,7 +117,7 @@ class InstallController extends Controller
             try {
                 $databaseStatus = $this->checkDatabaseCredentials($db_host, $db_name, $db_user, $db_pass);
             } catch (\Exception $e){
-                return redirect()->back()->with("error", "The Provided user credentials doesn't have access to this database! " . $e);
+                return redirect()->back()->with("error", "Invalid database credentials: " . $e->getMessage());
             }
 
             if ($databaseStatus === true)

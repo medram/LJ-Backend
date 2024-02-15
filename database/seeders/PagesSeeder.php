@@ -42,6 +42,13 @@ class PagesSeeder extends Seeder
             ],
         ];
 
-        Page::insert($data);
+        # Insert only the new pages
+        foreach ($data as $row)
+        {
+            if (!Page::where("slug", $row["slug"])->exists())
+            {
+                Page::insert([$row]);
+            }
+        }
     }
 }
