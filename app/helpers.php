@@ -40,13 +40,18 @@ function userToken($request)
 	return trim(str_ireplace("Bearer ", "", $request->header('Authorization')));
 }
 
-function getOrCreateStripePlan(Plan $db_plan)
+function getOrCreateStripePlan(Plan $db_plan, bool $force_create = false)
 {
 	$stripe = getStripeClient();
 
-	if ($db_plan->stripe_plan_id)
+	if ($db_plan->stripe_plan_id && !$force_create)
 	{
-		return getStripePlanById($db_plan->stripe_plan_id);
+		try {
+			return getStripePlanById($db_plan->stripe_plan_id);
+		} catch (\Stripe\Exception\InvalidRequestException $e){
+			# Do nothing is fine
+			Log::error($e);
+		}
 	}
 
 	// Create a Stripe Plan
@@ -155,17 +160,25 @@ function getStripeWebhook(bool $refresh = false)
 	return $webhook;
 }
 
-function getStripeProduct()
+function deleteStripeWebhook(string $id)
+{
+	setSetting("PM_STRIP_WEBHOOK_ID", ""); # delete the webhook from db
+
+	$stripe = getStripeClient();
+	return $stripe->webhookEndpoints->delete($id, []);;
+}
+
+function getStripeProduct(bool $refresh = false)
 {
 	// TODO: Create a Stripe product
 	$stripe = getStripeClient();
 	static $product = null;
 	$stripe_product_id = getSetting("PM_STRIP_PRODUCT_ID");
 
-	if ($product != null)
+	if ($product != null && !$refresh)
 		return $product;
 
-	if ($stripe_product_id) // product exists
+	if ($stripe_product_id && !$refresh) // product exists
 		$product = $stripe->products->retrieve($stripe_product_id, []);
 	else
 	{
@@ -273,11 +286,11 @@ function getChatManager()
 	return $chatManager;
 }
 
-function getStripeClient()
+function getStripeClient(bool $refresh = false)
 {
 	static $client = null;
 
-	if ($client == null)
+	if ($client == null || $refresh)
 	{
 		$secret_key = getSetting("PM_STRIP_SECRET_KEY");
 		$secret_key_test = getSetting("PM_STRIP_SECRET_KEY_TEST");
@@ -308,7 +321,7 @@ function isDemo()
 // Return app version.
 function getAppVersion()
 {
-	return "1.2.0";
+	return "1.3.0";
 }
 
 // Return installation status.
