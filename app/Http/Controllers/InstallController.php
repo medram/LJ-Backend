@@ -130,6 +130,7 @@ class InstallController extends Controller
 
                 session(["database" => true]);
 
+                sleep(1);
                 // redirect to the next step
                 return redirect()->route("install.verify");
             }
