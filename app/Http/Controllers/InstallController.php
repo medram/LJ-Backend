@@ -265,7 +265,7 @@ class InstallController extends Controller
         {
             try {
                 $content = file_get_contents($path);
-                $new_content = preg_replace("/{$key}=(.*)\\n/", "{$key}={$value}\n", $content);
+                $new_content = preg_replace("/{$key}=(.*)\\n/", "{$key}=\"{$value}\"\n", $content);
                 file_put_contents($path, $new_content);
             } catch (\Exception $e) {
                 return back()->with('error', 'PHP file_put_contents() function is disabled in your hosting, enable it first');
