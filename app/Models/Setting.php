@@ -42,6 +42,12 @@ class Setting extends Model
         return Setting::$all_settings;
     }
 
+    # Clear the values and it will be refresh later automatically.
+    public static function clear()
+    {
+        Setting::$all_settings = [];
+    }
+
     public static function parse_value($setting)
     {
         // avoid returning null values.
