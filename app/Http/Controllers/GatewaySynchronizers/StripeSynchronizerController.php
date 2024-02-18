@@ -5,6 +5,7 @@ namespace App\Http\Controllers\GatewaySynchronizers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
+use App\Models\Setting;
 use App\Models\Plan;
 use App\Models\Subscription;
 
@@ -24,48 +25,53 @@ class StripeSynchronizerController extends BaseGatewaySynchronizer
 
 		// ## Sync with PayPal Gateway ##
 		// Remove old plans/subscriptions/products from the old PayPal api
-		$stripe = getStripeClient();
-
-		# Get all active plans
-		$db_plans = Plan::where([
-			"status" 		=> 1,
-			"soft_delete" 	=> 0,
-			"is_free"		=> 0
-		])->get();
-
-		// Deactivate all old Stripe plans
-		foreach ($db_plans as $db_plan)
+		if ((getSetting("PM_STRIP_SECRET_KEY_TEST") && getSetting("PM_STRIP_SANDBOX"))
+				|| (getSetting("PM_STRIP_SECRET_KEY") && !getSetting("PM_STRIP_SANDBOX")))
 		{
-			if ($db_plan->stripe_plan_id)
+			$stripe = getStripeClient();
+
+			# Get all active plans
+			$db_plans = Plan::where([
+				"status" 		=> 1,
+				"soft_delete" 	=> 0,
+				"is_free"		=> 0
+			])->get();
+
+			// Deactivate all old Stripe plans
+			foreach ($db_plans as $db_plan)
 			{
-				// TODO: deactivate old stripe plans
+				if ($db_plan->stripe_plan_id)
+				{
+					// deactivate old stripe plans
+					updateStripePlan($db_plan->stripe_plan_id, ["active" => false]);
+				}
 			}
-		}
 
-		// Get all current Stripe subscription
-		$db_subscriptions = Subscription::where([
-			"payment_gateway" 	=> "STRIPE",
-			"status" 			=> Subscription::ACTIVE
-		])->get();
+			// Get all current Stripe subscription
+			$db_subscriptions = Subscription::where([
+				"payment_gateway" 	=> "STRIPE",
+				"status" 			=> Subscription::ACTIVE
+			])->get();
 
-		// Cancel all old Stripe subscriptions
-		foreach ($db_subscriptions as $key => $db_sub)
-		{
-			// Cancel all stripe subscriptions
-			try {
-				cancelStripeSubscriptionById($db_sub->gateway_subscription_id);
-			} catch (\Exception $e){
-				// It's fine, Do nothing.
+			// Cancel all old Stripe subscriptions
+			foreach ($db_subscriptions as $key => $db_sub)
+			{
+				// Cancel all stripe subscriptions
+				try {
+					cancelStripeSubscriptionById($db_sub->gateway_subscription_id);
+				} catch (\Exception $e){
+					// It's fine, Do nothing.
+				}
 			}
-		}
 
-		// Remove old webhooks
-		$webhook_id = getSetting("PM_STRIP_WEBHOOK_ID");
+			// Remove old webhooks
+			$webhook_id = getSetting("PM_STRIP_WEBHOOK_ID");
 
-		if ($webhook_id)
-		{
-			// Delete stripe webhook
-			deleteStripeWebhook($webhook_id);
+			if ($webhook_id)
+			{
+				// Delete stripe webhook
+				deleteStripeWebhook($webhook_id);
+			}
 		}
 
 		$data = $request->json()->all();
@@ -76,7 +82,9 @@ class StripeSynchronizerController extends BaseGatewaySynchronizer
 		setSetting("PM_STRIP_SANDBOX", $data["PM_STRIP_SANDBOX"]);
 
 		// MUST use the new for Stripe Client.
-		$stripe = getStripeClient(true); 		# refresh stripe client
+		Setting::clear(); 					# Force to use the new saved stripe keys from db
+		$stripe = getStripeClient(true); 	# refresh stripe client
+
 		try {
 			$product_id = getStripeProduct(true); 	# refresh product id
 		} catch (\Stripe\Exception\ApiErrorException $e) {
@@ -100,7 +108,14 @@ class StripeSynchronizerController extends BaseGatewaySynchronizer
 		}
 
 		// Register new webhook
-	    registerStripeWebhook();
+		try {
+		    registerStripeWebhook();
+		} catch (\Stripe\Exception\InvalidRequestException $e){
+			if (strpos($e->getMessage(), "Invalid URL: URL must be publicly accessible") === false)
+			{
+				throw $e;
+			}
+		}
 
 	    return response()->json([
 	    	"errors" => false,
