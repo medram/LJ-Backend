@@ -33,6 +33,10 @@ class SettingsController extends Controller
         "LICENSE_CODE",
     ];
 
+    public $exclude_settings = [
+        "LICENSE_CODE",
+    ];
+
     // Get public website settings
     public function publicSettings(Request $request)
     {
@@ -63,14 +67,23 @@ class SettingsController extends Controller
             // filters out private settings
             foreach ($settings as $name => $value)
             {
-                if (!in_array($name, $this->private_settings))
+                if (!in_array($name, $this->private_settings) && !in_array($name, $this->exclude_settings))
+                    $filtered_settings[$name] = $value;
+            }
+        }
+        else
+        {
+            // filters out private settings
+            foreach ($settings as $name => $value)
+            {
+                if (!in_array($name, $this->exclude_settings))
                     $filtered_settings[$name] = $value;
             }
         }
 
         return response()->json([
             'errors' => false,
-            'settings' => isDemo() ? $filtered_settings : $settings
+            'settings' => $filtered_settings
         ]);
     }
 
