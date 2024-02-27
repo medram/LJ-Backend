@@ -12,8 +12,8 @@
     <title>{{ $SITE_NAME }}</title>
     {!! $HEAD_CODE !!}
 
-    <script type="module" crossorigin src="/assets/index-CnaZzv0U.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-DvqEGeyI.css">
+    <script type="module" crossorigin src="/assets/index-CWGvEDDb.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-BAgZc4T3.css">
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
