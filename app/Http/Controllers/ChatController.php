@@ -157,14 +157,19 @@ class ChatController extends Controller
     // Get Chat history/info
     public function details(Request $request, string $uuid)
     {
-        /*
         $chatManager = getChatManager();
         $chatRoom = $chatManager->getChatRoomByUUID($uuid);
-        */
 
-        $chatRoom = Chat::where("uuid", $uuid)->first();
         if ($chatRoom)
         {
+            // Sync chat history
+            $db_chat = Chat::where("uuid", $uuid)->first();
+            if ($db_chat)
+            {
+                $db_chat->chat_history = $chatRoom->chat_history; # type: string
+                $db_chat->save();
+            }
+
             return response()->json([
                 "errors" => false,
                 "chat" => $chatRoom
