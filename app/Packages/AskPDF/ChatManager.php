@@ -60,7 +60,8 @@ class ChatManager {
 				return $response;
 			# return a chat room
 			$chatRoom = new ChatRoom($response->uuid);
-			$chatRoom->registerClient($this);
+			$chatRoom->registerClient($this->_askpdfClient);
+			$chatRoom->details(); # to refresh the chat room attributes
 			return $chatRoom;
 		}
 		else if ($req->getStatusCode() === 422)

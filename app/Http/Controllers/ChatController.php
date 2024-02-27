@@ -39,7 +39,7 @@ class ChatController extends Controller
         # Create a chat room
         $chatManager = getChatManager();
         try {
-            $raw_response = $chatManager->createChatRoom($file, true);
+            $chatRoom = $chatManager->createChatRoom($file);
         } catch (\Exception $e){
             return response()->json([
                 "errors" => true,
@@ -47,7 +47,7 @@ class ChatController extends Controller
             ], 400);
         }
 
-        if ($raw_response)
+        if ($chatRoom)
         {
             # register chat room in the db
 
@@ -67,15 +67,15 @@ class ChatController extends Controller
                 Chat::create([
                     "user_id"   => $user->id,
                     "title"     => $file->getClientOriginalName(),
-                    "uuid"      => $raw_response->uuid,
-                    "chat_history" => "",
+                    "uuid"      => $chatRoom->uuid,
+                    "chat_history" => $chatRoom->chat_history,
                 ]);
             }
 
             return response()->json([
                 "errors" => false,
                 "message" => "Created successfully",
-                "chat_room" => $raw_response
+                "chat_room" => $chatRoom
             ], 201);
         }
 
@@ -117,7 +117,7 @@ class ChatController extends Controller
             ];
             $history[] = [
                 "type"      => "ai",
-                "content"   => $reply
+                "content"   => isset($reply->output) ? $reply->output : ""
             ];
 
             $chat->chat_history = json_encode($history);
@@ -157,9 +157,12 @@ class ChatController extends Controller
     // Get Chat history/info
     public function details(Request $request, string $uuid)
     {
+        /*
         $chatManager = getChatManager();
         $chatRoom = $chatManager->getChatRoomByUUID($uuid);
+        */
 
+        $chatRoom = Chat::where("uuid", $uuid)->first();
         if ($chatRoom)
         {
             return response()->json([
