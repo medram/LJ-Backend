@@ -26,6 +26,7 @@ class SettingsSeeder extends Seeder
             ["name" => "SITE_LOGO",         "value" => "",              "type" => "string"],
             ["name" => "SITE_FAVICON",      "value" => "logo192.png",   "type" => "string"],
             ["name" => "SHOW_LOGO",         "value" => "0",             "type" => "boolean"],
+            ["name" => "SMTP_FROM",         "value" => "",              "type" => "string"],
             ["name" => "SMTP_HOST",         "value" => "",              "type" => "string"],
             ["name" => "SMTP_PORT",         "value" => "465",           "type" => "int"],
             ["name" => "SMTP_USER",         "value" => "",              "type" => "string"],
