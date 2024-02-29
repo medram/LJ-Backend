@@ -26,7 +26,10 @@ class MailConfigServiceProvider extends ServiceProvider
             'driver'     => "smtp",
             'host'       => $settings['SMTP_HOST'],
             'port'       => $settings['SMTP_PORT'],
-            'from'       => array('address' => $settings['SMTP_USER'], 'name' => $settings['SITE_NAME']),
+            'from'       => [
+                'address'   => $settings['SMTP_FROM'] ? $settings['SMTP_FROM'] : $settings['SMTP_USER'],
+                'name'      => $settings['SITE_NAME']
+            ],
             'encryption' => strtolower($settings['SMTP_MAIL_ENCRIPTION']),
             'username'   => $settings['SMTP_USER'],
             'password'   => $settings['SMTP_PASSWORD'],

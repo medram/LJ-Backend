@@ -12,6 +12,7 @@ class SettingsController extends Controller
     // Exclude this list of sensitive data from public settings
     public $private_settings = [
         //e.g. "SITE_NAME",
+        "SMTP_FROM",
         "SMTP_HOST",
         "SMTP_PORT",
         "SMTP_USER",
