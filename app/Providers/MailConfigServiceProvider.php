@@ -27,7 +27,7 @@ class MailConfigServiceProvider extends ServiceProvider
             'host'       => $settings['SMTP_HOST'],
             'port'       => $settings['SMTP_PORT'],
             'from'       => [
-                'address'   => $settings['SMTP_FROM'] ? $settings['SMTP_FROM'] : $settings['SMTP_USER'],
+                'address'   => isset($settings['SMTP_FROM'])? $settings['SMTP_FROM'] : $settings['SMTP_USER'],
                 'name'      => $settings['SITE_NAME']
             ],
             'encryption' => strtolower($settings['SMTP_MAIL_ENCRIPTION']),
