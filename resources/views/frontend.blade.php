@@ -12,7 +12,7 @@
     <title>{{ $SITE_NAME }}</title>
     {!! $HEAD_CODE !!}
 
-    <script type="module" crossorigin src="/assets/index-CWGvEDDb.js"></script>
+    <script type="module" crossorigin src="/assets/index-4V34fw3k.js"></script>
     <link rel="stylesheet" crossorigin href="/assets/index-BAgZc4T3.css">
   </head>
   <body>
