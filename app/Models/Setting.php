@@ -17,9 +17,9 @@ class Setting extends Model
         "HEAD_CODE",
     ];
 
-    public static function getSetting($key)
+    public static function getSetting($key, bool $refresh=false)
     {
-        if (isset(Setting::$all_settings[$key]))
+        if (isset(Setting::$all_settings[$key]) && !$refresh)
             return Setting::$all_settings[$key];
 
         // refresh settings then get the value

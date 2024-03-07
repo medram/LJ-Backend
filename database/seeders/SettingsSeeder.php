@@ -57,10 +57,15 @@ class SettingsSeeder extends Seeder
             ["name" => "LICENSE_CODE",          "value" => "",          "type" => "string"],
             ["name" => "TRIAL_PLANS",           "value" => "0",         "type" => "int"],
             ["name" => "TRIAL_DAYS",            "value" => "0",        "type" => "int"],
-            ["name" => "CHAT_AGENT_MODEL",          "value" => "gpt-3.5-turbo-1106",    "type" => "string"],
+            ["name" => "CHAT_AGENT_MODEL",          "value" => "gpt-3.5-turbo-16k",     "type" => "string"],
             ["name" => "CHAT_AGENT_MODEL_TEMP",     "value" => "0.5",                   "type" => "float"],
-            ["name" => "CHAT_TOOLS_MODEL",  "value" => "gpt-3.5-turbo-16k",     "type" => "string"],
-            ["name" => "CHAT_TOOLS_MODEL_TEMP",  "value" => "0.3",              "type" => "float"],
+            ["name" => "CHAT_TOOLS_MODEL",          "value" => "gpt-3.5-turbo-16k",     "type" => "string"],
+            ["name" => "CHAT_TOOLS_MODEL_TEMP",     "value" => "0.5",                   "type" => "float"],
+            ["name" => "CHAT_PLANNER_AGENT_MODEL",  "value" => "gpt-3.5-turbo",         "type" => "string"],
+            ["name" => "CHAT_PLANNER_AGENT_MODEL_TEMP",  "value" => "0",                "type" => "float"],
+
+            ["name" => "CHAT_AVAILABLE_PLUGINS",    "value" => $this->get_available_plugins(), "type" => "string"],
+            ["name" => "SELECTED_PLUGINS",          "value" => "[]", "type" => "string"],
         ];
 
         // Insert only the new keys
@@ -71,5 +76,41 @@ class SettingsSeeder extends Seeder
 
         // Insert new settings
         Setting::insert($newSettingsToInsert);
+    }
+
+    public function get_available_plugins()
+    {
+        return json_encode([
+            [
+                "name" => "SimpleCalculatorPlugin",
+                "desc" => "Useful to perform numerical calculations correctly.",
+                "beta" => false,
+            ],
+            [
+                "name" => "DocumentPlugin",
+                "desc" => "Useful to look up information from documents.",
+                "beta" => false,
+            ],
+            [
+                "name" => "DocumentSummarizationPlugin",
+                "desc" => "Useful to summarize documents.",
+                "beta" => false,
+            ],
+            [
+                "name" => "LinePlotPlugin",
+                "desc" => "Useful to plot line graphs.",
+                "beta" => true,
+            ],
+            [
+                "name" => "BarPlotPlugin",
+                "desc" => "Useful to plot bar graphs.",
+                "beta" => true,
+            ],
+            [
+                "name" => "CurrentDatetimePlugin",
+                "desc" => "Useful to look up current date, time, year, ...etc",
+                "beta" => false,
+            ],
+        ], JSON_UNESCAPED_SLASHES);
     }
 }

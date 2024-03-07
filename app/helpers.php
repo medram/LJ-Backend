@@ -19,11 +19,11 @@ function getAllSettings()
 }
 
 // Get indevidual website setting.
-function getSetting(string $key)
+function getSetting(string $key, bool $refresh=false)
 {
 	if ($key === "APP_VERSION")
 		return getAppVersion();
-	return Setting::getSetting($key);
+	return Setting::getSetting($key, $refresh);
 }
 
 // Update website setting.
@@ -321,7 +321,7 @@ function isDemo()
 // Return app version.
 function getAppVersion()
 {
-	return "1.4.2";
+	return "1.5.0";
 }
 
 // Return installation status.
