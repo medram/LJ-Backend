@@ -1,1 +1,0 @@
-import{b as s,j as t,s as a,B as r,O as u}from"./index-4V34fw3k.js";function o(){const{isAuthenticated:e}=s();return e?t.jsx(r,{children:t.jsx(u,{})}):t.jsx(a,{to:"/login",replace:!0})}export{o as default};
