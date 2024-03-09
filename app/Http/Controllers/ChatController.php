@@ -278,24 +278,8 @@ class ChatController extends Controller
     // inform RapidAPI with User's OpenAPI key
     public function updateAIModelSettings(Request $request)
     {
-        /*$request->validate([
-            "openai_key"                    => "string|required",
-
-            "chat_agent_model"              => "string|required",
-            "chat_agent_model_temp"         => "numeric|required|min:0|max:2",
-
-            "chat_tools_model"              => "string|required",
-            "chat_tools_model_temp"         => "numeric|required|min:0|max:2",
-
-            "chat_planner_agent_model"      => "string|required",
-            "chat_planner_agent_model_temp" => "numeric|required|min:0|max:2",
-
-            "selected_plugins"              => "string|required",
-        ]);
-        $payload = $request->json()->all();
-        */
-
         $settings = getAllSettings();
+        $selected_plugins = json_decode($settings["SELECTED_PLUGINS"]);
 
         $payload = [
             "openai_key"                    => $settings["OPENAI_API_KEY"],
@@ -309,7 +293,7 @@ class ChatController extends Controller
             "chat_planner_agent_model"      => $settings["CHAT_PLANNER_AGENT_MODEL"],
             "chat_planner_agent_model_temp" => $settings["CHAT_PLANNER_AGENT_MODEL_TEMP"],
 
-            "selected_plugins"              => json_decode($settings["SELECTED_PLUGINS"]), # Convert to PHP array
+            "selected_plugins"              => $selected_plugins, # Convert to PHP array
         ];
 
         // inform Rapid website.

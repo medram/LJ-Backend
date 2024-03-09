@@ -14,6 +14,10 @@ class SettingsSeeder extends Seeder
      */
     public function run(): void
     {
+        $override_options = [
+            "CHAT_AVAILABLE_PLUGINS",
+        ];
+
         $data = [
             ["name" => "SITE_NAME",         "value" => "ChatPDF",       "type" => "string"],
             ["name" => "SITE_DESC",         "value" => "",              "type" => "string"],
@@ -68,9 +72,23 @@ class SettingsSeeder extends Seeder
             ["name" => "SELECTED_PLUGINS",          "value" => "[]", "type" => "string"],
         ];
 
+        // Delete the options that need to be updated
+        foreach ($override_options as $value)
+        {
+            Setting::where("name", $value)->delete();
+        }
+
         // Insert only the new keys
         $settings = getAllSettings();
         $settingsKeys = array_keys($settings);
+
+        // Delete the keys
+        foreach ($override_options as $value)
+        {
+            if (($key = array_search($value, $settingsKeys)) !== false) {
+                unset($settingsKeys[$key]);
+            }
+        }
 
         $newSettingsToInsert = array_filter($data, fn($option) => !in_array($option["name"], $settingsKeys) );
 
@@ -82,11 +100,6 @@ class SettingsSeeder extends Seeder
     {
         return json_encode([
             [
-                "name" => "SimpleCalculatorPlugin",
-                "desc" => "Useful to perform numerical calculations correctly.",
-                "beta" => false,
-            ],
-            [
                 "name" => "DocumentPlugin",
                 "desc" => "Useful to look up information from documents.",
                 "beta" => false,
@@ -97,6 +110,11 @@ class SettingsSeeder extends Seeder
                 "beta" => false,
             ],
             [
+                "name" => "SimpleCalculatorPlugin",
+                "desc" => "Useful to perform numerical calculations correctly.",
+                "beta" => false,
+            ],
+            [
                 "name" => "LinePlotPlugin",
                 "desc" => "Useful to plot line graphs.",
                 "beta" => true,
@@ -104,6 +122,11 @@ class SettingsSeeder extends Seeder
             [
                 "name" => "BarPlotPlugin",
                 "desc" => "Useful to plot bar graphs.",
+                "beta" => true,
+            ],
+            [
+                "name" => "PiePlotPlugin",
+                "desc" => "Useful to plot pie graphs.",
                 "beta" => true,
             ],
             [
