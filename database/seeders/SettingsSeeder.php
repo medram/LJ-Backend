@@ -102,12 +102,12 @@ class SettingsSeeder extends Seeder
             [
                 "name" => "DocumentPlugin",
                 "desc" => "Useful to look up information from documents.",
-                "beta" => false,
+                "beta" => true,
             ],
             [
                 "name" => "DocumentSummarizationPlugin",
                 "desc" => "Useful to summarize documents.",
-                "beta" => false,
+                "beta" => true,
             ],
             [
                 "name" => "SimpleCalculatorPlugin",
