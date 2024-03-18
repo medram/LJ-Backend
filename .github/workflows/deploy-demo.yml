@@ -54,6 +54,11 @@ jobs:
             docker exec core_askpdf_1 php artisan migrate --force -n
             docker exec core_askdox_1 php artisan migrate --force -n
 
+            # Run DB seeds
+            docker exec core_askpdf_1 php artisan db:seed --force -n
+            docker exec core_askdox_1 php artisan db:seed --force -n
+
+
             # Some space clean up
             docker image prune -f
 
