@@ -53,7 +53,7 @@ return new class extends Migration
         Schema::create("settings", function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->text('value')->nullable()->default("");
+            $table->text('value')->nullable();
             $table->string('type')->default("string"); # string | int | integer | float | boolean
         });
 
