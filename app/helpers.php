@@ -321,7 +321,7 @@ function isDemo()
 // Return app version.
 function getAppVersion()
 {
-	return "2.0.0";
+	return "2.0.1";
 }
 
 // Return installation status.
