@@ -11,6 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
+        /*
         Schema::table('chats', function (Blueprint $table) {
             $table->renameColumn('name', 'title');
             $table->renameColumn('hash', 'uuid');
@@ -20,6 +21,18 @@ return new class extends Migration
 
             $table->unique("uuid");
             $table->index("uuid");
+        });
+        */
+        Schema::table('chats', function (Blueprint $table) {
+            $table->dropColumn('name');
+            $table->dropColumn('hash');
+        
+            $table->string('title')->nullable();
+            $table->string('uuid')->nullable();
+            $table->string('path')->nullable()->change();
+            //$table->longText('chat_history')->nullable();
+            $table->unique('uuid');
+            $table->index('uuid');
         });
     }
 
@@ -32,10 +45,16 @@ return new class extends Migration
             $table->dropUnique("uuid");
             $table->dropIndex("uuid");
 
-            $table->dropColumn("chat_history");
-
-            $table->renameColumn('title', 'name');
-            $table->renameColumn('uuid', 'hash');
+            //$table->dropColumn("chat_history");
+            $table->dropColumn("title");
+            $table->dropColumn("uuid");
+            $table->dropColumn("path");
+            
+            $table->string('name')->nullable();
+            $table->string('hash')->nullable();
+            
+            //$table->renameColumn('title', 'name');
+            //$table->renameColumn('uuid', 'hash');
         });
     }
 };
