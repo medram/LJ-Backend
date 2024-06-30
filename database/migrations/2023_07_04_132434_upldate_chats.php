@@ -30,7 +30,7 @@ return new class extends Migration
             $table->string('title')->nullable();
             $table->string('uuid')->nullable();
             $table->string('path')->nullable()->change();
-            //$table->longText('chat_history')->nullable();
+            $table->longText('chat_history')->nullable();
             $table->unique('uuid');
             $table->index('uuid');
         });
