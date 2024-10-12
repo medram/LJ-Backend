@@ -4,18 +4,16 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-
 use App\Models\User;
 use App\Models\Plan;
-
 
 class Invoice extends Model
 {
     use HasFactory;
 
-    const UNPAID = 0;
-    const PAID = 1;
-    const REFUNDED = 2;
+    public const UNPAID = 0;
+    public const PAID = 1;
+    public const REFUNDED = 2;
 
     protected $hidden = [];
 

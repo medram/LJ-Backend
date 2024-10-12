@@ -7,7 +7,6 @@ use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Route;
 
-
 // Installer Middleware
 class InstallerMiddleware
 {
@@ -28,11 +27,13 @@ class InstallerMiddleware
             "install.verify",
             "install.verify.post",
             "install.database.install",
-        ]))
+        ])) {
             return redirect("/");
+        }
 
-        if (!isInstalled() && $currentRoute == "frontend")
+        if (!isInstalled() && $currentRoute == "frontend") {
             return redirect()->route("install.index");
+        }
 
         return $next($request);
     }

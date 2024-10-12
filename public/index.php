@@ -6,8 +6,9 @@ use Illuminate\Http\Request;
 define('LARAVEL_START', microtime(true));
 
 // Create .env file if it doesn't exist
-if (!file_exists(__DIR__."/../.env"))
+if (!file_exists(__DIR__."/../.env")) {
     @copy(__DIR__."/../.env.prod", __DIR__."/../.env");
+}
 
 
 /*

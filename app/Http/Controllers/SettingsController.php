@@ -3,9 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-
 use App\Models\Setting;
-
 
 class SettingsController extends Controller
 {
@@ -45,10 +43,10 @@ class SettingsController extends Controller
         $filtered_settings = [];
 
         // filters out private settings
-        foreach ($settings as $name => $value)
-        {
-            if (!in_array($name, $this->private_settings))
+        foreach ($settings as $name => $value) {
+            if (!in_array($name, $this->private_settings)) {
                 $filtered_settings[$name] = $value;
+            }
         }
 
         return response()->json([
@@ -63,22 +61,19 @@ class SettingsController extends Controller
         $settings = getAllSettings();
         $filtered_settings = [];
 
-        if (isDemo())
-        {
+        if (isDemo()) {
             // filters out private settings
-            foreach ($settings as $name => $value)
-            {
-                if (!in_array($name, $this->private_settings) && !in_array($name, $this->exclude_settings))
+            foreach ($settings as $name => $value) {
+                if (!in_array($name, $this->private_settings) && !in_array($name, $this->exclude_settings)) {
                     $filtered_settings[$name] = $value;
+                }
             }
-        }
-        else
-        {
+        } else {
             // filters out private settings
-            foreach ($settings as $name => $value)
-            {
-                if (!in_array($name, $this->exclude_settings))
+            foreach ($settings as $name => $value) {
+                if (!in_array($name, $this->exclude_settings)) {
                     $filtered_settings[$name] = $value;
+                }
             }
         }
 
@@ -95,18 +90,15 @@ class SettingsController extends Controller
         // Filter input fields against XSS attacks.
         $fields = Setting::filterInputs($fields);
 
-        try
-        {
-            foreach ($fields as $key => $value)
-            {
+        try {
+            foreach ($fields as $key => $value) {
                 $option = Setting::where('name', $key)->get()->first();
-                if ($option)
-                {
-                    $option->value = $value === null? "" : $value;
+                if ($option) {
+                    $option->value = $value === null ? "" : $value;
                     $option->save();
                 }
             }
-        } catch (\Exception $e){
+        } catch (\Exception $e) {
             return response()->json([
                 'errors' => true,
                 'message' => "Something went wrong!"

@@ -19,4 +19,4 @@ yarn-error.log
 /.idea
 /.vscode
 /public/uploads/images/
-
+.php-cs-fixer.cache

@@ -1,17 +1,13 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\InstallController;
 use App\Http\Controllers\FrontendController;
-
 use App\Http\Middleware\UserRequired;
 use App\Http\Middleware\AdminRequired;
-
 use App\Http\Middleware\InstallerMiddleware;
-
 
 /*
 |--------------------------------------------------------------------------
@@ -36,7 +32,7 @@ Route::get('/verify/{token}', [UserController::class, "verifyAccount"])
 
 # Installer
 Route::group(["prefix" => "/install", "middleware" => InstallerMiddleware::class], function () {
-    Route::controller(InstallController::class)->group(function (){
+    Route::controller(InstallController::class)->group(function () {
 
         Route::get("/", "index")->name("install.index");
         Route::get("/requirements", "requirements")->name("install.requirements");

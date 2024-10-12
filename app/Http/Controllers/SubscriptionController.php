@@ -4,9 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-
 use App\Models\Subscription;
-
 
 class SubscriptionController extends Controller
 {
@@ -33,25 +31,21 @@ class SubscriptionController extends Controller
     {
         $subscription = Subscription::where("sub_id", $sub_id)->first();
 
-        if ($subscription)
-        {
+        if ($subscription) {
             $subscription->status = Subscription::CANCELED;
             $subscription->save();
 
             try {
                 // Cancel Subscription from Payment Gateways as well.
-                if ($subscription->payment_gateway == "PAYPAL")
-                {
+                if ($subscription->payment_gateway == "PAYPAL") {
                     $paypal = getPayPalGateway();
                     $paypalSubscription = $paypal->getSubscriptionById($subscription->gateway_subscription_id);
                     $paypalSubscription->cancel();
-                }
-                else if ($subscription->payment_gateway == "STRIPE")
-                {
+                } elseif ($subscription->payment_gateway == "STRIPE") {
                     // stripe subscription cancellation.
                     cancelStripeSubscriptionById($subscription->gateway_subscription_id);
                 }
-            } catch (\Exception $e){
+            } catch (\Exception $e) {
                 // just pass
                 Log::error($e);
             }

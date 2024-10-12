@@ -6,7 +6,6 @@ use Config;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\ServiceProvider;
 
-
 class MailConfigServiceProvider extends ServiceProvider
 {
     /**
@@ -17,8 +16,9 @@ class MailConfigServiceProvider extends ServiceProvider
     public function boot()
     {
         // to ensure that the platform already installed
-        if (!isInstalled())
+        if (!isInstalled()) {
             return null;
+        }
 
         $settings = getAllSettings();
 
@@ -27,7 +27,7 @@ class MailConfigServiceProvider extends ServiceProvider
             'host'       => $settings['SMTP_HOST'],
             'port'       => $settings['SMTP_PORT'],
             'from'       => [
-                'address'   => isset($settings['SMTP_FROM'])? $settings['SMTP_FROM'] : $settings['SMTP_USER'],
+                'address'   => isset($settings['SMTP_FROM']) ? $settings['SMTP_FROM'] : $settings['SMTP_USER'],
                 'name'      => $settings['SITE_NAME']
             ],
             'encryption' => strtolower($settings['SMTP_MAIL_ENCRIPTION']),
@@ -38,8 +38,7 @@ class MailConfigServiceProvider extends ServiceProvider
             'auth_mode'  => null,
         );
 
-        if ($settings['SMTP_ALLOW_INSECURE_MODE'])
-        {
+        if ($settings['SMTP_ALLOW_INSECURE_MODE']) {
             $config += [
                 'allow_self_signed' => true,
                 'verify_peer' => false,

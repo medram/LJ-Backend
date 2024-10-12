@@ -3,10 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-
 use App\Models\Page;
 use App\Rules\StripTagsRule;
-
 
 class PagesController extends Controller
 {
@@ -25,16 +23,15 @@ class PagesController extends Controller
     public function add(Request $request)
     {
         $request->validate([
-            'title'     => ["required", "string", new StripTagsRule],
-            'slug'      => ["required", "unique:pages", new StripTagsRule],
+            'title'     => ["required", "string", new StripTagsRule()],
+            'slug'      => ["required", "unique:pages", new StripTagsRule()],
             'content'   => ["string", "nullable"],
             'status'    => "boolean"
         ]);
 
         $page = Page::create($request->all());
 
-        if ($page)
-        {
+        if ($page) {
             return response()->json([
                 'errors' => false,
                 'message' => "Create successfully.",
@@ -48,11 +45,10 @@ class PagesController extends Controller
     {
         $page = Page::where('id', $id)->get()->first();
 
-        if ($page)
-        {
+        if ($page) {
             $request->validate([
-                'title'     => ["required", "string", new StripTagsRule],
-                'slug'      => ["required", "unique:pages,id,{$id}", new StripTagsRule],
+                'title'     => ["required", "string", new StripTagsRule()],
+                'slug'      => ["required", "unique:pages,id,{$id}", new StripTagsRule()],
                 'content'   => ["string", "nullable"],
                 'status'    => "boolean"
             ]);
@@ -77,8 +73,7 @@ class PagesController extends Controller
     {
         $page = Page::find($id);
 
-        if ($page)
-        {
+        if ($page) {
             return response()->json([
                 'errors' => false,
                 'page' => $page
@@ -96,8 +91,7 @@ class PagesController extends Controller
     {
         $id = $request->json('id');
 
-        if ($id)
-        {
+        if ($id) {
             Page::destroy($id);
 
             return response()->json([

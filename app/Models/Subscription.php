@@ -4,22 +4,19 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-
 use App\Models\User;
 use App\Models\Plan;
-
 use Carbon\Carbon;
-
 
 class Subscription extends Model
 {
     use HasFactory;
 
-    const EXPIRED = 0;
-    const ACTIVE = 1;
-    const CANCELED = 2;
-    const SUSPENDED = 3;
-    const UPGRADED = 4;
+    public const EXPIRED = 0;
+    public const ACTIVE = 1;
+    public const CANCELED = 2;
+    public const SUSPENDED = 3;
+    public const UPGRADED = 4;
 
     protected $hidden = [
 

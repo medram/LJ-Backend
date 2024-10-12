@@ -3,13 +3,10 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
-
 use App\Models\User;
 use App\Rules\StripTagsRule;
-
 
 class CustomerController extends Controller
 {
@@ -28,7 +25,7 @@ class CustomerController extends Controller
     public function add(Request $request)
     {
         $request->validate([
-            "username"  => ["required", "min:4", "max:25", new StripTagsRule],
+            "username"  => ["required", "min:4", "max:25", new StripTagsRule()],
             "email"     => "required|email|unique:users",
             "password"  => "required|min:6|max:40",
             "is_active" => "required",
@@ -53,7 +50,7 @@ class CustomerController extends Controller
     public function edit(Request $request, $id)
     {
         $request->validate([
-            "username"  => ["required", "min:4", "max:25", new StripTagsRule],
+            "username"  => ["required", "min:4", "max:25", new StripTagsRule()],
             "email" => "required|email",
             "password" => "string|nullable",
             "is_active" => "boolean"
@@ -66,11 +63,11 @@ class CustomerController extends Controller
         $customer->email = $fields['email'];
         $customer->is_active = intval($fields['is_active']);
 
-        if ($fields['password'])
+        if ($fields['password']) {
             $customer->password = Hash::make($fields['password']);
+        }
 
-        if ($customer->save())
-        {
+        if ($customer->save()) {
             return response()->json([
                 "errors" => false,
                 "message" => "Updated successfully."
@@ -100,14 +97,15 @@ class CustomerController extends Controller
         try {
             $customer = User::where('id', $request->id)->first();
 
-            if ($customer)
+            if ($customer) {
                 $customer->delete();
+            }
 
             return response()->json([
                 "errors" => false,
                 "message" => "Deleted successfully"
             ]);
-        } catch (\Exception $e){
+        } catch (\Exception $e) {
             return response()->json([
                 "errors" => true,
                 "message" => "Something went wrong while deletion!"

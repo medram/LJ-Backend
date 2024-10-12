@@ -4,14 +4,10 @@ namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Http\Request;
-
 use App\Packages\LC\LCManager;
-
 use App\Models\User;
-
 use Str;
 use Hash;
-
 
 class InstallController extends Controller
 {
@@ -31,33 +27,24 @@ class InstallController extends Controller
         // reset the session
         session()->forget("requirements");
 
-        foreach($requirements as $type => $extensions)
-        {
-            if (strtolower($type) == "php")
-            {
-                foreach ($extensions as $ext)
-                {
+        foreach ($requirements as $type => $extensions) {
+            if (strtolower($type) == "php") {
+                foreach ($extensions as $ext) {
                     $results["extensions"]["php"][$ext] = true;
 
-                    if (!extension_loaded($ext))
-                    {
+                    if (!extension_loaded($ext)) {
                         $results["extensions"]["php"][$ext] = false;
                         $results["errors"] = true;
                     }
                 }
-            }
-            else if (strtolower($type) == "apache")
-            {
-                if (function_exists("apache_get_modules"))
-                {
+            } elseif (strtolower($type) == "apache") {
+                if (function_exists("apache_get_modules")) {
                     $available_modules = apache_get_modules();
 
-                    foreach ($extensions as $ext)
-                    {
+                    foreach ($extensions as $ext) {
                         $results["extensions"]["apache"][$ext] = true;
 
-                        if (! in_array($ext, $available_modules))
-                        {
+                        if (! in_array($ext, $available_modules)) {
                             $results["extensions"]["apache"][$ext] = false;
                             $results["errors"] = true;
                         }
@@ -65,19 +52,15 @@ class InstallController extends Controller
                 }
             }
 
-            if (version_compare(PHP_VERSION, config("install.php_version")) == -1)
-            {
+            if (version_compare(PHP_VERSION, config("install.php_version")) == -1) {
                 $results["php_version"] = false;
                 $results["errors"] = true;
-            }
-            else
-            {
+            } else {
                 $results["php_version"] = true;
             }
         }
 
-        if ($results["errors"] == false)
-        {
+        if ($results["errors"] == false) {
             session(["requirements" => true]);
         }
 
@@ -97,11 +80,11 @@ class InstallController extends Controller
         // reset the session
         session()->forget("database");
 
-        if (!session("requirements"))
+        if (!session("requirements")) {
             return redirect()->route("install.requirements");
+        }
 
-        if ($request->method() == "POST")
-        {
+        if ($request->method() == "POST") {
             $fields = $request->validate([
                 "db_host" => "string|required",
                 "db_name" => "string|required",
@@ -116,12 +99,11 @@ class InstallController extends Controller
 
             try {
                 $databaseStatus = $this->checkDatabaseCredentials($db_host, $db_name, $db_user, $db_pass);
-            } catch (\Exception $e){
+            } catch (\Exception $e) {
                 return redirect()->back()->with("error", "Invalid database credentials: " . $e->getMessage());
             }
 
-            if ($databaseStatus === true)
-            {
+            if ($databaseStatus === true) {
                 // store DB config
                 $this->storeConfiguration("DB_HOST", $db_host);
                 $this->storeConfiguration("DB_DATABASE", $db_name);
@@ -133,9 +115,7 @@ class InstallController extends Controller
                 sleep(1);
                 // redirect to the next step
                 return redirect()->route("install.verify");
-            }
-            else
-            {
+            } else {
                 return redirect()->back()->with("error", "Invalid database credentials.");
             }
         }
@@ -152,8 +132,9 @@ class InstallController extends Controller
         $database = session("database");
         $verify = session("verify");
 
-        if (!$verify OR !$requirements OR !$database)
+        if (!$verify or !$requirements or !$database) {
             return redirect()->route("install.verify");
+        }
 
         // Perform the installation
         echo "<b>📥 Installing, Please wait...<br></b>";
@@ -189,8 +170,9 @@ class InstallController extends Controller
         $requirements = session("requirements");
         $database = session("database");
 
-        if (!$requirements OR !$database)
+        if (!$requirements or !$database) {
             return redirect()->route("install.database");
+        }
 
         // clear value
         session()->forget("verify");
@@ -198,8 +180,7 @@ class InstallController extends Controller
 
         $results = [];
 
-        if ($request->method() == "POST")
-        {
+        if ($request->method() == "POST") {
             $fields = $request->validate([
                 "lc" => "string|required"
             ]);
@@ -207,16 +188,13 @@ class InstallController extends Controller
             $lc = $fields["lc"];
             $lcManager = LCManager::getInstance();
 
-            if ($lcManager->check($lc, true))
-            {
+            if ($lcManager->check($lc, true)) {
                 session(["verify" => true]);
                 session(["lc" => $lc]);
 
                 // redirect to the next step
                 return redirect()->route("install.database.install");
-            }
-            else
-            {
+            } else {
                 return redirect()->back()->with("error", "Invalid Purchase Code 🫢!");
             }
         }
@@ -229,20 +207,23 @@ class InstallController extends Controller
     // Installer Complate page.
     public function completed(Request $request)
     {
-        if (!session("installed"))
+        if (!session("installed")) {
             return redirect()->route("install.database");
+        }
         // set that the platform is installed
         $this->storeConfiguration("INSTALLED", 1);
 
         $adminCredentials = session("admin");
 
-        if (!$adminCredentials)
+        if (!$adminCredentials) {
             return redirect("/");
+        }
 
         // register lc in db
         $lc = session("lc");
-        if ($lc)
+        if ($lc) {
             setSetting("LICENSE_CODE", $lc);
+        }
 
         // clear all prvious sessions
         session()->forget("requirements");
@@ -261,8 +242,7 @@ class InstallController extends Controller
     {
         $path = base_path('.env');
 
-        if (file_exists($path))
-        {
+        if (file_exists($path)) {
             try {
                 $content = file_get_contents($path);
                 $new_content = preg_replace("/{$key}=(.*)\\n/", "{$key}=\"{$value}\"\n", $content);
@@ -308,8 +288,7 @@ class InstallController extends Controller
             "role" => User::ADMIN,
         ])->first();
 
-        if (!$admin)
-        {
+        if (!$admin) {
             $admin = new User();
         }
 
@@ -330,12 +309,14 @@ class InstallController extends Controller
     // Check database credentials
     private function checkDatabaseCredentials(string $db_host, string $db_name, string $db_user, string $db_pass)
     {
-        if ($db_host == "")
+        if ($db_host == "") {
             $db_host = "localhost";
+        }
 
         $conn = mysqli_connect($db_host, $db_user, $db_pass, $db_name);
-        if (!$conn)
+        if (!$conn) {
             return new \Exception("Database Connection Error: " . mysqli_connect_error());
+        }
 
         return true;
     }

@@ -6,19 +6,14 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Carbon\Carbon;
 use Str;
-
-
 use App\Packages\Gateways\PayPal\PayPalClient;
 use App\Packages\Gateways\PayPal\Product;
 use App\Packages\Gateways\PayPal\Plan as PayPalPlan;
 use App\Packages\Gateways\PayPal\Subscription as PayPalSubscription;
-
 use App\Models\Plan;
 use App\Models\User;
 use App\Models\Subscription;
 use App\Models\Invoice;
-
-
 
 class CheckoutController extends Controller
 {
@@ -33,13 +28,12 @@ class CheckoutController extends Controller
 
         $data = (object)$request->json()->all();
 
-        if ($data->gateway == "PAYPAL")
-        {
-            if ($data->type == "subscription")
-            {
+        if ($data->gateway == "PAYPAL") {
+            if ($data->type == "subscription") {
                 $plan = Plan::where(['status' => 1, 'soft_delete' => 0, 'id' => $data->id])->first();
-                if ($plan)
+                if ($plan) {
                     return $this->createPayPalSubscription($plan);
+                }
 
                 return response()->json([
                     "errors" => true,
@@ -48,15 +42,13 @@ class CheckoutController extends Controller
 
             }
             // TODO: if it's a normal order.
-        }
-        else if ($data->gateway == "STRIPE")
-        {
+        } elseif ($data->gateway == "STRIPE") {
             // Do the same for stripe.
-            if ($data->type == "subscription")
-            {
+            if ($data->type == "subscription") {
                 $plan = Plan::where(['status' => 1, 'soft_delete' => 0, 'id' => $data->id])->first();
-                if ($plan)
+                if ($plan) {
                     return $this->createStripeSubscription($plan);
+                }
 
                 return response()->json([
                     "errors" => true,
@@ -78,19 +70,18 @@ class CheckoutController extends Controller
         $plan = Plan::where(["id" => $id, "soft_delete" => 0])->first();
         $user = $request->user();
 
-        if (!$user)
+        if (!$user) {
             $user = User::find($user_id);
+        }
 
         $existed = Subscription::where("gateway_subscription_id", $subscription_id)->exists();
 
-        if (!$existed && $plan && $user)
-        {
+        if (!$existed && $plan && $user) {
             ## Create a Subscription For PayPal Only
             $paypal = getPayPalGateway();
             $paypalSubscription = $paypal->getSubscriptionById($subscription_id);
 
-            if ($paypalSubscription && $paypalSubscription->status == "ACTIVE")
-            {
+            if ($paypalSubscription && $paypalSubscription->status == "ACTIVE") {
                 // Create a db invoice
                 $invoice = new Invoice();
                 $invoice->invoice_id = rand(1000000, 9999999);
@@ -112,18 +103,19 @@ class CheckoutController extends Controller
                 $subscription->plan_id = $plan->id;
                 $subscription->status = Subscription::ACTIVE;
 
-                if ($plan->billing_cycle == "monthly")
-                    $subscription->expiring_at = Carbon::now()->addMonth(); // add one month
-                else if ($plan->billing_cycle == "yearly")
-                    $subscription->expiring_at = Carbon::now()->addYear(); // add one year
+                if ($plan->billing_cycle == "monthly") {
+                    $subscription->expiring_at = Carbon::now()->addMonth();
+                } // add one month
+                elseif ($plan->billing_cycle == "yearly") {
+                    $subscription->expiring_at = Carbon::now()->addYear();
+                } // add one year
 
                 $subscription->payment_gateway = "PAYPAL"; // PAYPAL | STRIPE
                 $subscription->gateway_plan_id = $paypalSubscription->plan_id;
                 $subscription->gateway_subscription_id = $paypalSubscription->id;
 
                 $old_subscription = $user->getCurrentSubscription();
-                if ($old_subscription && $old_subscription->isValid())
-                {
+                if ($old_subscription && $old_subscription->isValid()) {
                     # Add old subscription quota to the new subscription quota.
                     $subscription->pdfs = $plan->pdfs + $old_subscription->pdfs;
                     $subscription->questions = $plan->questions + $old_subscription->questions;
@@ -133,19 +125,16 @@ class CheckoutController extends Controller
                     $old_subscription->status = Subscription::UPGRADED;
                     $old_subscription->save();
 
-                    if ($old_subscription->payment_gateway == "PAYPAL" && $old_subscription->gateway_subscription_id)
-                    {
+                    if ($old_subscription->payment_gateway == "PAYPAL" && $old_subscription->gateway_subscription_id) {
                         // Disable the old paypal subscription
                         try {
                             $oldPaypalSubscription = $paypal->getSubscriptionById($old_subscription->gateway_subscription_id);
                             $oldPaypalSubscription->cancel();
-                        } catch (\Exception $e){
+                        } catch (\Exception $e) {
                             # Do nothing is fine.
                         }
                     }
-                }
-                else
-                {
+                } else {
                     $subscription->pdfs = $plan->pdfs;
                     $subscription->questions = $plan->questions;
                     $subscription->pdf_size = $plan->pdf_size;
@@ -166,29 +155,24 @@ class CheckoutController extends Controller
         $user = request()->user();
         $db_plan = $plan;
 
-        if (!getSetting("PM_PAYPAL_STATUS"))
-        {
+        if (!getSetting("PM_PAYPAL_STATUS")) {
             return response()->json([
                 "errors" => true,
                 "message" => "Invalid Payment method"
             ], 400);
         }
 
-        if ($db_plan->paypal_plan_id)
-        {
+        if ($db_plan->paypal_plan_id) {
             $paypal = getPayPalGateway();
             //$paypalPlan = getOrCreatePaypalPlan($db_plan);
             $paypalPlan = $paypal->getPlanById($db_plan->paypal_plan_id);
 
-            if (!$paypalPlan)
-            {
+            if (!$paypalPlan) {
                 return response()->json([
                     "errors" => true,
                     "message" => "Invalid PayPal Subscription Plan!"
                 ], 400);
-            }
-            else if ($paypalPlan->status != "ACTIVE")
-            {
+            } elseif ($paypalPlan->status != "ACTIVE") {
                 return response()->json([
                     "errors" => true,
                     "message" => "Inactive PayPal Subscription Plan!"
@@ -222,8 +206,7 @@ class CheckoutController extends Controller
         $user = request()->user();
         $db_plan = $plan;
 
-        if (!getSetting("PM_STRIP_STATUS"))
-        {
+        if (!getSetting("PM_STRIP_STATUS")) {
             return response()->json([
                 "errors" => true,
                 "message" => "Invalid Payment method"
@@ -233,15 +216,12 @@ class CheckoutController extends Controller
         // Get Stripe Plan
         $stripePlan = getOrCreateStripePlan($db_plan);
 
-        if (!$stripePlan)
-        {
+        if (!$stripePlan) {
             return response()->json([
                 "errors" => true,
                 "message" => "Invalid Stripe Subscription Plan!"
             ], 400);
-        }
-        else if ($stripePlan->active != true)
-        {
+        } elseif ($stripePlan->active != true) {
             return response()->json([
                 "errors" => true,
                 "message" => "Inactive Stripe Subscription Plan!"
@@ -277,8 +257,7 @@ class CheckoutController extends Controller
         ];
 
         $trial_days = intval(getSetting("TRIAL_DAYS"));
-        if ($db_plan->id == getSetting("TRIAL_PLANS") && $trial_days > 0)
-        {
+        if ($db_plan->id == getSetting("TRIAL_PLANS") && $trial_days > 0) {
             $payload["subscription_data"]["trial_period_days"] = $trial_days; # default: 30 days (via db seeds)
         }
 

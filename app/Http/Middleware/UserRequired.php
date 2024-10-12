@@ -6,7 +6,6 @@ use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
-
 use App\Models\User;
 use App\Models\AccessToken;
 use Carbon\Carbon;
@@ -24,23 +23,20 @@ class UserRequired
         $token = trim(str_ireplace("Bearer ", "", $request->header('Authorization')));
         $accessToken = AccessToken::where("token", hash("sha256", $token))->first();
 
-        if ($accessToken && ($accessToken->expires_at == null || Carbon::now()->lt($accessToken->expires_at)))
-        {
+        if ($accessToken && ($accessToken->expires_at == null || Carbon::now()->lt($accessToken->expires_at))) {
             $user = $accessToken->user;
 
-            if ($user && $user->is_active)
-            {
+            if ($user && $user->is_active) {
                 # Set the user
                 Auth::login($user);
 
                 return $next($request);
             }
-        }
-        else
-        {
+        } else {
             // delete the expired access token
-            if ($accessToken)
+            if ($accessToken) {
                 $accessToken->delete();
+            }
         }
 
         return response()->json([

@@ -9,21 +9,20 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Laravel\Sanctum\HasApiTokens;
 use Carbon\Carbon;
-
 use App\Models\Subscription;
 use App\Models\AccessToken;
-
 use Mail;
 use Str;
 use DB;
 
-
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasApiTokens;
+    use HasFactory;
+    use Notifiable;
 
-    const USER = 0;
-    const ADMIN = 1;
+    public const USER = 0;
+    public const ADMIN = 1;
 
     /**
      * The attributes that are mass assignable.
@@ -76,10 +75,10 @@ class User extends Authenticatable
         $tokens = $this->accessTokens();
         $validTokens = [];
 
-        foreach($tokens as $token)
-        {
-            if ($token->expires_at == null || Carbon::now()->lt($token->expires_at))
+        foreach ($tokens as $token) {
+            if ($token->expires_at == null || Carbon::now()->lt($token->expires_at)) {
                 $validTokens[] = $token;
+            }
         }
 
         return $validTokens;
