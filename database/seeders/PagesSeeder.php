@@ -4,9 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-
 use App\Models\Page;
-
 
 class PagesSeeder extends Seeder
 {
@@ -43,10 +41,8 @@ class PagesSeeder extends Seeder
         ];
 
         # Insert only the new pages
-        foreach ($data as $row)
-        {
-            if (!Page::where("slug", $row["slug"])->exists())
-            {
+        foreach ($data as $row) {
+            if (!Page::where("slug", $row["slug"])->exists()) {
                 Page::insert([$row]);
             }
         }

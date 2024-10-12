@@ -6,7 +6,6 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\Rules\File;
 use App\Models\Chat;
 
-
 class ChatController extends Controller
 {
     // Upload Document for chat room
@@ -16,11 +15,9 @@ class ChatController extends Controller
         $max_file_size = 5; // default max file size in MB
 
         # file Size restrictions
-        if ($user)
-        {
+        if ($user) {
             $subscription = $user->getCurrentSubscription();
-            if ($subscription)
-            {
+            if ($subscription) {
                 $max_file_size = $subscription->pdf_size; // in MB
             }
         }
@@ -40,34 +37,30 @@ class ChatController extends Controller
         $chatManager = getChatManager();
         try {
             $chatRoom = $chatManager->createChatRoom($file);
-        } catch (\Exception $e){
+        } catch (\Exception $e) {
             return response()->json([
                 "errors" => true,
                 "message" => $e->getMessage()
             ], 400);
         }
 
-        if ($chatRoom)
-        {
+        if ($chatRoom) {
             # register chat room in the db
 
-            if ($user)
-            {
+            if ($user) {
                 # update subscription quota
-                if (!isDemo())
-                {
+                if (!isDemo()) {
                     $subscription = $user->getCurrentSubscription();
-                    if ($subscription->pdfs > 0)
-                    {
+                    if ($subscription->pdfs > 0) {
                         $subscription->pdfs -= 1;
                         $subscription->save();
                     }
                 }
 
                 Chat::create([
-                    "user_id"   => $user->id,
-                    "title"     => $file->getClientOriginalName(),
-                    "uuid"      => $chatRoom->uuid,
+                    "user_id" => $user->id,
+                    "title" => $file->getClientOriginalName(),
+                    "uuid" => $chatRoom->uuid,
                     "chat_history" => $chatRoom->chat_history,
                 ]);
             }
@@ -99,11 +92,10 @@ class ChatController extends Controller
 
         // register the prompt & the reply
 
-        if ($chat)
-        {
+        if ($chat) {
             try {
                 $reply = $chatRoom->send($prompt);
-            } catch (\Exception $e){
+            } catch (\Exception $e) {
                 return response()->json([
                     "errors" => true,
                     "message" => $e->getMessage()
@@ -112,12 +104,12 @@ class ChatController extends Controller
 
             $history = json_decode($chat->chat_history, true);
             $history[] = [
-                "type"      => "human",
-                "content"   => $prompt
+                "type" => "human",
+                "content" => $prompt
             ];
             $history[] = [
-                "type"      => "ai",
-                "content"   => isset($reply->output) ? $reply->output : ""
+                "type" => "ai",
+                "content" => isset($reply->output) ? $reply->output : ""
             ];
 
             $chat->chat_history = json_encode($history);
@@ -126,22 +118,18 @@ class ChatController extends Controller
 
         $user = $request->user();
 
-        if ($user)
-        {
-            if (!isDemo())
-            {
+        if ($user) {
+            if (!isDemo()) {
                 # update subscription quota
                 $subscription = $user->getCurrentSubscription();
-                if ($subscription->questions > 0)
-                {
+                if ($subscription->questions > 0) {
                     $subscription->questions -= 1;
                     $subscription->save();
                 }
             }
         }
 
-        if ($chatRoom)
-        {
+        if ($chatRoom) {
             return response()->json([
                 "errors" => false,
                 "response" => $reply
@@ -160,12 +148,10 @@ class ChatController extends Controller
         $chatManager = getChatManager();
         $chatRoom = $chatManager->getChatRoomByUUID($uuid);
 
-        if ($chatRoom)
-        {
+        if ($chatRoom) {
             // Sync chat history
             $db_chat = Chat::where("uuid", $uuid)->first();
-            if ($db_chat)
-            {
+            if ($db_chat) {
                 $db_chat->chat_history = $chatRoom->chat_history; # type: string
                 $db_chat->save();
             }
@@ -188,12 +174,10 @@ class ChatController extends Controller
         $chatManager = getChatManager();
         $chatRoom = $chatManager->getChatRoomByUUID($uuid);
 
-        if ($chatRoom && $chatRoom->clearHistory())
-        {
+        if ($chatRoom && $chatRoom->clearHistory()) {
             $chat = Chat::where("uuid", $uuid)->get()->first();
 
-            if ($chat)
-            {
+            if ($chat) {
                 $chat->chat_history = "";
                 $chat->save();
             }
@@ -219,12 +203,14 @@ class ChatController extends Controller
         $chatManager = getChatManager();
         $chatRoom = $chatManager->getChatRoomByUUID($uuid);
 
-        if ($chatRoom)
+        if ($chatRoom) {
             $chatRoom->destroy();
+        }
 
         // Delete from DB
-        if ($chat)
+        if ($chat) {
             $chat->delete();
+        }
 
         return response()->json([
             "errors" => false,
@@ -257,8 +243,7 @@ class ChatController extends Controller
         $chatManager = getChatManager();
         $chatRoom = $chatManager->getChatRoomByUUID($uuid);
 
-        if ($chatRoom)
-        {
+        if ($chatRoom) {
             // TODO: Update user quota (questions + 1)
 
             $chatRoom->stopAgent();
@@ -282,24 +267,23 @@ class ChatController extends Controller
         $selected_plugins = json_decode($settings["SELECTED_PLUGINS"]);
 
         $payload = [
-            "openai_key"                    => $settings["OPENAI_API_KEY"],
+            "openai_key" => $settings["OPENAI_API_KEY"],
 
-            "chat_agent_model"              => $settings["CHAT_AGENT_MODEL"],
-            "chat_agent_model_temp"         => $settings["CHAT_AGENT_MODEL_TEMP"],
+            "chat_agent_model" => $settings["CHAT_AGENT_MODEL"],
+            "chat_agent_model_temp" => $settings["CHAT_AGENT_MODEL_TEMP"],
 
-            "chat_tools_model"              => $settings["CHAT_TOOLS_MODEL"],
-            "chat_tools_model_temp"         => $settings["CHAT_TOOLS_MODEL_TEMP"],
+            "chat_tools_model" => $settings["CHAT_TOOLS_MODEL"],
+            "chat_tools_model_temp" => $settings["CHAT_TOOLS_MODEL_TEMP"],
 
-            "chat_planner_agent_model"      => $settings["CHAT_PLANNER_AGENT_MODEL"],
+            "chat_planner_agent_model" => $settings["CHAT_PLANNER_AGENT_MODEL"],
             "chat_planner_agent_model_temp" => $settings["CHAT_PLANNER_AGENT_MODEL_TEMP"],
 
-            "selected_plugins"              => $selected_plugins, # Convert to PHP array
+            "selected_plugins" => $selected_plugins, # Convert to PHP array
         ];
 
         // inform Rapid website.
         $chatManager = getChatManager();
-        if ($chatManager->updateAIModelSettings($payload))
-        {
+        if ($chatManager->updateAIModelSettings($payload)) {
             return response()->json([
                 "errors" => false,
                 "message" => "Updated successfully."

@@ -6,7 +6,6 @@ use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use App\Models\Setting;
 
-
 class SettingsSeeder extends Seeder
 {
     /**
@@ -73,8 +72,7 @@ class SettingsSeeder extends Seeder
         ];
 
         // Delete the options that need to be updated
-        foreach ($override_options as $value)
-        {
+        foreach ($override_options as $value) {
             Setting::where("name", $value)->delete();
         }
 
@@ -83,14 +81,13 @@ class SettingsSeeder extends Seeder
         $settingsKeys = array_keys($settings);
 
         // Delete the keys
-        foreach ($override_options as $value)
-        {
+        foreach ($override_options as $value) {
             if (($key = array_search($value, $settingsKeys)) !== false) {
                 unset($settingsKeys[$key]);
             }
         }
 
-        $newSettingsToInsert = array_filter($data, fn($option) => !in_array($option["name"], $settingsKeys) );
+        $newSettingsToInsert = array_filter($data, fn ($option) => !in_array($option["name"], $settingsKeys));
 
         // Insert new settings
         Setting::insert($newSettingsToInsert);

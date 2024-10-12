@@ -3,16 +3,13 @@
 namespace App\Http\Controllers\Webhooks;
 
 use Illuminate\Http\Request;
-
 use App\Models\Subscription;
 use App\Models\Invoice;
 use App\Models\User;
 use App\Packages\Gateways\PayPal\Webhook;
 use App\Packages\Gateways\PayPal\WebhookManager;
 use App\Http\Controllers\Webhooks\WebhookController;
-
 use Carbon\Carbon;
-
 
 class PayPalWebhookController extends WebhookController
 {
@@ -26,54 +23,40 @@ class PayPalWebhookController extends WebhookController
 
         # WebhookLog($payload->event_type . " Called");
 
-        if ($verified)
-        {
-            if ($payload->event_type === "BILLING.SUBSCRIPTION.ACTIVATED")
-            {
+        if ($verified) {
+            if ($payload->event_type === "BILLING.SUBSCRIPTION.ACTIVATED") {
                 # $paypalSubscription = $paypal->getSubscriptionById($payload->resource->id);
                 $subscription = Subscription::where("gateway_subscription_id", $payload->resource->id)->first();
-                if ($subscription)
-                {
+                if ($subscription) {
                     $subscription->status = Subscription::ACTIVE;
                     $subscription->save();
                     # WebhookLog("Subscription: active");
                 }
-            }
-            else if ($payload->event_type === "BILLING.SUBSCRIPTION.EXPIRED")
-            {
+            } elseif ($payload->event_type === "BILLING.SUBSCRIPTION.EXPIRED") {
                 # $paypalSubscription = $paypal->getSubscriptionById($payload->resource->id);
                 $subscription = Subscription::where("gateway_subscription_id", $payload->resource->id)->first();
-                if ($subscription)
-                {
+                if ($subscription) {
                     $subscription->status = Subscription::EXPIRED;
                     $subscription->save();
                     # WebhookLog("Subscription: expired");
                 }
-            }
-            else if ($payload->event_type === "BILLING.SUBSCRIPTION.CANCELLED")
-            {
+            } elseif ($payload->event_type === "BILLING.SUBSCRIPTION.CANCELLED") {
                 # $paypalSubscription = $paypal->getSubscriptionById($payload->resource->id);
                 $subscription = Subscription::where("gateway_subscription_id", $payload->resource->id)->first();
-                if ($subscription)
-                {
+                if ($subscription) {
                     $subscription->status = Subscription::CANCELED;
                     $subscription->save();
                     # WebhookLog("Subscription: canceled");
                 }
-            }
-            else if ($payload->event_type === "BILLING.SUBSCRIPTION.SUSPENDED")
-            {
+            } elseif ($payload->event_type === "BILLING.SUBSCRIPTION.SUSPENDED") {
                 # $paypalSubscription = $paypal->getSubscriptionById($payload->resource->id);
                 $subscription = Subscription::where("gateway_subscription_id", $payload->resource->id)->first();
-                if ($subscription)
-                {
+                if ($subscription) {
                     $subscription->status = Subscription::SUSPENDED;
                     $subscription->save();
                     # WebhookLog("Subscription: suspended");
                 }
-            }
-            else if ($payload->event_type === "PAYMENT.SALE.COMPLETED")
-            {
+            } elseif ($payload->event_type === "PAYMENT.SALE.COMPLETED") {
                 // Do Nothing
             }
 

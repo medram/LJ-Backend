@@ -7,7 +7,6 @@ use Illuminate\Database\Seeder;
 use Database\Seeders\SettingsSeeder;
 use Database\Seeders\PagesSeeder;
 
-
 class DatabaseSeeder extends Seeder
 {
     /**

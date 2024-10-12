@@ -5,11 +5,9 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Log;
-
 use App\Models\Plan;
 use App\Models\Subscription;
 use App\Rules\StripTagsRule;
-
 
 class PlansController extends Controller
 {
@@ -29,8 +27,8 @@ class PlansController extends Controller
     public function add(Request $request)
     {
         $request->validate([
-            "name" => ["string", "required", "max:50", new StripTagsRule],
-            "description" => ["string", "nullable", "max:50", new StripTagsRule],
+            "name" => ["string", "required", "max:50", new StripTagsRule()],
+            "description" => ["string", "nullable", "max:50", new StripTagsRule()],
             "price" => "numeric|min:0",
             "is_popular" => "boolean",
             "is_free" => "boolean",
@@ -49,21 +47,21 @@ class PlansController extends Controller
             $plan = Plan::create($request->all());
 
             // set "is_free" = true if the price = 0
-            if ($plan->price == 0)
-            {
+            if ($plan->price == 0) {
                 $plan->is_free = true;
                 $plan->save();
             }
 
-            if (!$plan->isFree())
-            {
+            if (!$plan->isFree()) {
                 // Create PayPal Plan (if Payment gateway was setup)
-                if (getSetting("PM_PAYPAL_CLIENT_ID") && getSetting("PM_PAYPAL_CLIENT_SECRET"))
+                if (getSetting("PM_PAYPAL_CLIENT_ID") && getSetting("PM_PAYPAL_CLIENT_SECRET")) {
                     getOrCreatePaypalPlan($plan);
+                }
 
                 // Create Stripe Plan (if Payment gateway was setup)
-                if (getSetting("PM_STRIP_SECRET_KEY") && getSetting("PM_STRIP_SECRET_KEY_TEST"))
+                if (getSetting("PM_STRIP_SECRET_KEY") && getSetting("PM_STRIP_SECRET_KEY_TEST")) {
                     getOrCreateStripePlan($plan);
+                }
 
             }
 
@@ -86,11 +84,10 @@ class PlansController extends Controller
     {
         $plan = plan::where(['id' => $id, 'soft_delete' => 0])->get()->first();
 
-        if ($plan)
-        {
+        if ($plan) {
             $request->validate([
-                "name" => ["string", "required", "max:50", new StripTagsRule],
-                "description" => ["string", "nullable", "max:50", new StripTagsRule],
+                "name" => ["string", "required", "max:50", new StripTagsRule()],
+                "description" => ["string", "nullable", "max:50", new StripTagsRule()],
                 "price" => "numeric|min:0",
                 "is_popular" => "boolean",
                 "is_free" => "boolean",
@@ -109,23 +106,19 @@ class PlansController extends Controller
                 $plan->update($request->all());
 
                 // Update PayPal plan (pricing & status)
-                if ($plan->paypal_plan_id && !$plan->isFree())
-                {
+                if ($plan->paypal_plan_id && !$plan->isFree()) {
                     $paypal = getPayPalGateway();
                     $paypalPlan = $paypal->getPlanById($plan->paypal_plan_id);
-                    if ($paypalPlan)
-                    {
+                    if ($paypalPlan) {
                         // update paypal plan pricing
-                        if ($paypalPlan->getPrice() != $plan->price)
+                        if ($paypalPlan->getPrice() != $plan->price) {
                             $paypalPlan->updatePricing($plan->price);
+                        }
 
                         // Update plan status
-                        if ($plan->status == 1 && $paypalPlan->status == "INACTIVE")
-                        {
+                        if ($plan->status == 1 && $paypalPlan->status == "INACTIVE") {
                             $paypalPlan->activate();
-                        }
-                        else if ($plan->status == 0 && $paypalPlan->status == "ACTIVE")
-                        {
+                        } elseif ($plan->status == 0 && $paypalPlan->status == "ACTIVE") {
                             $paypalPlan->deactivate();
                         }
                     }
@@ -133,27 +126,22 @@ class PlansController extends Controller
                 }
 
                 // Update Stripe Plan (pricing & status)
-                if ($plan->stripe_plan_id && !$plan->isFree())
-                {
+                if ($plan->stripe_plan_id && !$plan->isFree()) {
                     $stripePlan = getStripePlanById($plan->stripe_plan_id);
                     $stripeProduct = getStripeProduct();
 
-                    if ($stripePlan)
-                    {
+                    if ($stripePlan) {
                         $currency = strtolower(getSetting("CURRENCY"));
 
-                        if ($plan->price * 100 == $stripePlan->unit_amount)
-                        {
+                        if ($plan->price * 100 == $stripePlan->unit_amount) {
                             # Update just Plan status
-                            updateStripePlan($stripePlan->id, ["active" => (boolean)$plan->status]);
-                        }
-                        else
-                        {
+                            updateStripePlan($stripePlan->id, ["active" => (bool)$plan->status]);
+                        } else {
                             #### the price changed, so let's create a new Plan.
                             # Delete/archive the Plan
                             updateStripePlan($stripePlan->id, ["active" => false]);
                             # Let's create a new Plan
-                            $cycle = $plan->billing_cycle === "monthly"? "month" : "year";
+                            $cycle = $plan->billing_cycle === "monthly" ? "month" : "year";
 
                             $stripePlan = createStripePlan([
                                 "active"            => !!$plan->status,
@@ -167,8 +155,7 @@ class PlansController extends Controller
                             ]);
 
                             # Update the db_plan
-                            if ($stripePlan)
-                            {
+                            if ($stripePlan) {
                                 $plan->stripe_plan_id = $stripePlan->id;
                                 $plan->save();
                             }
@@ -203,23 +190,19 @@ class PlansController extends Controller
         $id = $request->json("id");
         $plan = Plan::where(['id' => $id, 'soft_delete' => 0])->first();
 
-        if ($plan)
-        {
+        if ($plan) {
             $plan->update([
                 'soft_delete' => 1,
                 'status' => 0
             ]);
 
-            if (!$plan->isFree())
-            {
+            if (!$plan->isFree()) {
                 // Deactivate PayPal plan
-                if ($plan->paypal_plan_id)
-                {
+                if ($plan->paypal_plan_id) {
                     $paypal = getPayPalGateway();
                     $paypalPlan = $paypal->getPlanById($plan->paypal_plan_id);
 
-                    if ($paypalPlan)
-                    {
+                    if ($paypalPlan) {
                         try {
                             $paypalPlan->deactivate();
                         } catch (\Exception $e) {
@@ -230,8 +213,7 @@ class PlansController extends Controller
                 }
 
                 // Delete Stripe Plan (or make as archive)
-                if ($plan->stripe_plan_id)
-                {
+                if ($plan->stripe_plan_id) {
                     # Delete/archive the Plan
                     updateStripePlan($plan->stripe_plan_id, ["active" => false]);
                 }
@@ -242,28 +224,23 @@ class PlansController extends Controller
                     "status"    => 1, // active subscriptions
                 ])->get();
 
-                foreach($subscriptions as $sub)
-                {
+                foreach ($subscriptions as $sub) {
                     // if it's PayPal subscription
-                    if ($sub->payment_gateway == "PAYPAL")
-                    {
+                    if ($sub->payment_gateway == "PAYPAL") {
                         $paypalSubscription = $paypal->getSubscriptionById($sub->gateway_subscription_id);
-                        if ($paypalSubscription)
-                        {
+                        if ($paypalSubscription) {
                             try {
                                 $paypalSubscription->cancel();
-                            } catch (\Exception $e){
+                            } catch (\Exception $e) {
                                 // it's fine, do nothing or maybe log it.
                                 Log::error($e);
                             }
                         }
-                    }
-                    else if ($sub->payment_gateway == "STRIPE")
-                    {
+                    } elseif ($sub->payment_gateway == "STRIPE") {
                         // Cancel all stripe subscriptions for this plan
                         try {
                             cancelStripeSubscriptionById($sub->gateway_subscription_id);
-                        } catch (\Exception $e){
+                        } catch (\Exception $e) {
                             // it's fine, do nothing or maybe log it.
                             Log::error($e);
                         }

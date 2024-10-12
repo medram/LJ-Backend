@@ -2,7 +2,6 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\CommonController;
 use App\Http\Controllers\CustomerController;
@@ -19,7 +18,6 @@ use App\Http\Controllers\Webhooks\PayPalWebhookController;
 use App\Http\Controllers\Webhooks\StripeWebhookController;
 use App\Http\Controllers\GatewaySynchronizers\PayPalSynchronizerController;
 use App\Http\Controllers\GatewaySynchronizers\StripeSynchronizerController;
-
 use App\Http\Middleware\UserRequired;
 use App\Http\Middleware\AdminRequired;
 
@@ -34,7 +32,7 @@ use App\Http\Middleware\AdminRequired;
 |
 */
 
-Route::prefix('v1')->group(function (){
+Route::prefix('v1')->group(function () {
 
     // Auth stuff!
     Route::post('/auth', [UserController::class, 'login'])->name('auth.login');
@@ -61,14 +59,14 @@ Route::prefix('v1')->group(function (){
     Route::post("/webhook/stripe", [StripeWebhookController::class, "handle"]);
 
     // Checkout section
-    Route::middleware([UserRequired::class])->group(function (){
+    Route::middleware([UserRequired::class])->group(function () {
 
         Route::post('/checkout', [CheckoutController::class, "index"])->name("checkout");
         Route::post('/auth/user', [UserController::class, 'currentUser'])->name('auth.user');
     });
 
     // Users section
-    Route::prefix('user')->middleware([UserRequired::class])->group(function (){
+    Route::prefix('user')->middleware([UserRequired::class])->group(function () {
         Route::get('/', [UserController::class, 'dashboard']);
 
         Route::get('profile', [UserController::class, 'profile']);
@@ -94,7 +92,7 @@ Route::prefix('v1')->group(function (){
     });
 
     // Admin section
-    Route::prefix('admin')->middleware([AdminRequired::class])->group(function (){
+    Route::prefix('admin')->middleware([AdminRequired::class])->group(function () {
         Route::get('analytics', [AnalyticsController::class, "analytics"]);
 
         Route::get('customers', [CustomerController::class, 'customers']);

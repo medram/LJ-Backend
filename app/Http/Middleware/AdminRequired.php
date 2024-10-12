@@ -5,14 +5,11 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
-
 use App\Models\User;
 use App\Models\AccessToken;
 use App\Packages\LC\LCManager;
 use Carbon\Carbon;
-
 use Auth;
-
 
 // Admin Required Middleware
 class AdminRequired
@@ -27,16 +24,13 @@ class AdminRequired
         $token = trim(str_ireplace("Bearer ", "", $request->header('Authorization')));
         $accessToken = AccessToken::where("token", hash("sha256", $token))->first();
 
-        if ($accessToken && ($accessToken->expires_at == null || Carbon::now()->lt($accessToken->expires_at)))
-        {
+        if ($accessToken && ($accessToken->expires_at == null || Carbon::now()->lt($accessToken->expires_at))) {
             $user = $accessToken->user;
 
-            if ($user && $user->is_active && $user->isAdmin())
-            {
+            if ($user && $user->is_active && $user->isAdmin()) {
                 $lcManager = LCManager::getInstance();
 
-                if (!$lcManager->check())
-                {
+                if (!$lcManager->check()) {
                     return response()->json([
                         'error' => true,
                         'message' => base64_decode("SW52YWxpZCBMaWNlbnNlIENvZGUK")
@@ -48,12 +42,11 @@ class AdminRequired
 
                 return $next($request);
             }
-        }
-        else
-        {
+        } else {
             // delete the expired access token
-            if ($accessToken)
+            if ($accessToken) {
                 $accessToken->delete();
+            }
         }
 
         return response()->json([

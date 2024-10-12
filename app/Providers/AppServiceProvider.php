@@ -22,8 +22,8 @@ class AppServiceProvider extends ServiceProvider
     {
         // Fix the db index length for migrations
         Schema::defaultStringLength(191);
-        
-        if($this->app->environment('production')) {
+
+        if ($this->app->environment('production')) {
             \URL::forceScheme('https');
         }
     }

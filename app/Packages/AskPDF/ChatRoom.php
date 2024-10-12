@@ -4,108 +4,104 @@ namespace App\Packages\AskPDF;
 
 use App\Packages\AskPDF\AskPDFClient;
 
-
 class ChatRoom
 {
-	public $uuid = "";
-	public $chat_history = "";
-	public $updated = "";
-	public $created = "";
+    public $uuid = "";
+    public $chat_history = "";
+    public $updated = "";
+    public $created = "";
 
-	private $_askpdfClient = null;
-
-
-	public function __construct(string $uuid)
-	{
-		$this->uuid = $uuid;
-	}
-
-	public function registerClient(AskPDFClient $client)
-	{
-		$this->_askpdfClient = $client;
-	}
+    private $_askpdfClient = null;
 
 
-	public function clearHistory()
-	{
-		$req = $this->_askpdfClient->client->request("POST", "chat/{$this->uuid}/clear-history", [
-			'http_errors' => false
-		]);
+    public function __construct(string $uuid)
+    {
+        $this->uuid = $uuid;
+    }
 
-		if ($req->getStatusCode() === 204)
-			return true;
-		return false;
-	}
+    public function registerClient(AskPDFClient $client)
+    {
+        $this->_askpdfClient = $client;
+    }
 
-	public function destroy()
-	{
-		$req = $this->_askpdfClient->client->request("DELETE", "chat/{$this->uuid}/delete", [
-			'http_errors' => false
-		]);
 
-		if ($req->getStatusCode() === 204)
-			return true;
-		return false;
-	}
+    public function clearHistory()
+    {
+        $req = $this->_askpdfClient->client->request("POST", "chat/{$this->uuid}/clear-history", [
+            'http_errors' => false
+        ]);
 
-	public function details()
-	{
-		$req = $this->_askpdfClient->client->request("GET", "chat/{$this->uuid}/detail", [
-			'http_errors' => false
-		]);
+        if ($req->getStatusCode() === 204) {
+            return true;
+        }
+        return false;
+    }
 
-		if ($req->getStatusCode() === 200)
-		{
-			$result = json_decode($req->getBody());
-			# $this->setResult($result);
+    public function destroy()
+    {
+        $req = $this->_askpdfClient->client->request("DELETE", "chat/{$this->uuid}/delete", [
+            'http_errors' => false
+        ]);
 
-			# Update object details
-			$this->chat_history = $result->chat_history;
-			$this->updated = $result->updated;
-			$this->created = $result->created;
+        if ($req->getStatusCode() === 204) {
+            return true;
+        }
+        return false;
+    }
 
-			return $result;
-		}
+    public function details()
+    {
+        $req = $this->_askpdfClient->client->request("GET", "chat/{$this->uuid}/detail", [
+            'http_errors' => false
+        ]);
 
-		return false;
-	}
+        if ($req->getStatusCode() === 200) {
+            $result = json_decode($req->getBody());
+            # $this->setResult($result);
 
-	public function send(string $prompt)
-	{
-		$req = $this->_askpdfClient->client->request("POST", "chat/{$this->uuid}", [
-			"json" => [
-				"prompt" => $prompt
-			],
-			'http_errors' => false
-		]);
+            # Update object details
+            $this->chat_history = $result->chat_history;
+            $this->updated = $result->updated;
+            $this->created = $result->created;
 
-		if ($req->getStatusCode() === 200)
-		{
-			$response = json_decode($req->getBody());
-			return $response;
-		}
-		else if ($req->getStatusCode() === 400)
-		{
-			$response = json_decode($req->getBody());
-			throw new \Exception($response->detail);
-		}
+            return $result;
+        }
 
-		return null;
-	}
+        return false;
+    }
 
-	public function stopAgent()
-	{
-		// TODO: stoping the chat room agent
-		$req = $this->_askpdfClient->client->request("POST", "chat/{$this->uuid}/stop", [
-			'http_errors' => false
-		]);
+    public function send(string $prompt)
+    {
+        $req = $this->_askpdfClient->client->request("POST", "chat/{$this->uuid}", [
+            "json" => [
+                "prompt" => $prompt
+            ],
+            'http_errors' => false
+        ]);
 
-		if ($req->getStatusCode() === 204)
-		{
-			return true;
-		}
+        if ($req->getStatusCode() === 200) {
+            $response = json_decode($req->getBody());
+            return $response;
+        } elseif ($req->getStatusCode() === 400) {
+            $response = json_decode($req->getBody());
+            throw new \Exception($response->detail);
+        }
 
-		return false;
-	}
+        return null;
+    }
+
+    public function stopAgent()
+    {
+        // TODO: stoping the chat room agent
+        $req = $this->_askpdfClient->client->request("POST", "chat/{$this->uuid}/stop", [
+            'http_errors' => false
+        ]);
+
+        if ($req->getStatusCode() === 204) {
+            return true;
+        }
+
+        return false;
+    }
 
 }

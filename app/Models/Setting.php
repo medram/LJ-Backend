@@ -17,23 +17,23 @@ class Setting extends Model
         "HEAD_CODE",
     ];
 
-    public static function getSetting($key, bool $refresh=false)
+    public static function getSetting($key, bool $refresh = false)
     {
-        if (isset(Setting::$all_settings[$key]) && !$refresh)
+        if (isset(Setting::$all_settings[$key]) && !$refresh) {
             return Setting::$all_settings[$key];
+        }
 
         // refresh settings then get the value
         //return $this::where('name', $key)->first();
         Setting::getAllSettings();
 
-        return isset(Setting::$all_settings[$key])? Setting::$all_settings[$key] : null;
+        return isset(Setting::$all_settings[$key]) ? Setting::$all_settings[$key] : null;
     }
 
     public static function getAllSettings()
     {
         // reformat it as a JSON.
-        foreach(Setting::all() as $setting)
-        {
+        foreach (Setting::all() as $setting) {
             $value = self::parse_value($setting);
 
             Setting::$all_settings[$setting->name] = $value;
@@ -53,30 +53,35 @@ class Setting extends Model
         // avoid returning null values.
         $value = $setting->value === null ? "" : $setting->value;
 
-        if ($setting->type === "boolean")
-            $value = ($value == "0" or $value == "false")? false : true;
-        else if ($setting->type === "int" or $setting->type === "integer")
+        if ($setting->type === "boolean") {
+            $value = ($value == "0" or $value == "false") ? false : true;
+        } elseif ($setting->type === "int" or $setting->type === "integer") {
             $value = (int)$value;
-        else if ($setting->type === "float")
+        } elseif ($setting->type === "float") {
             $value = (float)$value;
+        }
 
         return $value;
     }
 
-    public static function filterInput($name, $value, $type="string")
+    public static function filterInput($name, $value, $type = "string")
     {
 
-        if (in_array($name, self::$ACCEPT_HTML))
+        if (in_array($name, self::$ACCEPT_HTML)) {
             return $value;
+        }
 
-        if ($type === "bool" or $type === "boolean")
+        if ($type === "bool" or $type === "boolean") {
             return $value == 0 ? 0 : 1;
+        }
 
-        if ($type === "int" or $type === "integer")
+        if ($type === "int" or $type === "integer") {
             return intval($value);
+        }
 
-        if ($type === "float")
+        if ($type === "float") {
             return (float)$value;
+        }
 
         return strip_tags($value);
     }
@@ -86,8 +91,7 @@ class Setting extends Model
         $types = self::getTypes();
         $filtered_fields = [];
 
-        foreach ($fields as $name => $value)
-        {
+        foreach ($fields as $name => $value) {
             $type = $types[$name];
             $filtered_fields[$name] = self::filterInput($name, $value, $type);
         }
@@ -99,8 +103,7 @@ class Setting extends Model
     {
         $all_settings = Setting::all();
         $types = [];
-        foreach($all_settings as $setting)
-        {
+        foreach ($all_settings as $setting) {
             $types[$setting->name] = $setting->type;
         }
         return $types;

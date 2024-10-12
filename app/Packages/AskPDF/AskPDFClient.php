@@ -4,43 +4,44 @@ namespace App\Packages\AskPDF;
 
 use App\Packages\AskPDF\ChatRoom;
 
+class AskPDFClient
+{
+    private $_config = [];
+    public $client = null;
 
-class AskPDFClient {
+    public function __construct(array $config)
+    {
+        $this->_config = $config;
 
-	private $_config = [];
-	public $client = null;
+        $this->client = new \GuzzleHttp\Client([
+            "base_uri" => $this->getBaseUrl(),
+            "headers" => [
+                "X-RapidAPI-Key"	=> $this->_config["RAPID_API_KEY"],
+                "X-RapidAPI-Host"	=> $this->_config["RAPID_API_HOST"],
+                "Accept"			=> "application/json",
+                "X-RapidAPI-Client-Key" => hash("sha256", $this->_config["RAPID_API_KEY"]),
+            ]
+        ]);
+    }
 
-	public function __construct(Array $config)
-	{
-		$this->_config = $config;
+    public function getBaseUrl()
+    {
+        if (env("RAPID_API_URL") && env("RAPID_API_URL") != "") {
+            return env("RAPID_API_URL");
+        }
+        return "https://{$this->_config["RAPID_API_HOST"]}/api/v1/";
+    }
 
-		$this->client = new \GuzzleHttp\Client([
-			"base_uri" => $this->getBaseUrl(),
-			"headers" => [
-				"X-RapidAPI-Key"	=> $this->_config["RAPID_API_KEY"],
-				"X-RapidAPI-Host"	=> $this->_config["RAPID_API_HOST"],
-				"Accept"			=> "application/json",
-				"X-RapidAPI-Client-Key" => hash("sha256", $this->_config["RAPID_API_KEY"]),
-			]
-		]);
-	}
+    public function registerOpenAIKey($openai_key)
+    {
+        $req = $this->client->request("POST", "/openai-key/update", [
+            'http_errors' => false
+        ]);
 
-	public function getBaseUrl()
-	{
-		if (env("RAPID_API_URL") && env("RAPID_API_URL") != "")
-			return env("RAPID_API_URL");
-		return "https://{$this->_config["RAPID_API_HOST"]}/api/v1/";
-	}
+        if ($req->getStatusCode() === 201) {
+            return true;
+        }
 
-	public function registerOpenAIKey($openai_key)
-	{
-		$req = $this->client->request("POST", "/openai-key/update", [
-			'http_errors' => false
-		]);
-
-		if ($req->getStatusCode() === 201)
-			return true;
-
-		return false;
-	}
+        return false;
+    }
 }

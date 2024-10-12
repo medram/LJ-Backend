@@ -3,12 +3,10 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-
 use App\Models\Plan;
 use App\Models\Page;
 use App\Rules\StripTagsRule;
 use App\Packages\LC\LCManager;
-
 use Mail;
 
 $settings = getAllSettings();
@@ -35,8 +33,7 @@ class CommonController extends Controller
     {
         $payment_mothods = [];
 
-        if (getSetting("PM_PAYPAL_STATUS") == true)
-        {
+        if (getSetting("PM_PAYPAL_STATUS") == true) {
             $payment_mothods[] = [
                 "name"      => "PayPal",
                 "type"      => "PAYPAL",
@@ -45,8 +42,7 @@ class CommonController extends Controller
             ];
         }
 
-        if (getSetting("PM_STRIP_STATUS") == true)
-        {
+        if (getSetting("PM_STRIP_STATUS") == true) {
             $payment_mothods[] = [
                 "name"      => "Stripe",
                 "type"      => "STRIPE",
@@ -65,8 +61,8 @@ class CommonController extends Controller
     {
         $request->validate([
             "email"     => "required|email",
-            "subject"   => ["required", "string", "min:6", "max:60", new StripTagsRule],
-            "message"   => ["required", "string", "min:20", "max:512", new StripTagsRule]
+            "subject"   => ["required", "string", "min:6", "max:60", new StripTagsRule()],
+            "message"   => ["required", "string", "min:20", "max:512", new StripTagsRule()]
         ]);
 
         $data = (object)$request->all();
@@ -101,8 +97,7 @@ class CommonController extends Controller
         $pages = Page::where("status", 1)->get();
 
         # Don't return page contents
-        foreach($pages as $k => $page)
-        {
+        foreach ($pages as $k => $page) {
             $pages[$k]->content = "";
         }
 
@@ -121,8 +116,7 @@ class CommonController extends Controller
             "slug" => $slug
         ])->first();
 
-        if ($page)
-        {
+        if ($page) {
             return response()->json([
                 "errors" => false,
                 "page"  => $page
@@ -145,7 +139,7 @@ class CommonController extends Controller
         $email = $fields["email"];
 
         try {
-            Mail::raw("This is just a test email message :D, that's great, it seems working ;D", function ($message) use($email) {
+            Mail::raw("This is just a test email message :D, that's great, it seems working ;D", function ($message) use ($email) {
                 $message->to($email);
                 //$message->replyTo($settings['SMTP_USER'], $settings['SITE_NAME']);
                 $message->subject("Test email message");
@@ -167,8 +161,7 @@ class CommonController extends Controller
     {
         $lcManager = LCManager::getInstance();
 
-        if ($lcManager->check())
-        {
+        if ($lcManager->check()) {
             return response()->json([
                 'errors' => false,
                 'message' => "LCD"
@@ -184,8 +177,7 @@ class CommonController extends Controller
     // Inform frontend with demo status
     public function demo(Request $request)
     {
-        if (isDemo())
-        {
+        if (isDemo()) {
             return response()->json([
                 "errors" => false,
                 "status" => true
@@ -203,8 +195,7 @@ class CommonController extends Controller
         $lcManager = LCManager::getInstance();
         $info = $lcManager->LCInfo();
 
-        if ($info)
-        {
+        if ($info) {
             return response()->json([
                 'errors' => false,
                 'info' => base64_encode(base64_encode(json_encode($info)))
