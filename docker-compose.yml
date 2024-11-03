@@ -12,12 +12,13 @@ services:
             - "${VITE_PORT:-5173}:${VITE_PORT:-5173}"
         # env_file:
         #     - .env.dev
-        environment:
-            DB_HOST: host.docker.internal
+        # environment:
+        #     DB_HOST: host.docker.internal
         volumes:
             - .:/var/www/html
         networks:
             - askpdf
+            - dev_network
         restart: unless-stopped
         extra_hosts:
             - "host.docker.internal:host-gateway"
@@ -25,4 +26,7 @@ services:
 
 networks:
     askpdf:
+    dev_network:
+        external: true
+        
 
