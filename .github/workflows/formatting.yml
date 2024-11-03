@@ -1,0 +1,31 @@
+name: Code Linting and Format Checking
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+    branches:
+      - main
+      - master
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.2
+
+      - name: Install dependencies
+        run: composer install --prefer-dist -n --no-cache --no-scripts 
+
+      - name: Linting
+        run: make lint
+
+      - name: Formatting
+        run: make format
