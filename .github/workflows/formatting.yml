@@ -1,4 +1,4 @@
-name: Code Linting and Format Checking
+name: CI
 
 on:
   push:
@@ -12,6 +12,7 @@ on:
 
 jobs:
   check:
+    name: Code Linting & Format Checking
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
