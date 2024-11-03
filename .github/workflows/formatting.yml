@@ -28,4 +28,4 @@ jobs:
         run: make lint
 
       - name: Formatting
-        run: make format
+        run: make check

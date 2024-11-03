@@ -4,7 +4,6 @@ namespace App\Packages\AskPDF;
 
 use App\Packages\AskPDF\ChatRoom;
 
-
 class AskPDFClient
 {
     private $_config = [];
@@ -35,7 +34,7 @@ class AskPDFClient
         if ($this->_isValidURL($this->_config["RAPID_API_HOST"])) {
             return $this->_config["RAPID_API_HOST"];
         }
-        
+
         return "https://{$this->_config["RAPID_API_HOST"]}/api/v1/";
     }
 
@@ -52,10 +51,11 @@ class AskPDFClient
         return false;
     }
 
-    private function _isValidURL(string $url) {
+    private function _isValidURL(string $url)
+    {
         // Parse the URL
         $parsedUrl = parse_url($url);
-        
+
         // Check if the scheme is http or https and if the host is valid
         if (isset($parsedUrl['scheme']) && in_array($parsedUrl['scheme'], ['http', 'https'])) {
             // Check if the host is valid
@@ -65,5 +65,5 @@ class AskPDFClient
         }
         return false; // Invalid URL or domain
     }
-    
+
 }
