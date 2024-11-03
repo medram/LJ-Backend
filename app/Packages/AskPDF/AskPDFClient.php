@@ -4,7 +4,6 @@ namespace App\Packages\AskPDF;
 
 use App\Packages\AskPDF\ChatRoom;
 
-string $username = 15;
 
 class AskPDFClient
 {
