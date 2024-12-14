@@ -25,7 +25,7 @@ class AskPDFClient
     }
 
     public function getBaseUrl()
-    {
+    {        
         if (env("RAPID_API_URL") && $this->_isValidURL(env("RAPID_API_URL"))) {
             return env("RAPID_API_URL");
         }
@@ -59,7 +59,7 @@ class AskPDFClient
         // Check if the scheme is http or https and if the host is valid
         if (isset($parsedUrl['scheme']) && in_array($parsedUrl['scheme'], ['http', 'https'])) {
             // Check if the host is valid
-            if (isset($parsedUrl['host']) && filter_var($parsedUrl['host'], FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)) {
+            if (isset($parsedUrl['host']) && filter_var($parsedUrl['host'], FILTER_VALIDATE_DOMAIN)) {
                 return true; // Valid HTTP/HTTPS URL with a valid domain
             }
         }

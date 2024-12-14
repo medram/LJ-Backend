@@ -12,8 +12,6 @@ services:
             - "${VITE_PORT:-5173}:${VITE_PORT:-5173}"
         # env_file:
         #     - .env.dev
-        # environment:
-        #     DB_HOST: host.docker.internal
         volumes:
             - .:/var/www/html
         networks:
