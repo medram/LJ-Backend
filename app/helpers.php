@@ -313,7 +313,7 @@ function isDemo()
 // Return app version.
 function getAppVersion()
 {
-    return "2.0.2";
+    return "2.0.3";
 }
 
 // Return installation status.
