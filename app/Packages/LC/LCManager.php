@@ -94,17 +94,16 @@ class LCManager
         $agent = $agents[array_rand($agents)];
 
         curl_setopt_array($ch, [
-            CURLOPT_URL => trim(base64_decode("aHR0cDovL2xpY2Vuc2UubXI0d2ViLmNvbS9hcGkvY2hlY2tfbGljZW5zZS8K")),
-            CURLOPT_SSL_VERIFYPEER => false,
-            CURLOPT_SSL_VERIFYHOST => 0,
+            // CURLOPT_URL => trim(base64_decode("aHR0cDovL2xpY2Vuc2UubXI0d2ViLmNvbS9hcGkvY2hlY2tfbGljZW5zZS8K")),
+            CURLOPT_URL => 'https://license.mr4web.com/api/check_license/',
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_TIMEOUT => 20,
-            CURLOPT_POST => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 30,
             CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_POSTFIELDS => [
-                trim(base64_decode("bGljZW5zZV9jb2RlCg==")) => $EL,
-                "host" => $host
-            ],
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_POSTFIELDS => "license_code={$EL}&host={$host}",
             CURLOPT_HTTPHEADER => [
                 "Authorization: Bearer " . $this->_api_key,
                 "User-Agent: ". $agent
