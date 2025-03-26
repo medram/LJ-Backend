@@ -49,6 +49,7 @@ RUN find . -type d -exec chmod 755 {} \; \
 
 USER www-data
 
-VOLUME /var/www/html
+# No need for this as a volume
+# VOLUME /var/www/html
 
 EXPOSE 80
