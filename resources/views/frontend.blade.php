@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
@@ -11,9 +11,8 @@
     <link rel="manifest" href="/assets/manifest-CpJEptrx.json" />
     <title>{{ $SITE_NAME }}</title>
     {!! $HEAD_CODE !!}
-
-    <script type="module" crossorigin src="/assets/index-BzMLebrc.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-BaKq_akx.css">
+    <script type="module" crossorigin src="/assets/index-1Ib6zYmZ.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-Dq3hqE-8.css">
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
