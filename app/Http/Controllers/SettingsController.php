@@ -27,6 +27,7 @@ class SettingsController extends Controller
         "PM_STRIP_WEBHOOK_ID",
         "RAPID_API_KEY",
         "RAPID_API_HOST",
+        "GOOGLEAI_API_KEY",
         "OPENAI_API_KEY",
         "PM_PAYPAL_WEBHOOK_ID",
         "LICENSE_CODE",

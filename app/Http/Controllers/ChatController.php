@@ -268,6 +268,7 @@ class ChatController extends Controller
 
         $payload = [
             "openai_key" => $settings["OPENAI_API_KEY"],
+            "gemini_key" => $settings["GOOGLEAI_API_KEY"],
 
             "chat_agent_model" => $settings["CHAT_AGENT_MODEL"],
             "chat_agent_model_temp" => $settings["CHAT_AGENT_MODEL_TEMP"],

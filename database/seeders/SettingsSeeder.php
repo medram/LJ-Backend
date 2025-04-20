@@ -56,6 +56,7 @@ class SettingsSeeder extends Seeder
             ["name" => "PM_STRIP_WEBHOOK_ID",   "value" => "",          "type" => "string"],
             ["name" => "RAPID_API_KEY",         "value" => "",          "type" => "string"],
             ["name" => "RAPID_API_HOST",        "value" => "askpdf1.p.rapidapi.com", "type" => "string"],
+            ["name" => "GOOGLEAI_API_KEY",      "value" => "",          "type" => "string"],
             ["name" => "OPENAI_API_KEY",        "value" => "",          "type" => "string"],
             ["name" => "LICENSE_CODE",          "value" => "",          "type" => "string"],
             ["name" => "TRIAL_PLANS",           "value" => "0",         "type" => "int"],
