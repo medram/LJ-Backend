@@ -25,7 +25,7 @@ class AskPDFClient
     }
 
     public function getBaseUrl()
-    {        
+    {
         if (env("RAPID_API_URL") && $this->_isValidURL(env("RAPID_API_URL"))) {
             return env("RAPID_API_URL");
         }
